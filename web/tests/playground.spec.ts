@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 const revision = '17cdf36034677e406033fbf97637b4db1984ca70'
 const model = 'foolish-bandit/cadence-0.8b'
+const cudaRuntime = { device: 'cuda', profile: 'cuda_bf16_fp32' }
 const capturedErrors = new WeakMap<object, string[]>()
 test.beforeEach(async ({ page }) => {
   const errors: string[] = []
@@ -11,7 +12,17 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.route('**/api/health', (route) =>
-    route.fulfill({ json: { status: 'ready', busy: false, inference: 'real', revision } }),
+    route.fulfill({
+      json: {
+        status: 'ready',
+        busy: false,
+        inference: 'real',
+        device: 'cuda',
+        profile: 'cuda_bf16_fp32',
+        limits: { options: 32 },
+        revision,
+      },
+    }),
   )
   await page.route('**/api/predict', async (route) => {
     const request = route.request().postDataJSON()
@@ -42,6 +53,7 @@ test.beforeEach(async ({ page }) => {
         truncated: false,
         model,
         revision,
+        ...cudaRuntime,
       },
     })
   })
@@ -98,6 +110,7 @@ test('JSON validation, loading, recovery and raw result', async ({ page }) => {
         truncated: false,
         model,
         revision,
+        ...cudaRuntime,
       },
     })
   })
@@ -141,4 +154,48 @@ test('responsive screenshots explicitly identify mocked preview', async ({ page 
     fullPage: true,
   })
   expect(consoleErrors).toEqual([])
+})
+
+test('CPU profile is reported and the editor respects its option limit', async ({ page }) => {
+  await page.route('**/api/health', (route) =>
+    route.fulfill({
+      json: {
+        status: 'ready',
+        busy: false,
+        inference: 'real',
+        revision,
+        device: 'cpu',
+        profile: 'cpu_fp32',
+        limits: { options: 16 },
+      },
+    }),
+  )
+  await page.route('**/api/predict', (route) => {
+    const q = route.request().postDataJSON().questions.decision
+    const keys = Object.keys(q.criteria)
+    return route.fulfill({
+      json: {
+        kind: q.type,
+        native_option_ids: keys,
+        probabilities: Object.fromEntries(keys.map((k) => [k, 1 / keys.length])),
+        value: null,
+        tokens: 48,
+        seconds: 0.4,
+        truncated: false,
+        model,
+        revision,
+        ...cudaRuntime,
+        device: 'cpu',
+        profile: 'cpu_fp32',
+      },
+    })
+  })
+  await page.reload()
+  await expect(page.locator('footer')).toContainText('CPU FP32 (experimental)')
+  await expect(page.getByText('3 / 16', { exact: true })).toBeVisible()
+  for (let i = 3; i < 16; i++)
+    await page.getByRole('button', { name: 'Add option', exact: false }).click()
+  await expect(page.getByRole('button', { name: 'Add option', exact: false })).toBeDisabled()
+  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await expect(page.getByText(/precision differs from the public CUDA profile/)).toBeVisible()
 })

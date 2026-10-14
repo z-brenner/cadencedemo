@@ -10,11 +10,11 @@ Probabilities are model outputs, **not calibrated guarantees of correctness**. E
 
 ## Verification status
 
-The local backend uses real inference only. Mocked responses exist solely in automated tests, and screenshot previews label them explicitly. Real end-to-end inference is **pending a coordinated GPU smoke test**; do not interpret passing UI/backend stub tests as model inference validation. See [verification evidence](docs/VERIFICATION.md).
+The local backend uses real inference only. Mocked responses exist solely in automated tests, and screenshot previews label them explicitly. **Real CUDA end-to-end inference passed** for choice, JSON-state Boolean and ordinal score HTTP requests, followed by a real decision in the built UI. The cached smoke used **Torch 2.11.0+cu128**, separately recorded from the published Torch 2.8 profile. CPU adapter selection/integration is tested; **demo end-to-end CPU inference has not been verified**. Passing stub tests are not native CPU inference evidence. See [verification evidence](docs/VERIFICATION.md).
 
 ## Local setup
 
-Requirements: Node.js 22.12+, Python **3.12**, compatible NVIDIA CUDA hardware/driver, and access to Hugging Face on first use. The reviewed public loader requires CUDA and BF16; it **rejects CPU and MPS**. A separately validated CPU runtime can be integrated later; this demo does not claim CPU support.
+Requirements: Node.js 22.12+, Python **3.12**, and access to Hugging Face when preparing the model cache. Default `CADENCE_DEVICE=cuda` uses the public CUDA/BF16 profile and requires compatible NVIDIA hardware/driver. Explicit `CADENCE_DEVICE=cpu` uses the coordinated experimental FP32 port described below. MPS and automatic device fallback are unsupported.
 
 Create an isolated environment in this repository:
 
@@ -26,7 +26,7 @@ python -m pip install -r backend/requirements.txt -r backend/requirements-model.
 npm ci
 ```
 
-The model dependencies match the published CUDA profile. CUDA driver/wheel compatibility is a local requirement. The demo pins the public package at **`17cdf36034677e406033fbf97637b4db1984ca70`**, the documentation correction after release `de5009eeca68c08110e12bcd44c08016c5fe871d`; adapter/head and runtime code are unchanged. Source/config/learned-weight SHA256 hashes are checked against [the manifest](backend/model-manifest.json), including when using a local package directory. The upstream loader also verifies its pinned dependencies and tensor inventory.
+The setup dependencies match the published CUDA profile. The coordinated CPU port used a CUDA-enabled Torch wheel while executing on CPU; other wheel/CPU/OS combinations are not qualified here. CUDA driver/wheel compatibility is a local requirement. The demo pins the public package at **`17cdf36034677e406033fbf97637b4db1984ca70`**, the documentation correction after release `de5009eeca68c08110e12bcd44c08016c5fe871d`; adapter/head and runtime code are unchanged. Source/config/learned-weight SHA256 hashes are checked against [the manifest](backend/model-manifest.json), including when using a local package directory. The upstream loader also verifies its pinned dependencies and tensor inventory.
 
 Start two terminals in this repository:
 
@@ -40,7 +40,7 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173**. Vite proxies `/api` to the backend. Pick an example, edit its state/instructions/criteria and click **Run decision**. The first valid request downloads and loads the pinned model; allow several minutes. Later requests reuse it. Starting either server alone does not load the model or occupy the GPU.
+Open **http://127.0.0.1:5173**. Vite proxies `/api` to the backend. Pick an example, edit its state/instructions/criteria and click **Run decision**. The first valid CUDA request downloads and loads the pinned model; allow several minutes. CPU is cached-only and reconstructs its FP32 model on first use. Later requests reuse it. Starting either server alone does not load the model or occupy the GPU.
 
 Fresh use downloads approximately **1.8 GB** of upstream artifacts, plus the ~24 MB Cadence package. The model card reports observed CUDA allocation near 1.6 GiB on its test hardware; this is not a memory requirement guarantee. Inputs and surrounding GPU workloads affect memory and latency. Coordinate shared GPU use before starting inference.
 
@@ -58,6 +58,40 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 
 The package directory must match every manifest hash; arbitrary or modified runtimes are rejected before import. `HF_HUB_OFFLINE=1` also stops upstream Transformers/Hub downloads. Default use downloads the pinned public package through the normal Hugging Face cache. No token is required for the public package. Upstream artifacts must already be cached for offline use.
 
+### Explicit CPU FP32 selection
+
+The demo includes an unchanged, SHA-checked copy of the coordinated `CpuCadence` adapter. It reconstructs the pinned BF16-rounded merged Kev base and then promotes the model to FP32, retaining the FP32 adapter/head. This is a **separate experimental precision profile**, not a claim of CUDA numerical equivalence or general task accuracy. The coordinator has run synthetic reconstruction checks on Linux x86; this demo has tested adapter selection, metadata, limits and failure handling, but **has not run end-to-end CPU inference**. Merged and INT8 profiles are not exposed or recommended here.
+
+Prepare the exact public package, released Kev dependency and base snapshots while network access is available. This cache preparation downloads files without loading Torch or running inference; allow roughly 1.8 GB of downloads and enough installation/cache disk space:
+
+```bash
+python - <<'PY'
+import json
+from huggingface_hub import snapshot_download
+from backend.runtime import verified_package
+package = verified_package()
+cfg = json.loads((package / 'cadence_config.json').read_text())
+kev = cfg['released_kev']
+cache = package.parent / 'public_cache'
+snapshot_download(kev['repo'], revision=kev['revision'],
+                  allow_patterns=list(kev['required_files']), token=False,
+                  cache_dir=str(cache) if cache.is_dir() else None)
+base = cfg['base_model']
+snapshot_download(base['repo'], revision=base['revision'], token=False)
+PY
+```
+
+Then select CPU explicitly before starting the backend:
+
+```bash
+CADENCE_DEVICE=cpu HF_HUB_OFFLINE=1 \
+  python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
+```
+
+The CPU profile fixes **four threads** and a **16-option limit**. The UI and results report `cpu_fp32` and explain that precision differs from CUDA. Failed CPU loading stays a CPU error; it never silently starts CUDA or another profile. Keep Python assertions enabled (do not use `python -O`) so the coordinated adapter's reconstruction checks stay active. Set offline mode before starting a fresh process; a Hub client imported before the setting is rejected. Model memory and speed depend on the host and input; the integration does not establish a serving-memory guarantee or latency SLA.
+
+The unchanged CPU adapter uses a `public_cache` sibling of the package directory when one exists, otherwise the normal Hugging Face cache. For CUDA, an optional `CADENCE_UPSTREAM_CACHE_DIR=/path/to/released-kev-cache` passes a custom released-Kev cache to the public loader. Base/tokenizer snapshots use their normal Hugging Face cache. Device selection is bound when the service starts; restart the backend to change it. Cached runtime modules from other source directories are rejected; start a fresh process if that occurs.
+
 ### Build
 
 ```bash
@@ -68,7 +102,7 @@ This produces `dist/`. Keep the backend running and use `npm run preview` to ins
 
 ## API
 
-`GET /api/health` returns `cold`, `loading`, `ready` or `error`, plus busy state, exact revision and limits. `cold` means the model has not been loaded; a healthy HTTP server is not proof of available CUDA. API documentation: http://127.0.0.1:8000/api/docs.
+`GET /api/health` returns `cold`, `loading`, `ready` or `error`, plus busy state, exact revision, selected `device`, precision `profile` and limits. `cold` describes startup configuration before model loading; a healthy HTTP server is not proof that its device/cache is ready. API documentation: http://127.0.0.1:8000/api/docs.
 
 ```bash
 curl http://127.0.0.1:8000/api/predict \
@@ -78,11 +112,11 @@ curl http://127.0.0.1:8000/api/predict \
 
 For Boolean use `type: "noul"` and criteria with exactly `"false"` and `"true"`. For score use `type: "score"` and an ascending array of descriptions. `state` may be nonempty text or a nonempty JSON object/array. Requests accept exactly one question named `decision`; no chat messages or generic generation parameters.
 
-Successful responses contain `kind`, `native_option_ids`, `probabilities`, `value` (null for choice, P(true) for Boolean, expected index for score), packed `tokens`, `seconds`, `truncated: false`, model and revision. Distributions are validated before display. IDs stay aligned with their native probability keys. Raw JSON and Copy JSON provide inspectable request/result data; editing an input marks a previous result as stale.
+Successful responses contain `kind`, `native_option_ids`, `probabilities`, `value` (null for choice, P(true) for Boolean, expected index for score), packed `tokens`, `seconds`, `truncated: false`, model, revision, `device` and `profile` (`cuda_bf16_fp32` or `cpu_fp32`). Distributions are validated before display. IDs stay aligned with their native probability keys. Raw JSON and Copy JSON provide inspectable request/result data; editing an input marks a previous result as stale.
 
-Demo limits: 64 KiB body, 12,000 state characters (serialized length for JSON), 2,000 instruction characters, 2–32 options/levels, 64-character IDs and 500-character descriptions. Empty choice descriptions become native null descriptions. Inputs are rejected rather than truncated. Native token limits can still reject a character-valid request. One request including model loading may run at a time; further calls receive 429. The service also limits total attempts to 12 per minute. The browser waits up to five minutes. If it times out, backend work may still be running; it retains the busy lock until completion.
+Demo limits: 64 KiB body, 12,000 state characters (serialized length for JSON), 2,000 instruction characters, 2–32 options/levels on CUDA or 2–16 on CPU, 64-character IDs and 500-character descriptions. Empty choice descriptions become native null descriptions. Inputs are rejected rather than truncated. Native token limits can still reject a character-valid request. One request including model loading may run at a time; further calls receive 429. The service also limits total attempts to 12 per minute. The browser waits up to five minutes. If it times out, backend work may still be running; it retains the busy lock until completion.
 
-This is a **loopback developer demo**, without user authentication or production job scheduling. Keep the documented loopback binding and one backend worker. Stop the backend to release the loaded model's GPU memory. Deployment, hosting and credentials are outside this change.
+This is a **loopback developer demo**, without user authentication or production job scheduling. Keep the documented loopback binding and one backend worker. Stop the backend to release the model and its device resources. Deployment, hosting and credentials are outside this change.
 
 ## Testing
 
@@ -103,20 +137,20 @@ On hosts where the bundled Chromium installer cannot detect the OS, installed Go
 
 The checked-in `.npmrc` uses npm's legacy peer resolver because npm 10 crashes resolving Vitest's optional UI/browser peers; these peers are unused. The final lockfile and clean `npm ci` are verified. This does not remove the direct Vite/Vitest compatibility requirements.
 
-An **opt-in real inference smoke** is included. Coordinate a GPU slot, run the real backend with model dependencies, then:
+An **opt-in real inference smoke** is included. Coordinate a device slot when sharing hardware, run the real backend with model dependencies, then:
 
 ```bash
 python -m backend.smoke --output docs/real-inference-smoke.json
 ```
 
-This runs one choice, one JSON-state Boolean and one ordinal score request via real HTTP. It checks finite normalized distributions and revision metadata. It checks functionality, not task accuracy or performance. Do not run it in GPU-free CI or alongside an uncoordinated shared GPU job.
+This runs one choice, one JSON-state Boolean and one ordinal score request via real HTTP. It checks finite normalized distributions, revision metadata and agreement with the selected device/profile. It checks functionality, not task accuracy or performance. Native model smoke is deliberately excluded from CI. Do not run it alongside an uncoordinated shared hardware job. The checked-in real evidence comes from the reserved cached CUDA smoke; CPU has not had a demo-native smoke.
 
 ## Troubleshooting
 
 | Symptom | Action |
 |---|---|
 | Backend not connected / non-JSON response | Start port 8000, then use the Vite development server so `/api` is proxied. |
-| Model could not load | Check the backend terminal, CUDA availability/driver, pinned requirements and download/cache access. Retry after correcting setup. |
+| Model could not load | Check the backend terminal, selected device support, pinned requirements and download/cache access. CPU needs `HF_HUB_OFFLINE=1` and all pinned snapshots already cached. Retry after correcting setup. |
 | Input rejected (422) | Fix malformed JSON, blank fields, duplicate IDs or limits. Shorten context/descriptions if native encoding overflows. |
 | Backend busy (429) | Wait for the current load/inference to finish. Do not start a second worker. |
 | Browser timeout | Inspect backend progress; the running request retains its lock. Retry after it completes. |
@@ -125,4 +159,4 @@ This runs one choice, one JSON-state Boolean and one ordinal score request via r
 
 ## Sources and license
 
-The integration follows the [corrected model card and reviewed public source](https://huggingface.co/foolish-bandit/cadence-0.8b/tree/17cdf36034677e406033fbf97637b4db1984ca70), including `cadence_runtime.py` and `cadence_kev/api.py`. Model/base attribution is in the upstream package's licenses and notices. This demo repository retains its Apache-2.0 license. No weights or training/evaluation datasets are committed here.
+The integration follows the [corrected model card and reviewed public source](https://huggingface.co/foolish-bandit/cadence-0.8b/tree/17cdf36034677e406033fbf97637b4db1984ca70), including `cadence_runtime.py` and `cadence_kev/api.py`. Model/base attribution is in the upstream package's licenses and notices. This demo repository retains its Apache-2.0 license. The unchanged coordinated CPU adapter is attributed in [NOTICE](NOTICE); its [source manifest](backend/cpu-adapter-manifest.json) is checked at load. No weights or training/evaluation datasets are committed here.

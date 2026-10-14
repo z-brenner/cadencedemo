@@ -1,15 +1,15 @@
 # Demo verification
 
-Status: implementation, lightweight API integration and built UI verification complete. **Real CUDA end-to-end smoke pending coordination.** No GPU inference or heavy CPU benchmark was started during this phase.
+Status: implementation, lightweight API integration, built UI checks and **real CUDA end-to-end smoke passed**. Explicit CPU FP32 adapter integration is tested; **demo end-to-end CPU inference remains unverified**. No heavy CPU benchmark was run by the demo workstream.
 
 ## Evidence
 
 | Check | Result |
 |---|---|
-| Python backend suite | 12 passed: three native types, JSON state, malformed/oversized/invalid inputs, load failure, context overflow, invalid distribution/timing, single-flight/load-once, shutdown, pinned-package rejection |
-| Frontend contract | 4 passed, including JSON numeric overflow regression and semantic IDs |
-| TypeScript + Vite production build | Passed; ~67.5 kB gzipped JavaScript |
-| Production-build browser suite | 8 passed across desktop 1280×1000 and mobile 390×844 |
+| Python backend suite | 28 passed: three native types, JSON state, malformed/oversized/invalid inputs, load failure, context overflow, invalid distribution/timing, single-flight/load-once, shutdown, pinned-package rejection |
+| Frontend contract | 5 passed, including JSON numeric overflow regression and semantic IDs |
+| TypeScript + Vite production build | Passed; ~67.8 kB gzipped JavaScript |
+| Production-build browser suite | 10 passed across desktop 1280×1000 and mobile 390×844 |
 | Axe accessibility | Zero violations in both viewport checks |
 | Browser page identity, nonblank, overlay, console | Correct title/main content, no Vite error overlay, no console/page errors in screenshot/result flow |
 | Desktop/mobile overflow | No horizontal document overflow in empty and result states |
@@ -17,7 +17,7 @@ Status: implementation, lightweight API integration and built UI verification co
 | `npm audit --audit-level=moderate` | Zero vulnerabilities reported |
 | Ruff source check | Passed |
 | Pinned source/config/learned weights | Existing supplied release package matches all nine manifest hashes; no inference run ([machine-readable evidence](model-package-verification.json)) |
-| Independent code review | Two P2 findings fixed with failing-then-passing regressions: nonfinite JSON numbers and worker/model lifecycle cleanup |
+| Independent code review | Four P2 findings fixed with failing-then-passing regressions: nonfinite JSON numbers, worker/model lifecycle cleanup, cached module origin verification and effective Hub offline state |
 
 The in-app browser was attempted first and returned **“Browser is not available: iab.”** Playwright with installed Google Chrome was used as the authorized visual-test fallback. The bundled Chromium installer reported unsupported Ubuntu 26.04 on this host. CI uses Playwright's bundled Chromium on its runner.
 
@@ -38,8 +38,16 @@ Above-the-fold copy matches the reference heading, supporting sentence, example 
 
 ## Interaction paths verified
 
-Preset → edit state/instructions/options → run choice → semantic-ID distribution. Boolean preset → native `noul` request → P(true). Score preset → ascending descriptions → expected level and ordered distribution. Invalid JSON/duplicate IDs → inline error and focus. Delayed request → disabled editor and loading → completed result. API error → useful error → retry. Input edit after run → stale-result notice. Raw JSON disclosure works. Setup dialog opens and closes with Escape. Primary actions remain operable at mobile width.
+Preset → edit state/instructions/options → run choice → semantic-ID distribution. Boolean preset → native `noul` request → P(true). Score preset → ascending descriptions → expected level and ordered distribution. Invalid JSON/duplicate IDs → inline error and focus. Delayed request → disabled editor and loading → completed result. API error → useful error → retry. Input edit after run → stale-result notice. Raw JSON disclosure works. Setup dialog opens and closes with Escape. Primary actions remain operable at mobile width. CPU fixture → explicit FP32 metadata → 16-option cap → probability display with precision-profile caveat is also verified.
 
-## Remaining check
+## Real CUDA inference
 
-After the GPU coordinator supplies a safe slot, run the **real** backend with the pinned model dependencies and the supplied verified local package/cache. Run `python -m backend.smoke` for one choice, JSON Boolean and score HTTP request, then inspect a real UI result and replace this pending status with the exact evidence. This is a functionality check, not an accuracy claim or benchmark. No end-to-end model success is claimed yet.
+The coordinator reserved a cached-only smoke slot with a hard 60-second bound. The actual demo API served one choice, one JSON-state Boolean and one ordinal score request. All returned finite normalized distributions with the pinned model revision and `cuda_bf16_fp32` device profile. The built UI then performed a fourth real choice request and rendered its native decision and precision metadata without API interception or mock labels.
+
+[Native HTTP results](real-inference-smoke.json), [actual environment/resource release](real-smoke-environment.json), and the [real built-UI screenshot](real-cuda-ui.jpg) retain the evidence without private filesystem paths. The model process exited after **13.83 seconds**, and its GPU allocation was absent afterward. No downloads or installations occurred. Smoke evidence plus the temporary log totaled 63,757 bytes, below the 100,000-byte reservation. The log remains uncommitted.
+
+The smoke environment used **Torch 2.11.0+cu128**, transformers 5.19.0, peft 0.21.2, safetensors 0.8.0, numpy 2.5.4, huggingface_hub 2.2.0, pydantic 2.14.0, FastAPI 0.143.0 and uvicorn 0.54.0. This is distinct from the published/benchmark Torch 2.8 environment. Observed model-call times are single functionality checks, not benchmark statistics or a latency SLA. The smoke used a temporary static mount for the same production `dist/` build and actual `create_app()` API, avoiding a separate proxy server inside the short slot.
+
+## CPU integration boundary and limitations
+
+The unchanged coordinated FP32 adapter is pinned by [source hash](../backend/cpu-adapter-manifest.json) and [Apache-2.0 attribution](../NOTICE). Production selection is explicit, four threads, cached-only, and limited to 16 options. CPU and CUDA startup binding, failed selection/no fallback, source/cache guards, output device/profile metadata and CPU UI limits have lightweight tests. CPU metadata and UI tests use only test stubs; **no end-to-end native CPU demo run is claimed**. CPU portability and numerical/task-accuracy comparison remain the coordinator's separate workstream. No merged or INT8 profile is recommended by this demo.

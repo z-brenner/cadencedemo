@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { defaultDraft, examples } from './examples'
 import {
   makeRequest,
+  deviceLabel,
+  validProfile,
+  type Device,
   revision,
   summarize,
   validateResult,
@@ -15,6 +18,9 @@ type Health = {
   busy: boolean
   inference: string
   revision: string
+  device: Device
+  profile: string
+  limits: { options: number }
 }
 type Saved = { result: Result; draft: Draft; request: ReturnType<typeof makeRequest> }
 const kindNames: Record<Kind, string> = { choice: 'Choice', noul: 'Boolean', score: 'Score' }
@@ -62,7 +68,13 @@ export default function App() {
         const response = await fetch('/api/health', { signal: AbortSignal.timeout(5000) })
         if (!response.ok) throw new Error()
         const body = (await response.json()) as Health
-        if (body.revision !== revision || body.inference !== 'real') throw new Error()
+        if (
+          body.revision !== revision ||
+          body.inference !== 'real' ||
+          !validProfile(body.device, body.profile) ||
+          body.limits?.options !== (body.device === 'cpu' ? 16 : 32)
+        )
+          throw new Error()
         if (mounted) setHealth(body)
       } catch {
         if (mounted) setHealth(null)
@@ -108,10 +120,12 @@ export default function App() {
   }
   const stale = saved !== null && JSON.stringify(saved.draft) !== JSON.stringify(draft)
 
+  const maxOptions = health?.limits.options ?? 32
+
   async function run() {
     let request: ReturnType<typeof makeRequest>
     try {
-      request = makeRequest(draft)
+      request = makeRequest(draft, maxOptions)
     } catch (e) {
       setError((e as Error).message)
       setTimeout(() => errorRef.current?.focus(), 0)
@@ -335,7 +349,7 @@ export default function App() {
                     {draft.kind === 'score'
                       ? 'Lowest → highest'
                       : draft.kind === 'choice'
-                        ? `${draft.options.length} / 32`
+                        ? `${draft.options.length} / ${maxOptions}`
                         : ''}
                   </span>
                 </div>
@@ -406,7 +420,7 @@ export default function App() {
                   <button
                     className="add secondary"
                     type="button"
-                    disabled={draft.options.length >= 32}
+                    disabled={draft.options.length >= maxOptions}
                     onClick={() =>
                       edit({
                         options: [
@@ -506,6 +520,12 @@ export default function App() {
                   <span>{(saved.result.seconds * 1000).toFixed(0)} ms model call</span>
                 </div>
                 <p className="hint">Timing excludes model loading and network overhead.</p>
+                <p className="hint">
+                  {deviceLabel(saved.result.device)}
+                  {saved.result.device === 'cpu'
+                    ? ' · precision differs from the public CUDA profile'
+                    : ''}
+                </p>
                 <details className="raw">
                   <summary>Raw JSON</summary>
                   <pre>{JSON.stringify(saved.result, null, 2)}</pre>
@@ -570,7 +590,14 @@ export default function App() {
           </p>
         </section>
         <footer>
-          <span>Local inference · CUDA required</span>
+          <span>
+            Local inference ·{' '}
+            {health
+              ? health.device === 'cpu'
+                ? 'CPU FP32 (experimental)'
+                : 'CUDA'
+              : 'CPU FP32 or CUDA'}
+          </span>
           <button className="text-button" onClick={() => setSetup(true)}>
             Setup guide <span aria-hidden="true">→</span>
           </button>
@@ -593,23 +620,28 @@ export default function App() {
           </button>
         </div>
         <p>
-          Use Python 3.12 and a compatible NVIDIA CUDA GPU. The published loader rejects CPU and
-          MPS; CPU optimization is being validated separately.
+          Use Python 3.12. Choose the public CUDA profile or the experimental CPU FP32 port. For
+          CPU, cache the pinned model files first and select CADENCE_DEVICE=cpu with
+          HF_HUB_OFFLINE=1. CPU precision differs from the CUDA profile. MPS is unsupported.
         </p>
         <ol>
           <li>Install the backend and model dependencies using the repository README.</li>
           <li>
             Start the backend on loopback:
-            <pre>python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000</pre>
+            <pre>
+              {health?.device === 'cpu' ? 'CADENCE_DEVICE=cpu HF_HUB_OFFLINE=1 ' : ''}python -m
+              uvicorn backend.app:app --host 127.0.0.1 --port 8000
+            </pre>
           </li>
           <li>
             Start this UI:<pre>npm ci{`\n`}npm run dev</pre>
           </li>
         </ol>
         <p>
-          The first decision loads the reviewed public runtime at revision{' '}
+          The first decision reconstructs the pinned model at revision{' '}
           <code>{revision.slice(0, 12)}</code>. Fresh use downloads roughly 1.8 GB of upstream
-          weights. The model stays loaded for subsequent requests.
+          weights. CPU requires those files already cached. The model stays loaded for subsequent
+          requests.
         </p>
         <p>
           Text stays between this browser and your local backend. Initial setup contacts Hugging

@@ -1,0 +1,124 @@
+{
+  "inference": "real",
+  "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+  "device": "cuda",
+  "profile": "cuda_bf16_fp32",
+  "rows": [
+    {
+      "request": {
+        "state": "Can you play some jazz for dinner?",
+        "questions": {
+          "decision": {
+            "type": "choice",
+            "instructions": "Choose the intent that best matches this request.",
+            "criteria": {
+              "play_music": "Play music or a specific genre.",
+              "book_restaurant": "Find or book a restaurant.",
+              "get_weather": "Check the weather forecast."
+            }
+          }
+        }
+      },
+      "result": {
+        "kind": "choice",
+        "native_option_ids": [
+          "play_music",
+          "book_restaurant",
+          "get_weather"
+        ],
+        "probabilities": {
+          "play_music": 0.9991169430293944,
+          "book_restaurant": 0.0008830458379539063,
+          "get_weather": 1.1132651755239842e-08
+        },
+        "value": null,
+        "tokens": 54,
+        "seconds": 0.560218725935556,
+        "truncated": false,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "cuda",
+        "profile": "cuda_bf16_fp32"
+      }
+    },
+    {
+      "request": {
+        "state": {
+          "message": "Congratulations! You won a free holiday. Enter your bank details to claim it."
+        },
+        "questions": {
+          "decision": {
+            "type": "noul",
+            "instructions": "Does this message look like spam?",
+            "criteria": {
+              "false": "An ordinary message without spam signals.",
+              "true": "An unsolicited or deceptive promotional message."
+            }
+          }
+        }
+      },
+      "result": {
+        "kind": "noul",
+        "native_option_ids": [
+          "false",
+          "true"
+        ],
+        "probabilities": {
+          "false": 0.6150878555160665,
+          "true": 0.38491214448393346
+        },
+        "value": 0.38491214448393346,
+        "tokens": 51,
+        "seconds": 0.047706218087114394,
+        "truncated": false,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "cuda",
+        "profile": "cuda_bf16_fp32"
+      }
+    },
+    {
+      "request": {
+        "state": "Customer: I was charged twice. Reply: I will check both transactions and refund the duplicate charge.",
+        "questions": {
+          "decision": {
+            "type": "score",
+            "instructions": "Rate the helpfulness of this reply using the ordered levels.",
+            "criteria": [
+              "Not helpful.",
+              "Slightly helpful.",
+              "Moderately helpful.",
+              "Helpful.",
+              "Very helpful."
+            ]
+          }
+        }
+      },
+      "result": {
+        "kind": "score",
+        "native_option_ids": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "probabilities": {
+          "0": 0.007409715650872719,
+          "1": 0.08417060708541271,
+          "2": 0.1283448492241323,
+          "3": 0.49974390430022425,
+          "4": 0.280330923739358
+        },
+        "value": 2.961415713391782,
+        "tokens": 62,
+        "seconds": 0.06699016899801791,
+        "truncated": false,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "cuda",
+        "profile": "cuda_bf16_fp32"
+      }
+    }
+  ]
+}

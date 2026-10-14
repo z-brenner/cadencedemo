@@ -78,6 +78,8 @@ describe('native contract', () => {
       truncated: false as const,
       model: 'foolish-bandit/cadence-0.8b',
       revision: '17cdf36034677e406033fbf97637b4db1984ca70',
+      device: 'cuda' as const,
+      profile: 'cuda_bf16_fp32' as const,
     }
     expect(summarize(result).title).toBe('1.30 / 2')
     expect(summarize(result).label).toBe('Expected level')
@@ -92,4 +94,32 @@ describe('native contract', () => {
       ),
     ).toThrow()
   })
+})
+
+it('rejects inconsistent device metadata and respects CPU option limits', () => {
+  const request = makeRequest(base)
+  const result = {
+    kind: 'choice',
+    native_option_ids: ['music', 'weather'],
+    probabilities: { music: 0.8, weather: 0.2 },
+    value: null,
+    tokens: 20,
+    seconds: 0.04,
+    truncated: false,
+    model: 'foolish-bandit/cadence-0.8b',
+    revision: '17cdf36034677e406033fbf97637b4db1984ca70',
+    device: 'cpu',
+    profile: 'cpu_fp32',
+  }
+  expect(validateResult(result, request).device).toBe('cpu')
+  expect(() => validateResult({ ...result, profile: 'cuda_bf16_fp32' }, request)).toThrow()
+  expect(() =>
+    makeRequest(
+      {
+        ...base,
+        options: Array.from({ length: 17 }, (_, i) => ({ id: String(i), description: 'option' })),
+      },
+      16,
+    ),
+  ).toThrow(/16/)
 })

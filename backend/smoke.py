@@ -1,4 +1,4 @@
-"""Opt-in, real HTTP inference smoke. Coordinate GPU use before running."""
+"""Opt-in, real HTTP inference smoke. Coordinate device/cache use before running."""
 
 import argparse
 import json
@@ -65,7 +65,9 @@ def main():
     with httpx.Client(base_url=args.url, timeout=300) as client:
         health = client.get("/api/health")
         health.raise_for_status()
-        assert health.json()["inference"] == "real"
+        runtime = health.json()
+        assert runtime["inference"] == "real"
+        assert runtime["device"] in ("cuda", "cpu")
         for request in REQUESTS:
             response = client.post("/api/predict", json=request)
             response.raise_for_status()
@@ -73,11 +75,24 @@ def main():
             assert result["revision"] == REVISION and result["model"] == MODEL_ID
             assert result["kind"] == request["questions"]["decision"]["type"]
             assert result["truncated"] is False
+            assert (
+                result["device"] == runtime["device"]
+                and result["profile"] == runtime["profile"]
+            )
             assert math.isclose(sum(result["probabilities"].values()), 1, abs_tol=1e-5)
             assert all(math.isfinite(v) for v in result["probabilities"].values())
             rows.append({"request": request, "result": result})
     Path(args.output).write_text(
-        json.dumps({"inference": "real", "revision": REVISION, "rows": rows}, indent=2)
+        json.dumps(
+            {
+                "inference": "real",
+                "revision": REVISION,
+                "device": runtime["device"],
+                "profile": runtime["profile"],
+                "rows": rows,
+            },
+            indent=2,
+        )
         + "\n"
     )
     print("Three real native query types passed; evidence:", args.output)

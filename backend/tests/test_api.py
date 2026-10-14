@@ -217,3 +217,47 @@ def test_invalid_native_timing_is_not_returned():
         TestClient(create_app(Broken)).post("/api/predict", json=payload()).status_code
         == 502
     )
+
+
+def test_cpu_reports_selected_device_and_enforces_conservative_option_limit():
+    native = NativeStub()
+    api = create_app(lambda: native, device="cpu")
+    with TestClient(api) as client:
+        health = client.get("/api/health").json()
+        assert health["device"] == "cpu" and health["profile"] == "cpu_fp32"
+        assert health["limits"]["options"] == 16
+        result = client.post("/api/predict", json=payload()).json()
+        assert result["device"] == "cpu" and result["profile"] == "cpu_fp32"
+        too_many = payload()
+        too_many["questions"]["decision"]["criteria"] = {str(i): "x" for i in range(17)}
+        assert client.post("/api/predict", json=too_many).status_code == 422
+        assert len(native.requests) == 1
+
+
+def test_cuda_reports_actual_precision_profile():
+    with TestClient(create_app(NativeStub, device="cuda")) as client:
+        health = client.get("/api/health").json()
+        assert health["device"] == "cuda" and health["profile"] == "cuda_bf16_fp32"
+        assert health["limits"]["options"] == 32
+        result = client.post("/api/predict", json=payload()).json()
+        assert result["device"] == "cuda" and result["profile"] == "cuda_bf16_fp32"
+
+
+def test_device_is_bound_at_startup_even_if_environment_changes(monkeypatch):
+    from backend import runtime
+
+    native = NativeStub()
+    selected = []
+
+    def load(*, device):
+        selected.append(device)
+        return native
+
+    monkeypatch.setattr(runtime, "load_model", load)
+    monkeypatch.setenv("CADENCE_DEVICE", "cpu")
+    api = create_app()
+    monkeypatch.setenv("CADENCE_DEVICE", "cuda")
+    with TestClient(api) as client:
+        result = client.post("/api/predict", json=payload()).json()
+        assert result["device"] == "cpu"
+        assert selected == ["cpu"]

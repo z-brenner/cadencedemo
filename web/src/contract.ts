@@ -1,4 +1,12 @@
 export const revision = '17cdf36034677e406033fbf97637b4db1984ca70'
+export const profiles = { cpu: 'cpu_fp32', cuda: 'cuda_bf16_fp32' } as const
+export type Device = keyof typeof profiles
+export function validProfile(device: unknown, profile: unknown): device is Device {
+  return (device === 'cpu' || device === 'cuda') && profiles[device] === profile
+}
+export function deviceLabel(device: Device) {
+  return device === 'cpu' ? 'CPU FP32 (experimental)' : 'CUDA · BF16 base / FP32 adapter + head'
+}
 export type Kind = 'choice' | 'noul' | 'score'
 export type Option = { id: string; description: string }
 export type Draft = {
@@ -28,9 +36,11 @@ export type Result = {
   truncated: false
   model: string
   revision: string
+  device: Device
+  profile: (typeof profiles)[Device]
 }
 
-export function makeRequest(draft: Draft): DecisionRequest {
+export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
   if (!draft.state.trim()) throw new Error('Add a state to evaluate.')
   if (draft.state.length > 12000) throw new Error('Keep the state within 12,000 characters.')
   if (!draft.instructions.trim()) throw new Error('Add instructions for this decision.')
@@ -52,8 +62,8 @@ export function makeRequest(draft: Draft): DecisionRequest {
     if (JSON.stringify(state).length > 12000)
       throw new Error('Keep JSON state within 12,000 serialized characters.')
   }
-  if (draft.options.length < 2 || draft.options.length > 32)
-    throw new Error('Use between 2 and 32 options or levels.')
+  if (draft.options.length < 2 || draft.options.length > maxOptions)
+    throw new Error(`Use between 2 and ${maxOptions} options or levels.`)
   if (draft.options.some((o) => o.description.length > 500))
     throw new Error('Keep each description within 500 characters.')
   let criteria: Record<string, string | null> | string[]
@@ -96,6 +106,7 @@ export function validateResult(data: unknown, request: DecisionRequest): Result 
     r.revision !== revision ||
     r.model !== 'foolish-bandit/cadence-0.8b' ||
     r.truncated !== false ||
+    !validProfile(r.device, r.profile) ||
     !Array.isArray(r.native_option_ids) ||
     JSON.stringify(r.native_option_ids) !== JSON.stringify(keys) ||
     !r.probabilities ||

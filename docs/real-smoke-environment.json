@@ -1,0 +1,26 @@
+{
+  "device": "cuda",
+  "profile": "cuda_bf16_fp32",
+  "environment": {
+    "torch": "2.11.0+cu128",
+    "transformers": "5.19.0",
+    "peft": "0.21.2",
+    "safetensors": "0.8.0",
+    "numpy": "2.5.4",
+    "huggingface_hub": "2.2.0",
+    "pydantic": "2.14.0",
+    "fastapi": "0.143.0",
+    "uvicorn": "0.54.0"
+  },
+  "cached_only": true,
+  "max_model_process_seconds": 60,
+  "http_success": true,
+  "ui_success": true,
+  "resources_released": true,
+  "model_process_seconds": 13.82850427099038,
+  "server_exit_code": -15,
+  "gpu_after": {
+    "model_process_present": false,
+    "other_process_count": 4
+  }
+}

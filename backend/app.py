@@ -15,8 +15,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-MODEL_ID = "foolish-bandit/cadence-0.8b"
-REVISION = "17cdf36034677e406033fbf97637b4db1984ca70"
+from backend.config import MODEL_ID, REVISION, OPTION_LIMITS, PROFILES
+
 MAX_BODY = 65536
 log = logging.getLogger("cadence.demo")
 
@@ -118,8 +118,10 @@ class BodyLimitMiddleware:
 
 
 class ModelService:
-    def __init__(self, loader):
+    def __init__(self, loader, device):
         self.loader = loader
+        self.device = device
+        self.profile = PROFILES[device]
         self.model = None
         self.status = "cold"
         self.lock = threading.Lock()
@@ -138,7 +140,7 @@ class ModelService:
                     log.exception("Model load failed")
                     raise HTTPException(
                         503,
-                        "Model could not load. Check local CUDA, pinned dependencies and cache setup in README, then retry.",
+                        f"Model could not load for {self.device}. Check local device support, pinned dependencies and cache setup in README, then retry.",
                     )
             self.status = "ready"
             try:
@@ -152,7 +154,7 @@ class ModelService:
                 log.exception("Inference failed")
                 raise HTTPException(
                     503,
-                    "Inference failed. Check the backend terminal and local CUDA setup, then retry.",
+                    f"Inference failed on {self.device}. Check the backend terminal and setup guide, then retry.",
                 )
             if not isinstance(result, dict):
                 raise HTTPException(
@@ -207,17 +209,21 @@ class ModelService:
                 "truncated": False,
                 "model": MODEL_ID,
                 "revision": REVISION,
+                "device": self.device,
+                "profile": self.profile,
             }
         finally:
             self.lock.release()
 
 
-def create_app(loader=None):
-    if loader is None:
-        from backend.runtime import load_model
+def create_app(loader=None, *, device=None):
+    from backend.runtime import load_model, selected_device
 
-        loader = load_model
-    service = ModelService(loader)
+    device = selected_device() if device is None else device
+    if device not in PROFILES:
+        raise ValueError("Device must be cpu or cuda.")
+    loader = (lambda: load_model(device=device)) if loader is None else loader
+    service = ModelService(loader, device)
 
     @asynccontextmanager
     async def lifespan(api):
@@ -256,17 +262,23 @@ def create_app(loader=None):
             "busy": service.lock.locked(),
             "model": MODEL_ID,
             "revision": REVISION,
-            "device": "cuda",
+            "device": service.device,
+            "profile": service.profile,
             "inference": "real",
             "limits": {
                 "state_characters": 12000,
-                "options": 32,
+                "options": OPTION_LIMITS[device],
                 "body_bytes": MAX_BODY,
             },
         }
 
     @api.post("/api/predict")
     async def predict(request: DecisionRequest):
+        if len(request.questions["decision"].criteria) > OPTION_LIMITS[device]:
+            raise HTTPException(
+                422,
+                f"This {device} demo profile permits at most {OPTION_LIMITS[device]} options or levels.",
+            )
         if not service.lock.acquire(blocking=False):
             raise HTTPException(
                 429, "Backend is busy with another decision. Wait and retry."
