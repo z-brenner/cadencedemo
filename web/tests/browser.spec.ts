@@ -121,7 +121,7 @@ async function ready(page: import('@playwright/test').Page, fromCache = false) {
     })
   })
   await expect(
-    page.getByText('Preparing model files and tokenizer…', { exact: true }),
+    page.getByText('All model files verified. Preparing tokenizer…', { exact: true }),
   ).toBeVisible()
   await page.evaluate((fromCache) => {
     const workers = (window as any).__cadenceWorkers
@@ -144,7 +144,7 @@ test('model preparation requires a click and preserves typed browser decisions',
     'value',
     '25000000',
   )
-  await expect(page.getByText('25.0 MB of 100.0 MB (25%)', { exact: true })).toBeVisible()
+  await expect(page.getByText('25.0 MB of 100.0 MB (25.0%)', { exact: true })).toBeVisible()
   await ready(page)
   for (const [name, kind] of [
     ['Choose an answer', 'choice'],
@@ -189,7 +189,7 @@ test('cancel and retry reuse only completed verified files and ignore retired wo
   page,
 }) => {
   await page.getByRole('button', { name: 'Download model', exact: true }).click()
-  await expect(page.getByText('25.0 MB of 100.0 MB (25%)', { exact: true })).toBeVisible()
+  await expect(page.getByText('25.0 MB of 100.0 MB (25.0%)', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Cancel preparation', exact: true }).click()
   await expect(page.getByText(/Retry reuses only completed/)).toBeVisible()
   expect(await page.evaluate(() => (window as any).__cadenceWorkers[0].terminated)).toBe(true)
@@ -358,4 +358,55 @@ test('a recoverable oversized input can be shortened and rerun without preparing
     page.getByRole('button', { name: 'Retry model preparation', exact: true }),
   ).toHaveCount(0)
   expect(apiCalls).toEqual([])
+})
+
+test('download percentage does not round an unfinished transfer up to 100', async ({ page }) => {
+  await page.getByRole('button', { name: 'Download model', exact: true }).click()
+  await expect(page.locator('.download-progress')).toContainText('25.0 MB')
+  await page.evaluate(() => (window as any).__cadenceWorkers.at(-1).onmessage({ data: {
+    type: 'status', status: 'downloading', downloadedBytes: 99_600_000,
+    totalBytes: 100_000_000, downloadComplete: false, cachedBytes: 0,
+  }}))
+  await expect(page.locator('.download-progress')).toContainText('(99.6%)')
+  await expect(page.locator('.download-progress')).not.toContainText('(100%)')
+})
+
+test('cache verification is distinct from network download progress', async ({ page }) => {
+  await page.getByRole('button', { name: 'Download model', exact: true }).click()
+  await expect(page.locator('.download-progress')).toContainText('25.0 MB')
+  await page.evaluate(() => (window as any).__cadenceWorkers.at(-1).onmessage({ data: {
+    type: 'status', status: 'checking', downloadedBytes: 0,
+    totalBytes: 0, cachedBytes: 25_000_000, checkedFiles: 2, totalFiles: 4,
+  }}))
+  await expect(page.getByRole('progressbar', { name: 'Verifying saved model files' })).not.toHaveAttribute('value')
+  await expect(page.locator('.download-progress')).toContainText('25.0 MB of saved model files verified')
+  await expect(page.locator('.download-progress')).toContainText('2 of 4 files checked')
+})
+
+
+test('full received bytes stay below100 until EOF and verification use a distinct phase', async ({ page }) => {
+  await page.getByRole('button', { name: 'Download model', exact: true }).click()
+  await expect(page.locator('.download-progress')).toContainText('25.0 MB')
+  await page.evaluate(() => (window as any).__cadenceWorkers.at(-1).onmessage({ data: {
+    type: 'status', status: 'downloading', downloadedBytes: 100_000_000,
+    totalBytes: 100_000_000, downloadComplete: false,
+  }}))
+  await expect(page.locator('.download-progress')).toContainText('(99.9%)')
+  await expect(page.getByRole('progressbar', { name: 'Model file download' })).toHaveAttribute('value', '99999999')
+  await page.evaluate(() => (window as any).__cadenceWorkers.at(-1).onmessage({ data: {
+    type: 'status', status: 'verifying', downloadedBytes: 100_000_000,
+    totalBytes: 100_000_000, downloadComplete: true,
+  }}))
+  await expect(page.locator('.download-progress')).toContainText('Verifying and saving downloaded files')
+  await expect(page.getByRole('progressbar', { name: 'Verifying downloaded model files' })).not.toHaveAttribute('value')
+  await expect(page.getByRole('button', { name: 'Cancel preparation', exact: true })).toBeEnabled()
+  await page.evaluate(() => (window as any).__cadenceWorkers.at(-1).onmessage({ data: {
+    type: 'status', status: 'loading', stage: 'All model files verified; preparing tokenizer',
+  }}))
+  await expect(page.locator('.download-progress')).toContainText('All model files verified. Preparing tokenizer')
+  await page.evaluate(() => (window as any).__cadenceWorkers.at(-1).onmessage({ data: {
+    type: 'ready', provider: 'wasm', fromCache: false,
+  }}))
+  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeEnabled()
+  await expect(page.getByText(/100% of model files verified/)).toBeVisible()
 })
