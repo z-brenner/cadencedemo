@@ -311,36 +311,31 @@ export default function App() {
         </nav>
       </header>
       <main>
-        {staticExplorer && (
-          <aside className="staticExplorer-banner" aria-label="Hosting and inference">
-            <strong>Static playground · no model inference</strong>
-            <p>
-              Edit examples and inspect a validated request. Run Cadence with the local setup guide.
-            </p>
-            <button className="text-button" onClick={() => setSetup(true)}>
-              Run locally →
-            </button>
-          </aside>
-        )}
         {preview && (
           <div className="preview-banner" role="status">
             UI test preview — results are mocked by the automated test. No model inference.
           </div>
         )}
         <section className="intro">
+          <p className="research-label">Research project · interactive demo</p>
           <h1>Give context. Get a decision.</h1>
           <p>
             {staticExplorer
-              ? 'Try a familiar example, then make it your own. This website prepares inputs for local inference.'
+              ? 'Try a familiar example, then make it your own. Explore how Cadence compares the answers you provide.'
               : browserModelAvailable
                 ? 'Add context, ask a question, and compare answers on your device with Cadence 0.8B.'
                 : 'Add context, ask a question, and compare the possible answers with Cadence 0.8B.'}
           </p>
+          <p className="research-note">
+            Experimental model outputs can be wrong. Test them for your use case before relying on
+            them.
+          </p>
           <details className="about-demo">
             <summary>How to use this demo</summary>
             <p>
-              Cadence is a small model that turns context and a question into a structured decision.
-              It chooses an option, estimates the probability of true, or scores ordered levels. It
+              Cadence is a research project exploring small models for structured decisions. It turns
+              context and a question into a structured decision. It chooses an option, estimates the
+              probability of true, or scores ordered levels. It
               does not generate chat replies.
             </p>
             <ol>
@@ -371,6 +366,24 @@ export default function App() {
             </p>
           </details>
         </section>
+        {staticExplorer && (
+          <aside className="staticExplorer-banner" aria-labelledby="download-availability-title">
+            <div>
+              <div className="availability-heading">
+                <h2 id="download-availability-title">Browser model download</h2>
+                <span className="availability-status">Not available yet</span>
+              </div>
+              <p>
+                Browser model files are awaiting publication. For now, explore requests below or
+                run the model locally.
+              </p>
+              <p className="availability-mode">Static playground · no model inference</p>
+            </div>
+            <button className="secondary" onClick={() => setSetup(true)}>
+              Run locally →
+            </button>
+          </aside>
+        )}
         {browserModelAvailable && (
           <section className="model-preparation" aria-labelledby="model-preparation-title">
             <div className="model-preparation-heading">
@@ -975,6 +988,7 @@ export default function App() {
         </section>
         <footer>
           <span>
+            Research demo ·{' '}
             {browserModelAvailable
               ? 'On-device browser inference · FP32'
               : staticExplorer
