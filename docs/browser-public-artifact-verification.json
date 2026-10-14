@@ -1,0 +1,577 @@
+{
+  "repository": "foolish-bandit/cadence-0.8b-browser",
+  "revision": "17705d964a94b323a3eab04a01e345c7446d6e54",
+  "public": true,
+  "manifestSha256": "3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657",
+  "manifestCors": "https://z-brenner.github.io",
+  "manifestFinalURL": "https://huggingface.co/api/resolve-cache/models/foolish-bandit/cadence-0.8b-browser/17705d964a94b323a3eab04a01e345c7446d6e54/manifest.json?%2Ffoolish-bandit%2Fcadence-0.8b-browser%2Fresolve%2F17705d964a94b323a3eab04a01e345c7446d6e54%2Fmanifest.json=&etag=%22ddb317ac379afce49b4f42a63d6238a2ad19f5d8%22",
+  "verifiedAssetCount": 89,
+  "repositoryFiles": 92,
+  "assetBytesIncludingManifest": 1542947107,
+  "files": [
+    {
+      "file": "EXPORT_NOTICE",
+      "bytes": 687,
+      "sha256": "cae5bbc4e8a3c0ec5374011b4af809dc763e34cb6ea2981dd88d7848cbc24000",
+      "verification": "downloaded public bytes SHA-256"
+    },
+    {
+      "file": "LICENSE",
+      "bytes": 11343,
+      "sha256": "6b08bb37982c233aa12bcbdf19106da12f3f4fcf800773ea42e28ebeddd34fb8",
+      "verification": "downloaded public bytes SHA-256"
+    },
+    {
+      "file": "LICENSE.QWEN",
+      "bytes": 11343,
+      "sha256": "50cbab8a892c5f2993b8c7351a99182507472def3b1374558308605d99b86b32",
+      "verification": "downloaded public bytes SHA-256"
+    },
+    {
+      "file": "NOTICE",
+      "bytes": 1250,
+      "sha256": "f93e2c26d8425a6ae5484972ec2f795769d94cd1c55509e1080b78a2118bfef3",
+      "verification": "downloaded public bytes SHA-256"
+    },
+    {
+      "file": "NOTICE.QWEN",
+      "bytes": 317,
+      "sha256": "c3f193524f17e70b1726ccd50d7e92e7909d075ff00df5005d83c4e7d6b3f01c",
+      "verification": "downloaded public bytes SHA-256"
+    },
+    {
+      "file": "embedding-00.bf16",
+      "bytes": 16777216,
+      "sha256": "471355c6c7b6e40f008ade3d891b6eb466469633598ee6cc45336fc9102e5cec",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-01.bf16",
+      "bytes": 16777216,
+      "sha256": "0821835b3d8951a40e3afdab29043f8de5ba3c4ee2ab0185d5815b1a63a79185",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-02.bf16",
+      "bytes": 16777216,
+      "sha256": "c4ef101fde70de997f91e78f9fcc2051fc0d92ba9b9b6ff65932bc2b9ef0605b",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-03.bf16",
+      "bytes": 16777216,
+      "sha256": "4d153c4a6b32f4ea84100d005632f2372296ba81dd62b809c101e5273c8681df",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-04.bf16",
+      "bytes": 16777216,
+      "sha256": "02fb29efe52f9c2f3ee9fdb8e1bf9fbfea186299c5aacf141366da045dde8687",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-05.bf16",
+      "bytes": 16777216,
+      "sha256": "59a0490c2b7c96a06df3b742672925e39dc5aca6426bd5f264dc944d03cc0de0",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-06.bf16",
+      "bytes": 16777216,
+      "sha256": "8ec63e5483096a16523d0740b5c84409870e073eb31ed1b9828cefd157e25a18",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-07.bf16",
+      "bytes": 16777216,
+      "sha256": "3c0a725cbcf0825707ee629fc9edf103aa8f4e46f369be2da6ab09bebf74ed5e",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-08.bf16",
+      "bytes": 16777216,
+      "sha256": "afbb6b06fcbbbd239cfe4893fe36a02c4316658bcdbfd58b030ba977d5c0ff5b",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-09.bf16",
+      "bytes": 16777216,
+      "sha256": "6ca92b3a8bf5f38c38d16982fa9457fbd6fbd04f09710b4b3a053696b6d4a9ac",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-10.bf16",
+      "bytes": 16777216,
+      "sha256": "f640b7c51ac40851a944388da5a33bb37a47d8a41a0475fc6060ae8667f6a18a",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-11.bf16",
+      "bytes": 16777216,
+      "sha256": "ac548a7a8042eda5542c90dc84440a7ed83d00c4070135da8fa58c424127b9d6",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-12.bf16",
+      "bytes": 16777216,
+      "sha256": "45c6725b621613e9100f1b9c93a22636f9f6f72b6dd2629195e7a3cf736fa40b",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-13.bf16",
+      "bytes": 16777216,
+      "sha256": "fd606a0e40bade4b940326aa5383620503918b10fb57c3160407dc2a8c1ffff0",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-14.bf16",
+      "bytes": 16777216,
+      "sha256": "7bec6cfef00249997e2e2cee9e4712940e461879791eadbcf7543412283f6291",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-15.bf16",
+      "bytes": 16777216,
+      "sha256": "ce3d8955c66dd29316ba8fb0f9e9d1a2dd19591c285471fd401aa1a7c52570b1",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-16.bf16",
+      "bytes": 16777216,
+      "sha256": "68a78cf25e17ffff28b2d4a6982fe3a68b2d769da96c233b0c2ed22ad80e741b",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-17.bf16",
+      "bytes": 16777216,
+      "sha256": "7d2e0db08971bcabbfdccc3c2248b08c8888e246da0ab39a9ee5b0d061e601bd",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-18.bf16",
+      "bytes": 16777216,
+      "sha256": "27abdeaf79d077a4a9df05293c90a95a6cf6e4a9c1a98f2f781561cdfb8dab27",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-19.bf16",
+      "bytes": 16777216,
+      "sha256": "ea8d3461716bbf6144ae0a21e858311f39220c3f12af1418016fcf8ffaaa985a",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-20.bf16",
+      "bytes": 16777216,
+      "sha256": "a34c88d7ea4df9c0404691a9e89a288aabe726513fc548bff1ba285bbeaf6270",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-21.bf16",
+      "bytes": 16777216,
+      "sha256": "86da0af35d55ad3fcbb24e1e7af39125ce46bfb94e54e1247a5a8cb171bef257",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-22.bf16",
+      "bytes": 16777216,
+      "sha256": "5ffb3856bc1c933cb58ad55fd3e3f7fc4e3edf577979595d6fa0df41fb45f975",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-23.bf16",
+      "bytes": 16777216,
+      "sha256": "6e45c52c9c1129ac9849102242c126b1b845e11b43db29d247f84ddf4c882094",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-24.bf16",
+      "bytes": 16777216,
+      "sha256": "9b27e63e02d27e8615422232bff8ef959f424a6ed37f812013b7823b24b64870",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-25.bf16",
+      "bytes": 16777216,
+      "sha256": "dd6bffa65993254a24bdd547eae08b559f4c7a3eec59abf8f9b7f073b2349e35",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-26.bf16",
+      "bytes": 16777216,
+      "sha256": "1b8f4666542fb8c3128956ab3889910ed5fc362529d139ef0e40169b812a15db",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-27.bf16",
+      "bytes": 16777216,
+      "sha256": "013d0505bc8e3225577210cdf463095838db55f475161f49660369bcc6079532",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-28.bf16",
+      "bytes": 16777216,
+      "sha256": "42421079026af4e93e8799be9fcb4028ac60014074b799c352f9555b86a7c6e1",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-29.bf16",
+      "bytes": 16777216,
+      "sha256": "32ec977452a5a00cc797530c60ce31b7fa35040dd1128a3b4aee96e9d4e5e780",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "embedding-30.bf16",
+      "bytes": 5242880,
+      "sha256": "af9a2b36174f68425d3ba657aa5a6157c546f1e928da2f78b110eb14e7a546da",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-00.onnx",
+      "bytes": 42869,
+      "sha256": "ff708e529286b97f9ad0dbd7c6403cb3ed46a5677690a97a93e63a94452ebc10",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-00.weights",
+      "bytes": 44045632,
+      "sha256": "0195cf68a41fcc96ec240ad472725a3478679f6a9ee60862d4c10abe3035dd83",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-01.onnx",
+      "bytes": 42869,
+      "sha256": "c34997d80025ae534bcd664d478fe88adcc23e0956f10963c7e0f1993e3cf832",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-01.weights",
+      "bytes": 44045632,
+      "sha256": "e3f000030383b7dd0f9d45916b5bbbe82f5ad589cee4c2eeede75ba06a369d40",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-02.onnx",
+      "bytes": 42869,
+      "sha256": "e6f65f40dc3066252059dcff3e77f19f86bffbbdf1bb95f5ea976c1d5384dff0",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-02.weights",
+      "bytes": 44045632,
+      "sha256": "54b47ed6f322b6802be4d59d072a59d5469d73faa7e08f9dae331b27b724e043",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-03.onnx",
+      "bytes": 63858,
+      "sha256": "e142dc5e219cd0eb8c78b121169cd3a6bf77925e5660f4ba2d6b1a1938e0b4a4",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-03.weights",
+      "bytes": 37508096,
+      "sha256": "91cebf0d8fbc110f9bf4419d87097153f686651bd203ba6b552925ac3a7593ea",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-04.onnx",
+      "bytes": 42869,
+      "sha256": "0b59c84e3007e3a0a437e1b621db0951972f1b6b3b08247ec90ac082b937bbab",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-04.weights",
+      "bytes": 44045632,
+      "sha256": "e14f3884c0a901d7cbf5760b29df3d20722ed984f69ae71b6f73a62c343c7152",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-05.onnx",
+      "bytes": 42869,
+      "sha256": "18f1014a76e3319196e5cee2c395817e2f04ea06a288c4ece208f1ee7c30a764",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-05.weights",
+      "bytes": 44045632,
+      "sha256": "ba9839f9466635dc80915d21cde890e91aa568c3894ce2c368503247e4a3497a",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-06.onnx",
+      "bytes": 42869,
+      "sha256": "5fc0830272634857521911593fc1ecdfcd4834ce9e08a3e85d79e1d80ea8cf7b",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-06.weights",
+      "bytes": 44045632,
+      "sha256": "452da7895cd34c332f57de77cf76e43ccb6e0d33c63e7a9d82da8ff00e32e1c5",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-07.onnx",
+      "bytes": 63858,
+      "sha256": "18ca66b8b4d228daedde5c984f4302fd8ffb06fb5bd8463b96c3176e5702c064",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-07.weights",
+      "bytes": 37508096,
+      "sha256": "760d886e6e8f1138cbce61024bd1567ff8e52000ab2bc8c7f5e894d9ab9f39fa",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-08.onnx",
+      "bytes": 42869,
+      "sha256": "857fdd49842f09b2df46d06e506336f2f4dde08767ab84837ea455a72157bf95",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-08.weights",
+      "bytes": 44045632,
+      "sha256": "3f40fdb28cbe313f2002137ae0b2a948ed16937f5631d93f4fe9473403b777e1",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-09.onnx",
+      "bytes": 42869,
+      "sha256": "6452066abf920f8f04b52fb2e0ce1959c5b3d532cdc13d6362b770be8a019dc9",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-09.weights",
+      "bytes": 44045632,
+      "sha256": "434bc43e2c62c5de6582d71b650096fdd9728d93dd250f3854b71d2537a80df6",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-10.onnx",
+      "bytes": 42869,
+      "sha256": "ae407ff1f54f5322456c01c042b952b0c26606355147282509bbd06f7b6f6621",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-10.weights",
+      "bytes": 44045632,
+      "sha256": "68ddb5a4ca8dc33e15560fb39f6dde742d5a5ae15cdc119def0d6a89e85443ba",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-11.onnx",
+      "bytes": 63858,
+      "sha256": "3232c364b98a9408ee36b52131d374992c4d5ccb0526ebb1099fddbfdfb7867b",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-11.weights",
+      "bytes": 37508096,
+      "sha256": "4e2e458292f4ffc002b20de20612432996ab0caadb0434096a28c6f48edb7969",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-12.onnx",
+      "bytes": 42869,
+      "sha256": "43f1ad27ef70e2ba3de35578d0ad83adf9b077eca36716b81d68d27b058c96a4",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-12.weights",
+      "bytes": 44045632,
+      "sha256": "971f04740cd309ed0c7b0d3c20014c2cfa1cb1e4e90139bd3e6b9c366470020d",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-13.onnx",
+      "bytes": 42869,
+      "sha256": "1e4fdb49b9ac6a7bf1cc40626b3597942b460dcbda402789cdc6233bda0dbe1e",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-13.weights",
+      "bytes": 44045632,
+      "sha256": "1ad87a309380e506a7f46396361a0f82fadd76d0eddceec3b9e93bbb4cca650c",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-14.onnx",
+      "bytes": 42869,
+      "sha256": "6a580e9aa52846d5c2023695938033ab422d11f397ce734fb31377efec82304b",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-14.weights",
+      "bytes": 44045632,
+      "sha256": "9b8f76c0140ff704a6abc535e3427ae65a0de7b5d1894c163153816e092a95cc",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-15.onnx",
+      "bytes": 63858,
+      "sha256": "f4d4ff4e6319bfc0123f0af1bc195a7e73660ab54e57ab5884613e7b5210cf3f",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-15.weights",
+      "bytes": 37508096,
+      "sha256": "35ccb70cfcee64495b835b39632edfab8b22c66e66892fcf9c72b00b44aa6079",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-16.onnx",
+      "bytes": 42869,
+      "sha256": "1c314adb02f656d18966f8bc5ae4ae4afa3ae39b960b96ad94013deba4c0be7c",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-16.weights",
+      "bytes": 44045632,
+      "sha256": "c49fbdb5db94a0c46d5d8f5d68d7d47761216acfe5a0d74dd04a43adc2c2b141",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-17.onnx",
+      "bytes": 42869,
+      "sha256": "4ccd4d27c3c73b3e419af7bd456abfa08abed305c49ccbfc4550db88e4b83cf1",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-17.weights",
+      "bytes": 44045632,
+      "sha256": "2c4a36592a8bd10d6e26860cdfc215e5bfffd10b5ecb99f54d94ded47b110195",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-18.onnx",
+      "bytes": 42869,
+      "sha256": "ffa7bf4f403a470e069b7576655f93ec9d7d1a0614b34ce1674c8f586357efa1",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-18.weights",
+      "bytes": 44045632,
+      "sha256": "f88fa626d24b56fb6121a447c4a12d5c4b02dd7978b2b6bd476bd7f0ac824b1c",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-19.onnx",
+      "bytes": 63858,
+      "sha256": "18180c67a991ca0204d7ce9720caafad9e63205b1b3ac7d61f4a93af6734e912",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-19.weights",
+      "bytes": 37508096,
+      "sha256": "3c3d8ab05b19752cd9f5366274dead19f4cf4ad1ed76dcf2d05e3051fe6218d4",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-20.onnx",
+      "bytes": 42869,
+      "sha256": "128198dff5b5e564d839cec6d5c21f1de36048650760d4ca722039a35943029a",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-20.weights",
+      "bytes": 44045632,
+      "sha256": "6d01b75881eed24a7e1cd5397b1cd2f03d5bac289cdcd5471f9d72af664c73b2",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-21.onnx",
+      "bytes": 42869,
+      "sha256": "899c9d46458982c601e7461c050f2534f7670f6b53e2766e1afa8b90928473a1",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-21.weights",
+      "bytes": 44045632,
+      "sha256": "38ab50d5915f7fb47d564bcc5fb706212679ac96c7352aafeeb1211f88f79b36",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-22.onnx",
+      "bytes": 42869,
+      "sha256": "489de5b0f2d7d0766165fac1a2448aa82db28e5eff6e8dcb7c85c958c29cd048",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-22.weights",
+      "bytes": 44045632,
+      "sha256": "c56ee8d8f9c6381fc427520a08a9bdb9d28a597ba4523d67d00ce743517794a0",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-23.onnx",
+      "bytes": 63858,
+      "sha256": "1c307851a0d12a3d4a70b7860f79b721cedc2231d2ad99f735b205bf91bf3018",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "layer-23.weights",
+      "bytes": 37508096,
+      "sha256": "c1e78b740640667dc008004964ff5ea776dc06eaefd98045a4319dc5ea14850f",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "readout.onnx",
+      "bytes": 2875,
+      "sha256": "9b53c25b5ac628f159bf52624de4fa75f85999f3ac28336cd7b9da8c530553b7",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "readout.weights",
+      "bytes": 2101248,
+      "sha256": "c6e5d437a46a941890c9e55661db1650cb15e70cea64b59bc27683c23347bb31",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "rotary.fp32",
+      "bytes": 262144,
+      "sha256": "92292619547c85b08772a976be1ff798db766bdd71733c05de0d8d7ff8d3036d",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "tokenizer.json",
+      "bytes": 12807196,
+      "sha256": "fe000e3ed39ed12b8d2481d527d44f93c65d37e87645d2dcc80d1bf9d50d2927",
+      "verification": "public Hub LFS SHA-256 metadata"
+    },
+    {
+      "file": "tokenizer_config.json",
+      "bytes": 16712,
+      "sha256": "e611fbccc7c29ef3b1cafb1cb7ea548d189968632901d678fd62be68c47885de",
+      "verification": "downloaded public bytes SHA-256"
+    }
+  ],
+  "cdnCorsChecks": [
+    {
+      "file": "embedding-00.bf16",
+      "httpStatus": 200,
+      "redirectHost": "us.aws.cdn.hf.co",
+      "accessControlAllowOrigin": "*",
+      "requestOrigin": "https://z-brenner.github.io"
+    },
+    {
+      "file": "layer-00.weights",
+      "httpStatus": 200,
+      "redirectHost": "us.aws.cdn.hf.co",
+      "accessControlAllowOrigin": "*",
+      "requestOrigin": "https://z-brenner.github.io"
+    },
+    {
+      "file": "readout.weights",
+      "httpStatus": 200,
+      "redirectHost": "us.aws.cdn.hf.co",
+      "accessControlAllowOrigin": "*",
+      "requestOrigin": "https://z-brenner.github.io"
+    },
+    {
+      "file": "tokenizer.json",
+      "httpStatus": 200,
+      "redirectHost": "us.aws.cdn.hf.co",
+      "accessControlAllowOrigin": "*",
+      "requestOrigin": "https://z-brenner.github.io"
+    }
+  ]
+}

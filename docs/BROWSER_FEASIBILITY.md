@@ -1,6 +1,6 @@
 # Browser inference qualification — local candidate
 
-The complete Cadence model runs in the production guided UI in **Chrome 155 on Linux, using ONNX Runtime Web 1.30.0 WASM**. Model/runtime downloads require an explicit preparation click, and no inference API is called. The default Pages build remains a functional request explorer. External artifact publication and enabling public browser inference remain pending approval and hosting verification.
+The complete Cadence model runs in the production guided UI in **Chrome 155 on Linux, using ONNX Runtime Web 1.30.0 WASM**. Model/runtime downloads require an explicit preparation click, and no inference API is called. The approved browser artifact is now published at an immutable Hugging Face revision. The published site build enables browser downloads; the unconfigured Pages build remains a functional request explorer. Public asset provenance/CORS and opt-in UI checks are recorded separately from the local inference qualification below.
 
 ## Exact model and precision
 
@@ -29,7 +29,7 @@ The browser admits **512 packed tokens, 16 answers and one typed question**. Ove
 
 Current staged artifact: **1,542,947,107 bytes including manifest, 90 files**. It includes graphs, losslessly packed weights, pinned tokenizer files, upstream licenses/notices and an export notice explaining that this derived artifact bundles the reconstructed backbone. The manifest records every file's exact bytes and SHA256. The separately built browser runtime adds approximately 28 MB.
 
-**Proposed destination:** public `foolish-bandit/cadence-0.8b-browser`, separate from the unchanged original checkpoint. Nothing has been uploaded or created there; approval is pending. Asset URLs must pin an immutable commit, and the frontend pins the manifest SHA256. Current staged manifest: `3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657`. Release metadata changes must refresh that pin and byte count.
+**Published destination:** public `foolish-bandit/cadence-0.8b-browser@17705d964a94b323a3eab04a01e345c7446d6e54`, separate from the unchanged original checkpoint. Publication was explicitly approved. [Public artifact verification](browser-public-artifact-verification.json) matches every asset size/hash and the manifest bytes; CDN CORS reads from Pages are permitted. Asset URLs must pin an immutable commit, and the frontend pins the manifest SHA256. Current staged manifest: `3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657`. Release metadata changes must refresh that pin and byte count.
 
 Cold preparation makes one manifest request plus 89 file requests. HTTPS GETs omit credentials/referrer and follow public asset redirects. No context, question or answer is sent to the host. Hugging Face and its redirected asset host must permit cross-origin reads. Progress uses manifest sizes, so exposed `Content-Length` is unnecessary. Saved files are reverified; only completed, verified files are reused after cancellation. Missing/corrupt files cannot produce inference. CacheStorage errors are explicit, and storage persistence is not guaranteed. Cancellation terminates the dedicated worker.
 
@@ -41,4 +41,4 @@ Latest project disk observation: 1,218,224,128 bytes available, a **324,722,979-
 
 `browser_export/preflight.py` reads bounded base tensor headers and hashes package bytes without Torch/deserialization. `reference.py` captures verified offline CPU fixtures. Layer/export/operator/tokenizer scripts, `stack_probe.mjs` and `ui_smoke.mjs` reproduce qualification. Use the pinned native environment and a fresh staging directory; export refuses to overwrite existing assets. Heavy model files do not belong in this Git repository.
 
-Set `VITE_CADENCE_ASSET_BASE` to a trailing-slash asset root and `VITE_CADENCE_MANIFEST_SHA256` to its SHA256 for a local browser-enabled build. With both absent, current API/static Pages modes remain intact. Public replacement awaits publication and hosting checks.
+Set `VITE_CADENCE_ASSET_BASE` to a trailing-slash asset root and `VITE_CADENCE_MANIFEST_SHA256` to its SHA256 for a local browser-enabled build. With both absent, current API/static Pages modes remain intact. The published build uses `npm run build:browser` and the immutable pins in `browser-release.json`; static fallback tests use `npm run build:pages`. Initial public-build UI checks use `npm run test:published` without model downloads. Real hosted inference is verified separately from CI.
