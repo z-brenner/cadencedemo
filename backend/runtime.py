@@ -7,6 +7,11 @@ import os
 from pathlib import Path
 import sys
 from backend.config import MODEL_ID, REVISION
+from backend.model_imports import (
+    MODEL_SOURCES,
+    VerifiedSourceLoader,
+    install_model_imports,
+)
 
 
 def selected_device():
@@ -64,21 +69,27 @@ def verify_cpu_adapter():
 
 
 def check_cached_modules(package):
-    expected = {
-        "cadence_runtime": package / "cadence_runtime.py",
-        "cadence_kev": package / "cadence_kev" / "__init__.py",
-        "cadence_kev.api": package / "cadence_kev" / "api.py",
-        "cadence_kev.model": package / "cadence_kev" / "model.py",
-        "cadence_kev.checkpoint": package / "cadence_kev" / "checkpoint.py",
-        "backend.cpu_runtime": Path(__file__).with_name("cpu_runtime.py"),
-    }
+    expected = {name: package / relative for name, relative in MODEL_SOURCES.items()}
+    expected.update(
+        {
+            "backend.cpu_runtime": Path(__file__).with_name("cpu_runtime.py"),
+        }
+    )
     for name, module in tuple(sys.modules.items()):
         if name in expected or name.startswith("cadence_kev."):
             source = getattr(module, "__file__", None)
+            loader = getattr(module, "__loader__", None)
             if (
                 name not in expected
                 or source is None
                 or Path(source).resolve() != expected[name].resolve()
+                or (
+                    name in MODEL_SOURCES
+                    and (
+                        not isinstance(loader, VerifiedSourceLoader)
+                        or loader.source.resolve() != expected[name].resolve()
+                    )
+                )
             ):
                 raise ValueError(
                     "Unreviewed cached module: " + name + "; start a fresh process."
@@ -118,7 +129,8 @@ def load_model(*, device=None):
         verify_cpu_adapter()
     path = verified_package()
     check_cached_modules(path)
-    sys.path.insert(0, str(path))
+    manifest = json.loads(Path(__file__).with_name("model-manifest.json").read_text())
+    install_model_imports(path, manifest)
     if device == "cpu":
         adapter = load_adapter_module(
             "backend.cpu_runtime", Path(__file__).with_name("cpu_runtime.py")
