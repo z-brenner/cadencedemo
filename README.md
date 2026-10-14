@@ -16,15 +16,15 @@ The local backend uses real inference only. Mocked responses exist solely in aut
 
 ## Public website
 
-GitHub Pages serves a static request explorer: edit the six examples, validate choice/Boolean/score inputs, inspect and copy their exact JSON. It produces no model decisions, probabilities or mocked inference, and sends no input to a backend. To run the model, follow local setup and open the local playground in a separate tab. Pages does not connect to localhost; the loopback API has no cross-origin CORS permission. No hosted inference backend or credentials are configured. See [hosting details](docs/HOSTING.md).
+The [public research demo](https://z-brenner.github.io/cadencedemo/) runs Cadence in your browser after an explicit model download. No Python backend or inference API is needed. The page identifies experimental outputs, offers six editable examples, and displays the model's preference across supplied answers. Inputs stay on your device; the asset download host receives ordinary network information. See [hosting details](docs/HOSTING.md).
 
-## Browser inference candidate
+## Browser inference
 
-The isolated browser candidate runs the actual trained model in a dedicated browser worker, with an explicit approximately 1.54 GB download, verified file cache, real progress, cancel/retry and clear-cache controls. The guided form uses **Context → Question → Possible answers**, hides technical details and displays understandable distributions without confidence claims. Browser inference does not require Python or an inference API.
+The browser demo runs the actual trained model in a dedicated browser worker, with an explicit approximately 1.54 GB download, verified file cache, real progress, cancel/retry and clear-cache controls. The guided form uses **Context → Question → Possible answers**, hides technical details and displays understandable distributions without confidence claims. Browser inference does not require Python or an inference API.
 
 Chrome 155 on Linux/WASM passed real choice, Boolean and ordinal UI inference, cache reload, corrupted-cache rejection, accessibility and desktop/mobile layout checks. Nine CPU FP32 comparisons, including the 511/512-token boundaries, passed declared tolerances; maximum probability drift was 1.969e-6. The browser uses losslessly stored weights expanded to FP32 and a recurrent DeltaNet lowering. It is a separate profile from public CUDA BF16. Mobile hardware and other browser performance remain unverified.
 
-External model artifact publication is awaiting approval. The public website remains the working static explorer until the exact artifact is hosted and its immutable revision, hashes and CORS behavior are verified. See [browser qualification, asset sizes and reproduction](docs/BROWSER_FEASIBILITY.md) and [real UI evidence](docs/browser-real-ui-smoke.json).
+[Public browser files](https://huggingface.co/foolish-bandit/cadence-0.8b-browser/tree/17705d964a94b323a3eab04a01e345c7446d6e54) are pinned by [browser-release.json](browser-release.json), including the exact manifest SHA-256. All 89 asset sizes/hashes and public manifest bytes match the verified export; public CDN responses permit cross-origin reads. `npm run build:browser` creates the published build, and `npm run test:published` checks download consent and the initial guided UI without downloading model files. See [browser qualification, asset sizes and reproduction](docs/BROWSER_FEASIBILITY.md) and [real UI evidence](docs/browser-real-ui-smoke.json).
 
 For an engineering preview with already-exported local assets, set `VITE_CADENCE_ASSET_BASE` to their trailing-slash HTTP(S) root and `VITE_CADENCE_MANIFEST_SHA256` to the manifest's SHA256 before building. Cross-origin asset servers must permit CORS; the included real UI smoke serves its own built UI and local assets on one origin. With both settings absent, the existing API and static Pages modes remain intact. These settings are public artifact locations and pins, never credentials.
 
@@ -119,7 +119,7 @@ The unchanged CPU adapter uses a `public_cache` sibling of the package directory
 npm run build
 ```
 
-This produces `dist/`. Keep the backend running and use `npm run preview` to inspect the built UI at the printed loopback URL. Both Vite development and preview servers proxy `/api` to port 8000. The preview server alone does not provide model inference. The public Pages build uses `npm run build:pages` and writes `dist-pages/` at base `/cadencedemo/`; it has no inference transport. Only that directory is deployed by the Pages workflow.
+This produces `dist/`. Keep the backend running and use `npm run preview` to inspect the built UI at the printed loopback URL. Both Vite development and preview servers proxy `/api` to port 8000. The preview server alone does not provide model inference. The public browser build uses `npm run build:browser` and writes `dist-pages/` at base `/cadencedemo/`. `npm run build:pages` remains an unconfigured static request explorer for fallback/testing. Only `dist-pages/` is deployed by the Pages workflow; model files stay on Hugging Face.
 
 ## API
 
@@ -137,7 +137,7 @@ Successful responses contain `kind`, `native_option_ids`, `probabilities`, `valu
 
 Demo limits: 64 KiB body, 12,000 state UTF-16 units (compact JSON length for objects/arrays), 2,000 instruction UTF-16 units, 2–32 options/levels on CUDA or 2–16 on CPU, 64-unit IDs and 500-unit descriptions. These browser-compatible counts treat BMP characters such as é or 日 as one unit and astral characters such as 😀 as two; combining marks count separately. JSON is measured without ASCII escape expansion or added separator spaces; values are preserved. The JSON editor also caps the source text at 12,000 units, including whitespace. Unpaired Unicode surrogates are rejected. Browser JSON rejects integer-valued numbers outside ±9,007,199,254,740,991 instead of silently rounding them; encode larger identifiers as strings. Other numeric JSON values use JavaScript floating-point precision. Empty choice descriptions become native null descriptions. Inputs are rejected rather than truncated. Native token limits can still reject a character-valid request. One request including model loading may run at a time; further calls receive 429. The service also limits total attempts to 12 per minute. The browser waits up to five minutes. If it times out, backend work may still be running; it retains the busy lock until completion.
 
-This is a **loopback developer demo**, without user authentication or production job scheduling. Keep the documented loopback binding and one backend worker. Stop the backend to release the model and its device resources. GitHub Pages hosts only the static request explorer; a public inference backend and credentials are outside this change.
+This is a **loopback developer demo**, without user authentication or production job scheduling. Keep the documented loopback binding and one backend worker. Stop the backend to release the model and its device resources. GitHub Pages hosts the browser demo and runtime, with model files on Hugging Face. A public inference backend and credentials are outside this change.
 
 ## Testing
 
