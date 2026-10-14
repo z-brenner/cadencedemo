@@ -3,6 +3,7 @@ import * as ort from 'onnxruntime-web/webgpu'
 import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm?url'
 import mjsUrl from 'onnxruntime-web/ort-wasm-simd-threaded.jsep.mjs?url'
 import { encodeRequest } from './encoding'
+import { PreparationProgress } from './progress'
 import { sha256, unpackWeights, validateManifest, type Manifest } from './assets'
 import { revision, type DecisionRequest, type Result } from '../contract'
 
@@ -25,7 +26,7 @@ let manifest: Manifest | null = null,
 let assetBase = '',
   manifestSha = '',
   busy = false,
-  downloadedBytes = 0,
+  progress: PreparationProgress | null = null,
   fromCache = true
 class BrowserInputError extends Error {}
 
@@ -34,8 +35,7 @@ function status(status: string, stage: string) {
     type: 'status',
     status,
     stage,
-    downloadedBytes,
-    totalBytes: manifest?.assetBytesExcludingManifest ?? 0,
+    ...progress?.snapshot(),
     fromCache,
   })
 }
@@ -43,66 +43,69 @@ function url(file: string) {
   return new URL(file, assetBase).href
 }
 
-async function bytes(file: string, downloading = false): Promise<Uint8Array> {
+async function savedBytes(file: string, repairInvalid = false): Promise<Uint8Array | null> {
   const expected = manifest!.files[file]
   if (!expected) throw new Error('Model file is absent from the verified manifest.')
-  let response = await cache!.match(url(file))
+  const response = await cache!.match(url(file))
+  if (!response) return null
+  const value = new Uint8Array(await response.arrayBuffer())
+  if (value.byteLength !== expected.bytes || (await sha256(value)) !== expected.sha256) {
+    await cache!.delete(url(file))
+    if (!repairInvalid)
+      throw new Error('A saved model file failed verification. Download the model again to repair it.')
+    return null
+  }
+  return value
+}
+
+async function bytes(file: string, downloading = false): Promise<Uint8Array> {
+  if (!downloading) {
+    const value = await savedBytes(file)
+    if (!value) throw new Error('Saved model files are missing. Download the model again.')
+    return value
+  }
+  const expected = manifest!.files[file]
+  if (!expected) throw new Error('Model file is absent from the verified manifest.')
+  status('downloading', `Downloading ${file}`)
+  const response = await fetch(url(file), { credentials: 'omit', referrerPolicy: 'no-referrer' })
+  if (!response.ok || !response.body)
+    throw new Error(`Model download failed (${response.status}). Check your connection and retry.`)
   let value: Uint8Array
-  if (response) {
-    value = new Uint8Array(await response.arrayBuffer())
-    if (value.byteLength !== expected.bytes || (await sha256(value)) !== expected.sha256) {
-      await cache!.delete(url(file))
-      if (!downloading)
-        throw new Error(
-          'A saved model file failed verification. Download the model again to repair it.',
-        )
-      response = undefined
+  const reader = response.body.getReader(),
+    chunks: Uint8Array[] = []
+  let count = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    count += value.byteLength
+    if (count > expected.bytes) {
+      await reader.cancel()
+      throw new Error('A model download exceeded its verified size.')
     }
+    chunks.push(value)
+    progress!.received(file, count)
+    status('downloading', `Downloading ${file}`)
   }
-  if (!response) {
-    if (!downloading) throw new Error('Saved model files are missing. Download the model again.')
-    fromCache = false
-    response = await fetch(url(file), { credentials: 'omit', referrerPolicy: 'no-referrer' })
-    if (!response.ok || !response.body)
-      throw new Error(
-        `Model download failed (${response.status}). Check your connection and retry.`,
-      )
-    const reader = response.body.getReader(),
-      chunks: Uint8Array[] = []
-    let count = 0
-    for (;;) {
-      const { done, value } = await reader.read()
-      if (done) break
-      count += value.byteLength
-      if (count > expected.bytes) {
-        await reader.cancel()
-        throw new Error('A model download exceeded its verified size.')
-      }
-      chunks.push(value)
-      downloadedBytes += value.byteLength
-      status('downloading', `Downloading ${file}`)
-    }
-    value = new Uint8Array(count)
-    let offset = 0
-    for (const chunk of chunks) {
-      value.set(chunk, offset)
-      offset += chunk.byteLength
-    }
-    if (count !== expected.bytes || (await sha256(value)) !== expected.sha256)
-      throw new Error(
-        'A model download failed verification. Retry to fetch the correct pinned file.',
-      )
-    try {
-      await cache!.put(url(file), new Response(new Uint8Array(value).buffer))
-    } catch {
-      throw new Error(
-        'The browser could not save the model. Free local storage or allow storage for this site, then retry.',
-      )
-    }
-  } else if (downloading) {
-    downloadedBytes += expected.bytes
-    status('checking', `Verified saved file ${file}`)
+  progress!.finished(file)
+  status('verifying', `Verifying and saving ${file}`)
+  value = new Uint8Array(count)
+  let offset = 0
+  for (const chunk of chunks) {
+    value.set(chunk, offset)
+    offset += chunk.byteLength
   }
+  if (count !== expected.bytes || (await sha256(value)) !== expected.sha256)
+    throw new Error(
+      'A model download failed verification. Retry to fetch the correct pinned file.',
+    )
+  try {
+    await cache!.put(url(file), new Response(new Uint8Array(value).buffer))
+  } catch {
+    throw new Error(
+      'The browser could not save the model. Free local storage or allow storage for this site, then retry.',
+    )
+  }
+  progress!.verified(file)
   return value!
 }
 
@@ -124,7 +127,7 @@ async function prepare(message: Message) {
     )
   assetBase = base.href
   manifestSha = message.manifestSha
-  downloadedBytes = 0
+  progress = null
   fromCache = true
   status('checking', 'Checking model files and local storage')
   const response = await fetch(url('manifest.json'), {
@@ -144,8 +147,19 @@ async function prepare(message: Message) {
       'This browser cannot save model files. Enable local storage or try another desktop browser.',
     )
   }
-  for (const file of Object.keys(manifest.files)) await bytes(file, true)
-  status('loading', 'Preparing the tokenizer and browser runtime')
+  progress = new PreparationProgress(manifest.files)
+  const missing: string[] = []
+  status('checking', 'Verifying saved model files')
+  for (const file of Object.keys(manifest.files)) {
+    const reused = (await savedBytes(file, true)) !== null
+    progress.checked(file, reused)
+    if (!reused) missing.push(file)
+    status('checking', `Checked saved file ${file}`)
+  }
+  fromCache = missing.length === 0
+  for (const file of missing) await bytes(file, true)
+  if (!progress.snapshot().filesReady) throw new Error('Model files are not fully verified.')
+  status('loading', 'All model files verified; preparing tokenizer')
   tokenizer = new Tokenizer(
     JSON.parse(new TextDecoder().decode(await bytes('tokenizer.json'))),
     JSON.parse(new TextDecoder().decode(await bytes('tokenizer_config.json'))),

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { defaultDraft, examples } from './examples'
 import { browserModelAvailable, useBrowserModel } from './browser/useBrowserModel'
+import { downloadPercentage, downloadByteLabel } from './browser/progress'
 import {
   makeRequest,
   deviceLabel,
@@ -401,42 +402,54 @@ export default function App() {
                 recommended. Limited device memory can prevent execution.
               </p>
             )}
-            {['checking', 'downloading', 'loading'].includes(browserModel.status) && (
+            {['checking', 'downloading', 'verifying', 'loading'].includes(browserModel.status) && (
               <div className="download-progress" role="status">
                 <p>
                   {browserModel.status === 'downloading'
-                    ? 'Downloading Cadence…'
-                    : browserModel.status === 'loading'
-                      ? 'Preparing model files and tokenizer…'
-                      : browserModel.stage === 'Clearing saved model'
-                        ? 'Clearing saved model…'
-                        : 'Checking saved model files…'}
+                    ? 'Downloading remaining model files…'
+                    : browserModel.status === 'verifying'
+                      ? 'Verifying and saving downloaded files…'
+                      : browserModel.status === 'loading'
+                        ? 'All model files verified. Preparing tokenizer…'
+                        : browserModel.stage === 'Clearing saved model'
+                          ? 'Clearing saved model…'
+                          : 'Checking saved model files…'}
                 </p>
-                {browserModel.totalBytes > 0 ? (
+                {browserModel.status === 'downloading' && browserModel.totalBytes > 0 ? (
                   <>
                     <progress
                       max={browserModel.totalBytes}
-                      value={browserModel.downloadedBytes}
+                      value={browserModel.downloadComplete
+                        ? browserModel.downloadedBytes
+                        : Math.min(browserModel.downloadedBytes, browserModel.totalBytes - 1)}
                       aria-label="Model file download"
                     />
                     <p>
-                      {(browserModel.downloadedBytes / 1_000_000).toFixed(1)} MB of{' '}
-                      {(browserModel.totalBytes / 1_000_000).toFixed(1)} MB (
-                      {Math.min(
-                        100,
-                        (browserModel.downloadedBytes / browserModel.totalBytes) * 100,
-                      ).toFixed(0)}
-                      %)
+                      {downloadByteLabel(browserModel.downloadedBytes, browserModel.totalBytes)} ({downloadPercentage(browserModel)!.toFixed(1)}%)
                     </p>
                   </>
                 ) : (
-                  <progress aria-label="Preparing browser model" />
+                  <progress aria-label={browserModel.stage === 'Clearing saved model'
+                    ? 'Clearing saved model'
+                    : browserModel.status === 'checking'
+                      ? 'Verifying saved model files'
+                      : browserModel.status === 'loading'
+                        ? 'Preparing tokenizer' : 'Verifying downloaded model files'} />
+                )}
+                {browserModel.status === 'checking' && browserModel.totalFiles > 0 && (
+                  <p>{browserModel.checkedFiles} of {browserModel.totalFiles} files checked.</p>
+                )}
+                {browserModel.cachedBytes > 0 && (
+                  <p className="hint">{(browserModel.cachedBytes / 1_000_000).toFixed(1)} MB of saved model files verified; excluded from the download total.</p>
+                )}
+                {browserModel.status === 'downloading' && (
+                  <p className="hint">Progress measures this attempt’s remaining model download. Files are verified before use; the browser runtime loads on the first decision.</p>
                 )}
               </div>
             )}
             {browserModel.status === 'ready' && (
               <p role="status">
-                Model files are ready on this device.
+                Model files are ready on this device. 100% of model files verified.
                 {browserModel.fromCache ? ' Verified saved files were reused.' : ''} Get decision
                 initializes the browser runtime and evaluates your question.
               </p>
@@ -471,7 +484,7 @@ export default function App() {
                   {browserModel.status === 'idle' ? 'Download model' : 'Retry model preparation'}
                 </button>
               )}
-              {['checking', 'downloading', 'loading', 'running'].includes(browserModel.status) &&
+              {['checking', 'downloading', 'verifying', 'loading', 'running'].includes(browserModel.status) &&
                 browserModel.stage !== 'Clearing saved model' && (
                   <button className="secondary" type="button" onClick={() => browserModel.cancel()}>
                     {browserModel.status === 'running' ? 'Cancel decision' : 'Cancel preparation'}
@@ -503,7 +516,7 @@ export default function App() {
                 className="secondary"
                 type="button"
                 disabled={
-                  busy || ['checking', 'downloading', 'loading'].includes(browserModel.status)
+                  busy || ['checking', 'downloading', 'verifying', 'loading'].includes(browserModel.status)
                 }
                 onClick={() => {
                   setError('')

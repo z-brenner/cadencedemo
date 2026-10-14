@@ -8,6 +8,7 @@ export type BrowserModelStatus =
   | 'idle'
   | 'checking'
   | 'downloading'
+  | 'verifying'
   | 'loading'
   | 'ready'
   | 'running'
@@ -24,6 +25,10 @@ export function useBrowserModel() {
   const [status, setStatus] = useState<BrowserModelStatus>('idle')
   const [downloadedBytes, setDownloadedBytes] = useState(0)
   const [totalBytes, setTotalBytes] = useState(0)
+  const [cachedBytes, setCachedBytes] = useState(0)
+  const [checkedFiles, setCheckedFiles] = useState(0)
+  const [totalFiles, setTotalFiles] = useState(0)
+  const [downloadComplete, setDownloadComplete] = useState(false)
   const [stage, setStage] = useState('')
   const [error, setError] = useState('')
   const [provider, setProvider] = useState<'wasm' | 'webgpu' | null>(null)
@@ -55,7 +60,7 @@ export function useBrowserModel() {
   function prepare() {
     if (
       !browserModelAvailable ||
-      ['checking', 'downloading', 'loading', 'running', 'ready'].includes(statusRef.current)
+      ['checking', 'downloading', 'verifying', 'loading', 'running', 'ready'].includes(statusRef.current)
     )
       return
     stopWorker('Model preparation restarted.')
@@ -65,6 +70,10 @@ export function useBrowserModel() {
     setFromCache(false)
     setDownloadedBytes(0)
     setTotalBytes(0)
+    setCachedBytes(0)
+    setCheckedFiles(0)
+    setTotalFiles(0)
+    setDownloadComplete(false)
     updateStatus('checking')
     try {
       if (!window.isSecureContext || typeof Worker === 'undefined')
@@ -77,12 +86,16 @@ export function useBrowserModel() {
         if (workerRef.current !== worker) return
         const message = event.data
         if (message.type === 'status') {
-          if (['checking', 'downloading', 'loading', 'running'].includes(message.status))
+          if (['checking', 'downloading', 'verifying', 'loading', 'running'].includes(message.status))
             updateStatus(message.status)
           if (Number.isFinite(message.downloadedBytes) && message.downloadedBytes >= 0)
             setDownloadedBytes(message.downloadedBytes)
           if (Number.isFinite(message.totalBytes) && message.totalBytes >= 0)
             setTotalBytes(message.totalBytes)
+          if (Number.isSafeInteger(message.cachedBytes) && message.cachedBytes >= 0) setCachedBytes(message.cachedBytes)
+          if (Number.isSafeInteger(message.checkedFiles) && message.checkedFiles >= 0) setCheckedFiles(message.checkedFiles)
+          if (Number.isSafeInteger(message.totalFiles) && message.totalFiles >= 0) setTotalFiles(message.totalFiles)
+          if (typeof message.downloadComplete === 'boolean') setDownloadComplete(message.downloadComplete)
           if (typeof message.stage === 'string') setStage(message.stage)
           if (typeof message.fromCache === 'boolean') setFromCache(message.fromCache)
         } else if (message.type === 'ready') {
@@ -133,6 +146,10 @@ export function useBrowserModel() {
           setFromCache(false)
           setDownloadedBytes(0)
           setTotalBytes(0)
+      setCachedBytes(0)
+      setCheckedFiles(0)
+      setTotalFiles(0)
+      setDownloadComplete(false)
           setStage('Saved model cleared')
           updateStatus('idle')
         }
@@ -188,6 +205,10 @@ export function useBrowserModel() {
       setFromCache(false)
       setDownloadedBytes(0)
       setTotalBytes(0)
+      setCachedBytes(0)
+      setCheckedFiles(0)
+      setTotalFiles(0)
+      setDownloadComplete(false)
       setStage('Saved model cleared')
       updateStatus('idle')
     } catch (cause) {
@@ -198,6 +219,10 @@ export function useBrowserModel() {
     status,
     downloadedBytes,
     totalBytes,
+    cachedBytes,
+    checkedFiles,
+    totalFiles,
+    downloadComplete,
     stage,
     error,
     provider,
