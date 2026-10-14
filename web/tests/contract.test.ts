@@ -129,6 +129,29 @@ it('rejects inconsistent device metadata and respects CPU option limits', () => 
   ).toThrow(/16/)
 })
 
+it('accepts browser results only with the configured verified artifact pin', () => {
+  const request = makeRequest(base),
+    pin = 'a'.repeat(64)
+  const result = {
+    kind: 'choice',
+    native_option_ids: ['music', 'weather'],
+    probabilities: { music: 0.8, weather: 0.2 },
+    value: null,
+    tokens: 20,
+    seconds: 1,
+    truncated: false,
+    model: 'foolish-bandit/cadence-0.8b',
+    revision: '17cdf36034677e406033fbf97637b4db1984ca70',
+    device: 'browser',
+    profile: 'browser_fp32',
+    artifact_manifest_sha256: pin,
+  }
+  expect(() => validateResult(result, request)).toThrow()
+  expect(() => validateResult(result, request, 'b'.repeat(64))).toThrow()
+  expect(() => validateResult({ ...result, tokens: 513 }, request, pin)).toThrow()
+  expect(validateResult(result, request, pin).device).toBe('browser')
+})
+
 for (const sample of unicodeCases) {
   it(`uses shared Unicode boundary: ${sample.name}`, () => {
     const text = sample.glyph.repeat(sample.repeat) + sample.padding
@@ -136,9 +159,7 @@ for (const sample of unicodeCases) {
     expect(state.length).toBe(sample.units)
     const draft = { ...base, format: sample.format as 'text' | 'json', state }
     if (sample.accepted)
-      expect(makeRequest(draft).state).toEqual(
-        sample.format === 'json' ? JSON.parse(state) : text,
-      )
+      expect(makeRequest(draft).state).toEqual(sample.format === 'json' ? JSON.parse(state) : text)
     else expect(() => makeRequest(draft)).toThrow(/12,000/)
   })
 }
@@ -219,9 +240,9 @@ it('accepts the exact UTF-8 body limit and rejects one additional byte', () => {
   }
   const overhead = new TextEncoder().encode(JSON.stringify(makeRequest(draft))).length - 1
   const state = 'x'.repeat(65536 - overhead)
-  expect(
-    new TextEncoder().encode(JSON.stringify(makeRequest({ ...draft, state }))).length,
-  ).toBe(65536)
+  expect(new TextEncoder().encode(JSON.stringify(makeRequest({ ...draft, state }))).length).toBe(
+    65536,
+  )
   expect(() => makeRequest({ ...draft, state: state + 'x' })).toThrow(/64 KiB/)
 })
 
@@ -232,7 +253,6 @@ it('rejects unsafe JSON integers instead of silently rounding context', () => {
     '{"nested":[9007199254740992]}',
   ])
     expect(() => makeRequest({ ...base, format: 'json', state })).toThrow(/safe range/)
-  const state =
-    '{"max":9007199254740991,"min":-9007199254740991,"account_id":"9007199254740993"}'
+  const state = '{"max":9007199254740991,"min":-9007199254740991,"account_id":"9007199254740993"}'
   expect(makeRequest({ ...base, format: 'json', state }).state).toEqual(JSON.parse(state))
 })

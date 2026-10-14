@@ -1,0 +1,2014 @@
+{
+  "kind": "synthetic-browser-operator-probe",
+  "modelWeightsLoaded": false,
+  "fullCadenceModelLoaded": false,
+  "trainedLayerWeightsLoaded": false,
+  "createdAt": "2026-10-14T04:19:42.291Z",
+  "ortWebVersion": "1.30.0",
+  "browserVersion": "155.0.8059.39",
+  "browserAutomation": "Playwright; Browser skill absent",
+  "softwareGpuRequested": true,
+  "wasmThreads": 1,
+  "graphOptimizationLevel": "disabled",
+  "url": "http://127.0.0.1:44625/",
+  "capability": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "webgpuApi": true,
+    "adapterAvailable": true,
+    "adapterInfo": {
+      "vendor": "google",
+      "architecture": "swiftshader",
+      "device": "",
+      "description": "",
+      "isFallbackAdapter": true
+    },
+    "features": [
+      "depth32float-stencil8",
+      "rg11b10ufloat-renderable",
+      "bgra8unorm-storage",
+      "texture-compression-bc",
+      "chromium-experimental-sampling-resource-table",
+      "core-features-and-limits",
+      "chromium-experimental-timestamp-query-inside-passes",
+      "float32-filterable",
+      "indirect-first-instance",
+      "texture-compression-astc-sliced-3d",
+      "float32-blendable",
+      "subgroup-size-control",
+      "texture-compression-unaligned",
+      "texture-compression-astc",
+      "texture-compression-etc2",
+      "depth-clip-control",
+      "texture-compression-bc-sliced-3d",
+      "timestamp-query",
+      "clip-distances",
+      "texture-component-swizzle",
+      "subgroups"
+    ],
+    "limits": {
+      "maxBufferSize": 1073741824,
+      "maxStorageBufferBindingSize": 1073741824
+    }
+  },
+  "runs": [
+    {
+      "provider": "wasm",
+      "disableCpuFallback": false,
+      "cases": [
+        {
+          "name": "matmul",
+          "operator": "ai.onnx::MatMul",
+          "bytes": 144,
+          "sha256": "293c7041830773ad58237356208db1912d8547d0554f7f614ba0d9bd0737d38e",
+          "sessionCreated": true,
+          "sessionCreateMs": 500.6200000047684,
+          "runMs": 13.239999890327454,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                2
+              ],
+              "data": [
+                1,
+                2,
+                3,
+                4
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 516.0700000524521
+        },
+        {
+          "name": "depthwise_conv",
+          "operator": "ai.onnx::Conv",
+          "bytes": 221,
+          "sha256": "136b1109de858ce090773c07e08d1eed64af1eb1688f88b4f73dad9feca8b98a",
+          "sessionCreated": true,
+          "sessionCreateMs": 6.835000038146973,
+          "runMs": 3.059999942779541,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2,
+                3
+              ],
+              "data": [
+                1,
+                3,
+                5,
+                4,
+                9,
+                11
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 10.129999995231628
+        },
+        {
+          "name": "cumsum",
+          "operator": "ai.onnx::CumSum",
+          "bytes": 134,
+          "sha256": "d4e891cea01c6e42aa9d910d60ebe545c055836ce075dd5a057208b4126d69fd",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.399999976158142,
+          "runMs": 0.6100000143051147,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                3
+              ],
+              "data": [
+                1,
+                3,
+                6
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 6.254999995231628
+        },
+        {
+          "name": "gather",
+          "operator": "ai.onnx::Gather",
+          "bytes": 165,
+          "sha256": "708d2b83a80b0a268f248b6f3116d0a0b00c81083d2a5c57b70ccb9657374154",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.965000033378601,
+          "runMs": 0.7549999952316284,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                2
+              ],
+              "data": [
+                5,
+                6,
+                1,
+                2
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 5.889999985694885
+        },
+        {
+          "name": "reduce_mean",
+          "operator": "ai.onnx::ReduceMean",
+          "bytes": 178,
+          "sha256": "6b6ba028f4be2b05c50d97a08f3b2dce6d2ae17c64ac55bd7bf267bf88b80c9d",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.0950000286102295,
+          "runMs": 1.25,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                1
+              ],
+              "data": [
+                2,
+                6
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 5.475000023841858
+        },
+        {
+          "name": "softmax",
+          "operator": "ai.onnx::Softmax",
+          "bytes": 145,
+          "sha256": "37fac7109890204e55f56e98bcb188c29a1a22de1e4a515d4b4b9f5a2787fa38",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.435000061988831,
+          "runMs": 0.7549999952316284,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2
+              ],
+              "data": [
+                0.5,
+                0.5
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 5.300000071525574
+        },
+        {
+          "name": "exp",
+          "operator": "ai.onnx::Exp",
+          "bytes": 103,
+          "sha256": "642a8f2056841a18feb15933ef1465bb5bb3c44b03b817dc0a0cf2106149ccdc",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.794999957084656,
+          "runMs": 0.38999998569488525,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2
+              ],
+              "data": [
+                1,
+                2.7182817459106445
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 8.25484005595456e-8,
+          "passed": true,
+          "elapsedMs": 5.379999995231628
+        },
+        {
+          "name": "sqrt",
+          "operator": "ai.onnx::Sqrt",
+          "bytes": 106,
+          "sha256": "e7938ce8040058ef75679d8b63b1cd8ef582fc2c9c73e91e1217b606225d2852",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.860000014305115,
+          "runMs": 0.3999999761581421,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2
+              ],
+              "data": [
+                1,
+                2
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 5.414999961853027
+        },
+        {
+          "name": "scatter_nd",
+          "operator": "ai.onnx::ScatterND",
+          "bytes": 192,
+          "sha256": "2a7168c53b53107991be8b1a7ea13a5e20b44745f4b9d6a8f78767fbda2379df",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.179999947547913,
+          "runMs": 3.024999976158142,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                3
+              ],
+              "data": [
+                1,
+                9,
+                3
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 8.350000023841858
+        },
+        {
+          "name": "linear_attention",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 490,
+          "sha256": "740a33c100f5b315932ff517540d627d561558bd31437662b3c02c100bf90574",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.294999957084656,
+          "runMs": 1.565000057220459,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2,
+                1
+              ],
+              "data": [
+                0.5,
+                1.25
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "data": [
+                1.25
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 7.105000019073486
+        },
+        {
+          "name": "causal_conv_with_state",
+          "operator": "com.microsoft::CausalConvWithState",
+          "bytes": 353,
+          "sha256": "4e23cad2308a163f1314bc1f1ea2595a95af30ff32b5e923a421ff5af172bb2e",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.914999961853027,
+          "runMs": 1.225000023841858,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                3
+              ],
+              "data": [
+                1,
+                3,
+                5
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                1
+              ],
+              "data": [
+                3
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 7.354999899864197
+        },
+        {
+          "name": "gated_delta_net",
+          "operator": "com.microsoft::GatedDeltaNet",
+          "bytes": 463,
+          "sha256": "b6bee47796d0a57a932314024043e9b7cf3963bf40507b70e88fdacd88352ef7",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 9, ERROR_MESSAGE: Could not find an implementation for GatedDeltaNet(1) node with name 'gated_delta_net'",
+          "elapsedMs": 4.930000066757202
+        },
+        {
+          "name": "missing_operator_control",
+          "operator": "com.microsoft::CadenceProbeMissingOperator",
+          "bytes": 202,
+          "sha256": "de998d0b8f85905a144c3a7cc4942242f1ff9576f7ad8ee941965bbc1527d9dc",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: Fatal error: com.microsoft:CadenceProbeMissingOperator(-1) is not a registered function/op",
+          "elapsedMs": 3.5399999618530273
+        },
+        {
+          "name": "bf16_initializer_cast_matmul",
+          "operator": "BF16 initializer -> ai.onnx::Cast(FLOAT) -> MatMul",
+          "bytes": 292,
+          "sha256": "12b8a992b8efecbeed345066b384a564f06992f4f04534260c9e7a410f4a9c9a",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 9, ERROR_MESSAGE: Could not find an implementation for Cast(13) node with name 'bf16_initializer_cast_matmul_cast'",
+          "elapsedMs": 5.805000066757202
+        },
+        {
+          "name": "f16_initializer_cast_matmul",
+          "operator": "F16 initializer -> ai.onnx::Cast(FLOAT) -> MatMul",
+          "bytes": 289,
+          "sha256": "65254e34c80e81ed384d8d1b142742269e803332a8baddbd39aa9a89b10bc6b8",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.559999942779541,
+          "runMs": 2.0350000858306885,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                2
+              ],
+              "data": [
+                1,
+                2,
+                3,
+                4
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 7.754999995231628
+        },
+        {
+          "name": "delta_chunk_63",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "074c4eed7346e2fc62eebdf87068545f099536f201e0082b8a85a84f05e1d0ad",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.064999938011169,
+          "runMs": 21.264999985694885,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                63,
+                2048
+              ],
+              "elements": 129024,
+              "firstValues": [
+                -0.0001311135129071772,
+                -0.00017054258205462247,
+                -0.00047700636787340045,
+                -0.00016918407345656306,
+                0.0002710602420847863,
+                0.000016766229236964136,
+                -0.00016443409549538046,
+                -0.00003588174513424747
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                0.0459568127989769,
+                -0.06768687069416046,
+                0.031493909657001495,
+                0.0243082195520401,
+                0.01317540556192398,
+                0.05736039578914642,
+                0.05861017853021622,
+                -0.0015532337129116058
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 3.3527612686157227e-8,
+              "maxRelativeError": 0.004222476750458695,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.047857980883487e-7
+            },
+            "present": {
+              "maxAbsError": 8.344650268554688e-7,
+              "maxRelativeError": 0.036586298140100997,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 5.245537528678839e-7
+            }
+          },
+          "maxAbsError": 8.344650268554688e-7,
+          "passed": true,
+          "elapsedMs": 115.42499995231628
+        },
+        {
+          "name": "delta_chunk_64",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "665337ac77d77ec4d975e6883abcfbe538751dea3d4c2ef3f50cba8d9d68cb98",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.3450000286102295,
+          "runMs": 14.690000057220459,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                64,
+                2048
+              ],
+              "elements": 131072,
+              "firstValues": [
+                0.0019275295780971646,
+                -0.009035413153469563,
+                -0.007314600981771946,
+                0.00992498453706503,
+                -0.0022412349935621023,
+                -0.006979726254940033,
+                0.008222070522606373,
+                -0.001929650898091495
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.23112444579601288,
+                -0.011319631710648537,
+                -0.3020821213722229,
+                -0.3028561472892761,
+                -0.10808050632476807,
+                -0.3310721814632416,
+                0.16147136688232422,
+                -0.02690144255757332
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 3.725290298461914e-8,
+              "maxRelativeError": 0.006416712494683452,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.2213447788789045e-7
+            },
+            "present": {
+              "maxAbsError": 5.662441253662109e-7,
+              "maxRelativeError": 0.06369263871874864,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 5.285587046502682e-7
+            }
+          },
+          "maxAbsError": 5.662441253662109e-7,
+          "passed": true,
+          "elapsedMs": 90.37000000476837
+        },
+        {
+          "name": "delta_chunk_65",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "0ec6ad25d47fdeba8d0d98f46818a372b627e8d4d3d8d6574a05a903afa08489",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.254999995231628,
+          "runMs": 9.295000076293945,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                65,
+                2048
+              ],
+              "elements": 133120,
+              "firstValues": [
+                -0.0014846700942143798,
+                -0.0007151005556806922,
+                -0.0008911488112062216,
+                0.0011032101465389132,
+                0.0006385333836078644,
+                0.00384791218675673,
+                -0.0006367812165990472,
+                -0.0014581993455067277
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.041556216776371,
+                0.005059901624917984,
+                0.007203526794910431,
+                0.026511607691645622,
+                0.007779753766953945,
+                0.02060137502849102,
+                -0.016758007928729057,
+                -0.008935338817536831
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 2.9802322387695312e-8,
+              "maxRelativeError": 0.004203321058162591,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 3.999936312676383e-7
+            },
+            "present": {
+              "maxAbsError": 3.2782554626464844e-7,
+              "maxRelativeError": 0.046875,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 3.7651841162333953e-7
+            }
+          },
+          "maxAbsError": 3.2782554626464844e-7,
+          "passed": true,
+          "elapsedMs": 98.49500000476837
+        },
+        {
+          "name": "delta_chunk_128",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 515,
+          "sha256": "1490c9af907a762643408656e927042044f01e9de7d740d82e8c98729bcb6b57",
+          "sessionCreated": true,
+          "sessionCreateMs": 6,
+          "runMs": 27.924999952316284,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                128,
+                2048
+              ],
+              "elements": 262144,
+              "firstValues": [
+                0.0009957407601177692,
+                0.00036941131111234426,
+                -0.0000017481802387919743,
+                -0.0008570285281166434,
+                -0.00002751252213784028,
+                -0.0004378535377327353,
+                0.00027781727840192616,
+                0.0009164336370304227
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.09521409124135971,
+                -0.037578534334897995,
+                -0.027522198855876923,
+                -0.018964972347021103,
+                0.0350683331489563,
+                -0.041968390345573425,
+                -0.010827437043190002,
+                -0.04809510335326195
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 3.725290298461914e-8,
+              "maxRelativeError": 0.003116381819268099,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.1090438904196285e-7
+            },
+            "present": {
+              "maxAbsError": 5.364418029785156e-7,
+              "maxRelativeError": 0.009569511954041907,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 5.367752673960037e-7
+            }
+          },
+          "maxAbsError": 5.364418029785156e-7,
+          "passed": true,
+          "elapsedMs": 112.55000007152557
+        }
+      ]
+    },
+    {
+      "provider": "webgpu",
+      "disableCpuFallback": false,
+      "cases": [
+        {
+          "name": "matmul",
+          "operator": "ai.onnx::MatMul",
+          "bytes": 144,
+          "sha256": "293c7041830773ad58237356208db1912d8547d0554f7f614ba0d9bd0737d38e",
+          "sessionCreated": true,
+          "sessionCreateMs": 50.61500000953674,
+          "runMs": 51.09500002861023,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                2
+              ],
+              "data": [
+                1,
+                2,
+                3,
+                4
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 103.14499998092651
+        },
+        {
+          "name": "depthwise_conv",
+          "operator": "ai.onnx::Conv",
+          "bytes": 221,
+          "sha256": "136b1109de858ce090773c07e08d1eed64af1eb1688f88b4f73dad9feca8b98a",
+          "sessionCreated": true,
+          "sessionCreateMs": 17.019999980926514,
+          "runMs": 246.32499992847443,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2,
+                3
+              ],
+              "data": [
+                1,
+                3,
+                5,
+                4,
+                9,
+                11
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 263.625
+        },
+        {
+          "name": "cumsum",
+          "operator": "ai.onnx::CumSum",
+          "bytes": 134,
+          "sha256": "d4e891cea01c6e42aa9d910d60ebe545c055836ce075dd5a057208b4126d69fd",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.125,
+          "runMs": 14.40500009059906,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                3
+              ],
+              "data": [
+                1,
+                3,
+                6
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 18.695000052452087
+        },
+        {
+          "name": "gather",
+          "operator": "ai.onnx::Gather",
+          "bytes": 165,
+          "sha256": "708d2b83a80b0a268f248b6f3116d0a0b00c81083d2a5c57b70ccb9657374154",
+          "sessionCreated": true,
+          "sessionCreateMs": 6.054999947547913,
+          "runMs": 17.990000009536743,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                2
+              ],
+              "data": [
+                5,
+                6,
+                1,
+                2
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 24.25499999523163
+        },
+        {
+          "name": "reduce_mean",
+          "operator": "ai.onnx::ReduceMean",
+          "bytes": 178,
+          "sha256": "6b6ba028f4be2b05c50d97a08f3b2dce6d2ae17c64ac55bd7bf267bf88b80c9d",
+          "sessionCreated": true,
+          "sessionCreateMs": 6.9049999713897705,
+          "runMs": 38.0550000667572,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                1
+              ],
+              "data": [
+                2,
+                6
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 45.1949999332428
+        },
+        {
+          "name": "softmax",
+          "operator": "ai.onnx::Softmax",
+          "bytes": 145,
+          "sha256": "37fac7109890204e55f56e98bcb188c29a1a22de1e4a515d4b4b9f5a2787fa38",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.205000042915344,
+          "runMs": 146.6950000524521,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2
+              ],
+              "data": [
+                0.5,
+                0.5
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 151.08500003814697
+        },
+        {
+          "name": "exp",
+          "operator": "ai.onnx::Exp",
+          "bytes": 103,
+          "sha256": "642a8f2056841a18feb15933ef1465bb5bb3c44b03b817dc0a0cf2106149ccdc",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.524999976158142,
+          "runMs": 13.884999990463257,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2
+              ],
+              "data": [
+                1,
+                2.7182822227478027
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 3.942887576435794e-7,
+          "passed": true,
+          "elapsedMs": 19.740000009536743
+        },
+        {
+          "name": "sqrt",
+          "operator": "ai.onnx::Sqrt",
+          "bytes": 106,
+          "sha256": "e7938ce8040058ef75679d8b63b1cd8ef582fc2c9c73e91e1217b606225d2852",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.195000052452087,
+          "runMs": 12.18999993801117,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2
+              ],
+              "data": [
+                1,
+                2
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 17.52999997138977
+        },
+        {
+          "name": "scatter_nd",
+          "operator": "ai.onnx::ScatterND",
+          "bytes": 192,
+          "sha256": "2a7168c53b53107991be8b1a7ea13a5e20b44745f4b9d6a8f78767fbda2379df",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.350000023841858,
+          "runMs": 18.450000047683716,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                3
+              ],
+              "data": [
+                1,
+                9,
+                3
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 22.9650000333786
+        },
+        {
+          "name": "linear_attention",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 490,
+          "sha256": "740a33c100f5b315932ff517540d627d561558bd31437662b3c02c100bf90574",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.629999995231628,
+          "runMs": 60.6450001001358,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2,
+                1
+              ],
+              "data": [
+                0.5,
+                1.25
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "data": [
+                1.25
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 65.61000001430511
+        },
+        {
+          "name": "causal_conv_with_state",
+          "operator": "com.microsoft::CausalConvWithState",
+          "bytes": 353,
+          "sha256": "4e23cad2308a163f1314bc1f1ea2595a95af30ff32b5e923a421ff5af172bb2e",
+          "sessionCreated": true,
+          "sessionCreateMs": 6.929999947547913,
+          "runMs": 28.72499990463257,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                3
+              ],
+              "data": [
+                1,
+                3,
+                5
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                1
+              ],
+              "data": [
+                3
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 35.9650000333786
+        },
+        {
+          "name": "gated_delta_net",
+          "operator": "com.microsoft::GatedDeltaNet",
+          "bytes": 463,
+          "sha256": "b6bee47796d0a57a932314024043e9b7cf3963bf40507b70e88fdacd88352ef7",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: /mnt/azure_nvme_temp/_work/1/s/onnxruntime/core/optimizer/transformer_memcpy.cc:254 bool onnxruntime::TransformerMemcpyImpl::IsNodeCompatibleWithProvider(const onnxruntime::Node &) const !node_provider_type.empty() was false. Provider type for GatedDeltaNet node with name 'gated_delta_net' is not set.\n",
+          "elapsedMs": 7.944999933242798
+        },
+        {
+          "name": "missing_operator_control",
+          "operator": "com.microsoft::CadenceProbeMissingOperator",
+          "bytes": 202,
+          "sha256": "de998d0b8f85905a144c3a7cc4942242f1ff9576f7ad8ee941965bbc1527d9dc",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: Fatal error: com.microsoft:CadenceProbeMissingOperator(-1) is not a registered function/op",
+          "elapsedMs": 5.884999990463257
+        },
+        {
+          "name": "bf16_initializer_cast_matmul",
+          "operator": "BF16 initializer -> ai.onnx::Cast(FLOAT) -> MatMul",
+          "bytes": 292,
+          "sha256": "12b8a992b8efecbeed345066b384a564f06992f4f04534260c9e7a410f4a9c9a",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: /mnt/azure_nvme_temp/_work/1/s/onnxruntime/core/optimizer/transformer_memcpy.cc:254 bool onnxruntime::TransformerMemcpyImpl::IsNodeCompatibleWithProvider(const onnxruntime::Node &) const !node_provider_type.empty() was false. Provider type for Cast node with name 'bf16_initializer_cast_matmul_cast' is not set.\n",
+          "elapsedMs": 4.840000033378601
+        },
+        {
+          "name": "f16_initializer_cast_matmul",
+          "operator": "F16 initializer -> ai.onnx::Cast(FLOAT) -> MatMul",
+          "bytes": 289,
+          "sha256": "65254e34c80e81ed384d8d1b142742269e803332a8baddbd39aa9a89b10bc6b8",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.264999985694885,
+          "passed": false,
+          "failurePhase": "run",
+          "error": "Error: failed to call OrtRun(). ERROR_CODE: 1, ERROR_MESSAGE: Non-zero status code returned while running Cast node. Name:'f16_initializer_cast_matmul_cast' Status Message: shader_helper.cc:416 GenerateSourceCode Program Cast requires f16 but the device does not support it.",
+          "elapsedMs": 10.56000006198883
+        },
+        {
+          "name": "delta_chunk_63",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "074c4eed7346e2fc62eebdf87068545f099536f201e0082b8a85a84f05e1d0ad",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.134999990463257,
+          "runMs": 572.0099999904633,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                63,
+                2048
+              ],
+              "elements": 129024,
+              "firstValues": [
+                -0.00013111370208207518,
+                -0.00017054232012014836,
+                -0.0004770061932504177,
+                -0.000169183942489326,
+                0.0002710598346311599,
+                0.000016766209228080697,
+                -0.00016443394997622818,
+                -0.0000358817123924382
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                0.0459568127989769,
+                -0.06768687069416046,
+                0.03149391710758209,
+                0.024308213964104652,
+                0.013175403699278831,
+                0.057360392063856125,
+                0.05861017107963562,
+                -0.0015532411634922028
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 2.9802322387695312e-8,
+              "maxRelativeError": 0.0029431248549371958,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 3.8075003723864576e-7
+            },
+            "present": {
+              "maxAbsError": 8.344650268554688e-7,
+              "maxRelativeError": 0.03407792234302876,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.868301455609861e-7
+            }
+          },
+          "maxAbsError": 8.344650268554688e-7,
+          "passed": true,
+          "elapsedMs": 635.7649999856949
+        },
+        {
+          "name": "delta_chunk_64",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "665337ac77d77ec4d975e6883abcfbe538751dea3d4c2ef3f50cba8d9d68cb98",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.309999942779541,
+          "runMs": 144.04499995708466,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                64,
+                2048
+              ],
+              "elements": 131072,
+              "firstValues": [
+                0.0019275294616818428,
+                -0.009035417810082436,
+                -0.007314597722142935,
+                0.009924981743097305,
+                -0.0022412354592233896,
+                -0.006979729980230331,
+                0.008222070522606373,
+                -0.0019296507816761732
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.23112449049949646,
+                -0.011319627985358238,
+                -0.3020821511745453,
+                -0.3028562068939209,
+                -0.10808051377534866,
+                -0.33107224106788635,
+                0.1614713966846466,
+                -0.026901446282863617
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 3.725290298461914e-8,
+              "maxRelativeError": 0.003007349242019279,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.044197047702713e-7
+            },
+            "present": {
+              "maxAbsError": 5.960464477539062e-7,
+              "maxRelativeError": 0.07114321931567247,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 5.461766366271505e-7
+            }
+          },
+          "maxAbsError": 5.960464477539062e-7,
+          "passed": true,
+          "elapsedMs": 206.85000002384186
+        },
+        {
+          "name": "delta_chunk_65",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "0ec6ad25d47fdeba8d0d98f46818a372b627e8d4d3d8d6574a05a903afa08489",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.740000009536743,
+          "runMs": 137.4800000190735,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                65,
+                2048
+              ],
+              "elements": 133120,
+              "firstValues": [
+                -0.0014846700942143798,
+                -0.0007151006138883531,
+                -0.0008911488112062216,
+                0.0011032101465389132,
+                0.0006385333836078644,
+                0.0038479119539260864,
+                -0.0006367815658450127,
+                -0.0014581994619220495
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.0415562242269516,
+                0.00505989883095026,
+                0.007203526329249144,
+                0.026511607691645622,
+                0.007779755629599094,
+                0.02060137689113617,
+                -0.01675800420343876,
+                -0.008935336954891682
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 2.9802322387695312e-8,
+              "maxRelativeError": 0.003639181325319503,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 3.80400541917961e-7
+            },
+            "present": {
+              "maxAbsError": 3.8743019104003906e-7,
+              "maxRelativeError": 0.03515625,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.014254164926467e-7
+            }
+          },
+          "maxAbsError": 3.8743019104003906e-7,
+          "passed": true,
+          "elapsedMs": 197.77999997138977
+        },
+        {
+          "name": "delta_chunk_128",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 515,
+          "sha256": "1490c9af907a762643408656e927042044f01e9de7d740d82e8c98729bcb6b57",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.759999990463257,
+          "runMs": 243.41999995708466,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                128,
+                2048
+              ],
+              "elements": 262144,
+              "firstValues": [
+                0.0009957407601177692,
+                0.00036941151483915746,
+                -0.000001748181603034027,
+                -0.000857028120663017,
+                -0.00002751251304289326,
+                -0.00043785356683656573,
+                0.0002778173366095871,
+                0.0009164328221231699
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.09521409869194031,
+                -0.0375785268843174,
+                -0.02752220444381237,
+                -0.0189649760723114,
+                0.0350683331489563,
+                -0.041968390345573425,
+                -0.010827437043190002,
+                -0.04809510335326195
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 4.842877388000488e-8,
+              "maxRelativeError": 0.0037332850645971447,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 3.9015831021705876e-7
+            },
+            "present": {
+              "maxAbsError": 5.364418029785156e-7,
+              "maxRelativeError": 0.009569511954041907,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 5.388501247197222e-7
+            }
+          },
+          "maxAbsError": 5.364418029785156e-7,
+          "passed": true,
+          "elapsedMs": 310.43499994277954
+        }
+      ]
+    },
+    {
+      "provider": "webgpu",
+      "disableCpuFallback": true,
+      "cases": [
+        {
+          "name": "matmul",
+          "operator": "ai.onnx::MatMul",
+          "bytes": 144,
+          "sha256": "293c7041830773ad58237356208db1912d8547d0554f7f614ba0d9bd0737d38e",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.8149999380111694,
+          "runMs": 23.040000081062317,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                2
+              ],
+              "data": [
+                1,
+                2,
+                3,
+                4
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 27.014999985694885
+        },
+        {
+          "name": "depthwise_conv",
+          "operator": "ai.onnx::Conv",
+          "bytes": 221,
+          "sha256": "136b1109de858ce090773c07e08d1eed64af1eb1688f88b4f73dad9feca8b98a",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.9049999713897705,
+          "runMs": 151.18500006198883,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2,
+                3
+              ],
+              "data": [
+                1,
+                3,
+                5,
+                4,
+                9,
+                11
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 155.3400000333786
+        },
+        {
+          "name": "cumsum",
+          "operator": "ai.onnx::CumSum",
+          "bytes": 134,
+          "sha256": "d4e891cea01c6e42aa9d910d60ebe545c055836ce075dd5a057208b4126d69fd",
+          "sessionCreated": true,
+          "sessionCreateMs": 6.394999980926514,
+          "runMs": 13.315000057220459,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                3
+              ],
+              "data": [
+                1,
+                3,
+                6
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 19.899999976158142
+        },
+        {
+          "name": "gather",
+          "operator": "ai.onnx::Gather",
+          "bytes": 165,
+          "sha256": "708d2b83a80b0a268f248b6f3116d0a0b00c81083d2a5c57b70ccb9657374154",
+          "sessionCreated": true,
+          "sessionCreateMs": 5.210000038146973,
+          "runMs": 10.829999923706055,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                2
+              ],
+              "data": [
+                5,
+                6,
+                1,
+                2
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 16.204999923706055
+        },
+        {
+          "name": "reduce_mean",
+          "operator": "ai.onnx::ReduceMean",
+          "bytes": 178,
+          "sha256": "6b6ba028f4be2b05c50d97a08f3b2dce6d2ae17c64ac55bd7bf267bf88b80c9d",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.355000019073486,
+          "runMs": 26.104999899864197,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2,
+                1
+              ],
+              "data": [
+                2,
+                6
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 30.630000114440918
+        },
+        {
+          "name": "softmax",
+          "operator": "ai.onnx::Softmax",
+          "bytes": 145,
+          "sha256": "37fac7109890204e55f56e98bcb188c29a1a22de1e4a515d4b4b9f5a2787fa38",
+          "sessionCreated": true,
+          "sessionCreateMs": 4.625,
+          "runMs": 174.1949999332428,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2
+              ],
+              "data": [
+                0.5,
+                0.5
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 178.93999993801117
+        },
+        {
+          "name": "exp",
+          "operator": "ai.onnx::Exp",
+          "bytes": 103,
+          "sha256": "642a8f2056841a18feb15933ef1465bb5bb3c44b03b817dc0a0cf2106149ccdc",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.190000057220459,
+          "runMs": 9.074999928474426,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2
+              ],
+              "data": [
+                1,
+                2.7182822227478027
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 3.942887576435794e-7,
+          "passed": true,
+          "elapsedMs": 12.365000009536743
+        },
+        {
+          "name": "sqrt",
+          "operator": "ai.onnx::Sqrt",
+          "bytes": 106,
+          "sha256": "e7938ce8040058ef75679d8b63b1cd8ef582fc2c9c73e91e1217b606225d2852",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.4600000381469727,
+          "runMs": 10.514999985694885,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                2
+              ],
+              "data": [
+                1,
+                2
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 14.115000009536743
+        },
+        {
+          "name": "scatter_nd",
+          "operator": "ai.onnx::ScatterND",
+          "bytes": 192,
+          "sha256": "2a7168c53b53107991be8b1a7ea13a5e20b44745f4b9d6a8f78767fbda2379df",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.3200000524520874,
+          "runMs": 11.704999923706055,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                3
+              ],
+              "data": [
+                1,
+                9,
+                3
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 15.129999995231628
+        },
+        {
+          "name": "linear_attention",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 490,
+          "sha256": "740a33c100f5b315932ff517540d627d561558bd31437662b3c02c100bf90574",
+          "sessionCreated": true,
+          "sessionCreateMs": 2.4149999618530273,
+          "runMs": 43.16500008106232,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                2,
+                1
+              ],
+              "data": [
+                0.5,
+                1.25
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "data": [
+                1.25
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 45.69500005245209
+        },
+        {
+          "name": "causal_conv_with_state",
+          "operator": "com.microsoft::CausalConvWithState",
+          "bytes": 353,
+          "sha256": "4e23cad2308a163f1314bc1f1ea2595a95af30ff32b5e923a421ff5af172bb2e",
+          "sessionCreated": true,
+          "sessionCreateMs": 2.984999895095825,
+          "runMs": 21.09999990463257,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                3
+              ],
+              "data": [
+                1,
+                3,
+                5
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                1,
+                1
+              ],
+              "data": [
+                3
+              ]
+            }
+          },
+          "errorsByOutput": {},
+          "maxAbsError": 0,
+          "passed": true,
+          "elapsedMs": 24.199999928474426
+        },
+        {
+          "name": "gated_delta_net",
+          "operator": "com.microsoft::GatedDeltaNet",
+          "bytes": 463,
+          "sha256": "b6bee47796d0a57a932314024043e9b7cf3963bf40507b70e88fdacd88352ef7",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: /mnt/azure_nvme_temp/_work/1/s/onnxruntime/core/optimizer/transformer_memcpy.cc:254 bool onnxruntime::TransformerMemcpyImpl::IsNodeCompatibleWithProvider(const onnxruntime::Node &) const !node_provider_type.empty() was false. Provider type for GatedDeltaNet node with name 'gated_delta_net' is not set.\n",
+          "elapsedMs": 2.790000081062317
+        },
+        {
+          "name": "missing_operator_control",
+          "operator": "com.microsoft::CadenceProbeMissingOperator",
+          "bytes": 202,
+          "sha256": "de998d0b8f85905a144c3a7cc4942242f1ff9576f7ad8ee941965bbc1527d9dc",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: Fatal error: com.microsoft:CadenceProbeMissingOperator(-1) is not a registered function/op",
+          "elapsedMs": 1.9749999046325684
+        },
+        {
+          "name": "bf16_initializer_cast_matmul",
+          "operator": "BF16 initializer -> ai.onnx::Cast(FLOAT) -> MatMul",
+          "bytes": 292,
+          "sha256": "12b8a992b8efecbeed345066b384a564f06992f4f04534260c9e7a410f4a9c9a",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: /mnt/azure_nvme_temp/_work/1/s/onnxruntime/core/optimizer/transformer_memcpy.cc:254 bool onnxruntime::TransformerMemcpyImpl::IsNodeCompatibleWithProvider(const onnxruntime::Node &) const !node_provider_type.empty() was false. Provider type for Cast node with name 'bf16_initializer_cast_matmul_cast' is not set.\n",
+          "elapsedMs": 2.100000023841858
+        },
+        {
+          "name": "f16_initializer_cast_matmul",
+          "operator": "F16 initializer -> ai.onnx::Cast(FLOAT) -> MatMul",
+          "bytes": 289,
+          "sha256": "65254e34c80e81ed384d8d1b142742269e803332a8baddbd39aa9a89b10bc6b8",
+          "sessionCreated": true,
+          "sessionCreateMs": 2.125,
+          "passed": false,
+          "failurePhase": "run",
+          "error": "Error: failed to call OrtRun(). ERROR_CODE: 1, ERROR_MESSAGE: Non-zero status code returned while running Cast node. Name:'f16_initializer_cast_matmul_cast' Status Message: shader_helper.cc:416 GenerateSourceCode Program Cast requires f16 but the device does not support it.",
+          "elapsedMs": 2.9950000047683716
+        },
+        {
+          "name": "delta_chunk_63",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "074c4eed7346e2fc62eebdf87068545f099536f201e0082b8a85a84f05e1d0ad",
+          "sessionCreated": true,
+          "sessionCreateMs": 2.759999990463257,
+          "runMs": 143.32999992370605,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                63,
+                2048
+              ],
+              "elements": 129024,
+              "firstValues": [
+                -0.00013111370208207518,
+                -0.00017054232012014836,
+                -0.0004770061932504177,
+                -0.000169183942489326,
+                0.0002710598346311599,
+                0.000016766209228080697,
+                -0.00016443394997622818,
+                -0.0000358817123924382
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                0.0459568127989769,
+                -0.06768687069416046,
+                0.03149391710758209,
+                0.024308213964104652,
+                0.013175403699278831,
+                0.057360392063856125,
+                0.05861017107963562,
+                -0.0015532411634922028
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 2.9802322387695312e-8,
+              "maxRelativeError": 0.0029431248549371958,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 3.8075003723864576e-7
+            },
+            "present": {
+              "maxAbsError": 8.344650268554688e-7,
+              "maxRelativeError": 0.03407792234302876,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.868301455609861e-7
+            }
+          },
+          "maxAbsError": 8.344650268554688e-7,
+          "passed": true,
+          "elapsedMs": 202.5550000667572
+        },
+        {
+          "name": "delta_chunk_64",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "665337ac77d77ec4d975e6883abcfbe538751dea3d4c2ef3f50cba8d9d68cb98",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.559999942779541,
+          "runMs": 189.8200000524521,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                64,
+                2048
+              ],
+              "elements": 131072,
+              "firstValues": [
+                0.0019275294616818428,
+                -0.009035417810082436,
+                -0.007314597722142935,
+                0.009924981743097305,
+                -0.0022412354592233896,
+                -0.006979729980230331,
+                0.008222070522606373,
+                -0.0019296507816761732
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.23112449049949646,
+                -0.011319627985358238,
+                -0.3020821511745453,
+                -0.3028562068939209,
+                -0.10808051377534866,
+                -0.33107224106788635,
+                0.1614713966846466,
+                -0.026901446282863617
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 3.725290298461914e-8,
+              "maxRelativeError": 0.003007349242019279,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.044197047702713e-7
+            },
+            "present": {
+              "maxAbsError": 5.960464477539062e-7,
+              "maxRelativeError": 0.07114321931567247,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 5.461766366271505e-7
+            }
+          },
+          "maxAbsError": 5.960464477539062e-7,
+          "passed": true,
+          "elapsedMs": 261.4499999284744
+        },
+        {
+          "name": "delta_chunk_65",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 507,
+          "sha256": "0ec6ad25d47fdeba8d0d98f46818a372b627e8d4d3d8d6574a05a903afa08489",
+          "sessionCreated": true,
+          "sessionCreateMs": 3.0600000619888306,
+          "runMs": 210.99000000953674,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                65,
+                2048
+              ],
+              "elements": 133120,
+              "firstValues": [
+                -0.0014846700942143798,
+                -0.0007151006138883531,
+                -0.0008911488112062216,
+                0.0011032101465389132,
+                0.0006385333836078644,
+                0.0038479119539260864,
+                -0.0006367815658450127,
+                -0.0014581994619220495
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.0415562242269516,
+                0.00505989883095026,
+                0.007203526329249144,
+                0.026511607691645622,
+                0.007779755629599094,
+                0.02060137689113617,
+                -0.01675800420343876,
+                -0.008935336954891682
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 2.9802322387695312e-8,
+              "maxRelativeError": 0.003639181325319503,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 3.80400541917961e-7
+            },
+            "present": {
+              "maxAbsError": 3.8743019104003906e-7,
+              "maxRelativeError": 0.03515625,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 4.014254164926467e-7
+            }
+          },
+          "maxAbsError": 3.8743019104003906e-7,
+          "passed": true,
+          "elapsedMs": 268.8949999809265
+        },
+        {
+          "name": "delta_chunk_128",
+          "operator": "com.microsoft::LinearAttention",
+          "bytes": 515,
+          "sha256": "1490c9af907a762643408656e927042044f01e9de7d740d82e8c98729bcb6b57",
+          "sessionCreated": true,
+          "sessionCreateMs": 2.790000081062317,
+          "runMs": 311.375,
+          "outputs": {
+            "y": {
+              "type": "float32",
+              "dims": [
+                1,
+                128,
+                2048
+              ],
+              "elements": 262144,
+              "firstValues": [
+                0.0009957407601177692,
+                0.00036941151483915746,
+                -0.000001748181603034027,
+                -0.000857028120663017,
+                -0.00002751251304289326,
+                -0.00043785356683656573,
+                0.0002778173366095871,
+                0.0009164328221231699
+              ]
+            },
+            "present": {
+              "type": "float32",
+              "dims": [
+                1,
+                16,
+                128,
+                128
+              ],
+              "elements": 262144,
+              "firstValues": [
+                -0.09521409869194031,
+                -0.0375785268843174,
+                -0.02752220444381237,
+                -0.0189649760723114,
+                0.0350683331489563,
+                -0.041968390345573425,
+                -0.010827437043190002,
+                -0.04809510335326195
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "y": {
+              "maxAbsError": 4.842877388000488e-8,
+              "maxRelativeError": 0.0037332850645971447,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 3.9015831021705876e-7
+            },
+            "present": {
+              "maxAbsError": 5.364418029785156e-7,
+              "maxRelativeError": 0.009569511954041907,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 5.388501247197222e-7
+            }
+          },
+          "maxAbsError": 5.364418029785156e-7,
+          "passed": true,
+          "elapsedMs": 388.8799999952316
+        },
+        {
+          "name": "forced_cpu_matmul_control",
+          "operator": "ai.onnx::MatMul",
+          "bytes": 144,
+          "sha256": "293c7041830773ad58237356208db1912d8547d0554f7f614ba0d9bd0737d38e",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.",
+          "elapsedMs": 3.575000047683716
+        }
+      ]
+    }
+  ],
+  "logs": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[1;31m2026-10-13 21:19:39.240470 [E:onnxruntime:, sequential_executor.cc:671 ExecuteKernel] Non-zero status code returned while running Cast node. Name:'f16_initializer_cast_matmul_cast' Status Message: shader_helper.cc:416 GenerateSourceCode Program Cast requires f16 but the device does not support it.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[1;31m2026-10-13 21:19:41.155760 [E:onnxruntime:, sequential_executor.cc:671 ExecuteKernel] Non-zero status code returned while running Cast node. Name:'f16_initializer_cast_matmul_cast' Status Message: shader_helper.cc:416 GenerateSourceCode Program Cast requires f16 but the device does not support it.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[1;31m2026-10-13 21:19:42.281169 [E:onnxruntime:, inference_session.cc:2985 Initialize] This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.\u001b[m"
+    }
+  ]
+}

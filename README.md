@@ -18,6 +18,16 @@ The local backend uses real inference only. Mocked responses exist solely in aut
 
 GitHub Pages serves a static request explorer: edit the six examples, validate choice/Boolean/score inputs, inspect and copy their exact JSON. It produces no model decisions, probabilities or mocked inference, and sends no input to a backend. To run the model, follow local setup and open the local playground in a separate tab. Pages does not connect to localhost; the loopback API has no cross-origin CORS permission. No hosted inference backend or credentials are configured. See [hosting details](docs/HOSTING.md).
 
+## Browser inference candidate
+
+The isolated browser candidate runs the actual trained model in a dedicated browser worker, with an explicit approximately 1.54 GB download, verified file cache, real progress, cancel/retry and clear-cache controls. The guided form uses **Context → Question → Possible answers**, hides technical details and displays understandable distributions without confidence claims. Browser inference does not require Python or an inference API.
+
+Chrome 155 on Linux/WASM passed real choice, Boolean and ordinal UI inference, cache reload, corrupted-cache rejection, accessibility and desktop/mobile layout checks. Nine CPU FP32 comparisons, including the 511/512-token boundaries, passed declared tolerances; maximum probability drift was 1.969e-6. The browser uses losslessly stored weights expanded to FP32 and a recurrent DeltaNet lowering. It is a separate profile from public CUDA BF16. Mobile hardware and other browser performance remain unverified.
+
+External model artifact publication is awaiting approval. The public website remains the working static explorer until the exact artifact is hosted and its immutable revision, hashes and CORS behavior are verified. See [browser qualification, asset sizes and reproduction](docs/BROWSER_FEASIBILITY.md) and [real UI evidence](docs/browser-real-ui-smoke.json).
+
+For an engineering preview with already-exported local assets, set `VITE_CADENCE_ASSET_BASE` to their trailing-slash HTTP(S) root and `VITE_CADENCE_MANIFEST_SHA256` to the manifest's SHA256 before building. Cross-origin asset servers must permit CORS; the included real UI smoke serves its own built UI and local assets on one origin. With both settings absent, the existing API and static Pages modes remain intact. These settings are public artifact locations and pins, never credentials.
+
 ## Local setup
 
 Requirements: Node.js 22.12+, Python **3.12**, and access to Hugging Face when preparing the model cache. Default `CADENCE_DEVICE=cuda` uses the public CUDA/BF16 profile and requires compatible NVIDIA hardware/driver. Explicit `CADENCE_DEVICE=cpu` uses the coordinated experimental FP32 port described below. MPS and automatic device fallback are unsupported.
@@ -51,11 +61,11 @@ python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173**. Vite proxies `/api` to the backend. Pick an example, edit its state/instructions/criteria and click **Run decision**. The first valid CUDA request downloads and loads the pinned model; allow several minutes. CPU is cached-only and reconstructs its FP32 model on first use. Later requests reuse it. Starting either server alone does not load the model or occupy the GPU.
+Open **http://127.0.0.1:5173**. Vite proxies `/api` to the backend. Pick an example, edit its context/question/possible answers and click **Get decision**. The first valid CUDA request downloads and loads the pinned model; allow several minutes. CPU is cached-only and reconstructs its FP32 model on first use. Later requests reuse it. Starting either server alone does not load the model or occupy the GPU.
 
 Fresh use downloads approximately **1.8 GB** of upstream artifacts, plus the ~24 MB Cadence package. The model card reports observed CUDA allocation near 1.6 GiB on its test hardware; this is not a memory requirement guarantee. Inputs and surrounding GPU workloads affect memory and latency. Coordinate shared GPU use before starting inference.
 
-The UI runs locally and sends input only to your backend. Model setup contacts Hugging Face. There is no analytics, request-history database or browser persistence. Errors omit input text; backend logs include diagnostic exceptions. The result's `seconds` measures the model call including encoding and CPU transfer; displayed timing excludes loading, HTTP overhead and UI rendering.
+In local API mode the UI sends input only to your backend. Model setup contacts Hugging Face. There is no analytics or request-history database; browser mode saves model files, not input history. Errors omit input text; backend logs include diagnostic exceptions. Local API result timing excludes model loading, HTTP overhead and rendering. Browser timing includes reading saved model files, preparing layers and computing the decision.
 
 ### Offline or existing local package
 
@@ -141,6 +151,7 @@ npm test
 npm run build
 npx playwright install --with-deps chromium
 npm run test:ui
+npm run test:browser
 npm audit --audit-level=moderate
 ```
 

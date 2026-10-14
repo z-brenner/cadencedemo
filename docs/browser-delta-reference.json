@@ -1,0 +1,179 @@
+{
+  "torch": "2.11.0+cu128",
+  "transformers": "5.19.0",
+  "precision": "CPU float32; no autocast",
+  "threads": 2,
+  "seed": 2357,
+  "batch": 1,
+  "heads": 16,
+  "keyDim": 128,
+  "valueDim": 128,
+  "chunkSize": 64,
+  "relativeErrorDenominatorFloor": 1e-06,
+  "cases": [
+    {
+      "length": 63,
+      "files": {
+        "delta_chunk_63.onnx": {
+          "bytes": 507,
+          "sha256": "074c4eed7346e2fc62eebdf87068545f099536f201e0082b8a85a84f05e1d0ad"
+        },
+        "delta_chunk_63-q.f32": {
+          "bytes": 516096,
+          "sha256": "0e679704d185dd70d051de059c2e7dad134b0db4c9494c0b8094d83550fdeac7"
+        },
+        "delta_chunk_63-k.f32": {
+          "bytes": 516096,
+          "sha256": "29ea66634efbafb22a30b4a05ec1da9a957c9323aebb630f981173bd8c108e08"
+        },
+        "delta_chunk_63-v.f32": {
+          "bytes": 516096,
+          "sha256": "3a315a0f1a1e20a56efa249c196a77c868c5dfc154d247e3e9e83b8e057c0626"
+        },
+        "delta_chunk_63-state.f32": {
+          "bytes": 1048576,
+          "sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58"
+        },
+        "delta_chunk_63-decay.f32": {
+          "bytes": 4032,
+          "sha256": "2d4f0639030cb1852a7777b20d870b36bbaad169a0eedf8399bb79a40c60d59b"
+        },
+        "delta_chunk_63-beta.f32": {
+          "bytes": 4032,
+          "sha256": "c1c7640a4adc21ddd6d9c205b0a5b4d1011fddcafe758094b4afa1f293f9a439"
+        },
+        "delta_chunk_63-expected-y.f32": {
+          "bytes": 516096,
+          "sha256": "13096dd50b6dfb7a85c6aa95799016bad247fd25f1c0b35873ac761024c53710"
+        },
+        "delta_chunk_63-expected-present.f32": {
+          "bytes": 1048576,
+          "sha256": "05124c931408c9c35806f467e0a35c71bab5ec23fdeb1ddfa627005a2458340b"
+        }
+      }
+    },
+    {
+      "length": 64,
+      "files": {
+        "delta_chunk_64.onnx": {
+          "bytes": 507,
+          "sha256": "665337ac77d77ec4d975e6883abcfbe538751dea3d4c2ef3f50cba8d9d68cb98"
+        },
+        "delta_chunk_64-q.f32": {
+          "bytes": 524288,
+          "sha256": "484f4c40e1d099abf41d1ff213513d6b4fa26d74b96ced0dd8fc33d7bad06538"
+        },
+        "delta_chunk_64-k.f32": {
+          "bytes": 524288,
+          "sha256": "6ae24e42671da9d25775f71b423ef26bcdd72098922dc2ebf0c6bca435ca17ac"
+        },
+        "delta_chunk_64-v.f32": {
+          "bytes": 524288,
+          "sha256": "8d905b2d42d9c9a92e486c301512f304a4f6ec6d50804d85ecaf8706418dabf0"
+        },
+        "delta_chunk_64-state.f32": {
+          "bytes": 1048576,
+          "sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58"
+        },
+        "delta_chunk_64-decay.f32": {
+          "bytes": 4096,
+          "sha256": "f6d29a39f3494c564bda175cb9dc2a80adf3ae1f191bdf8bb488ec9fa0a75af8"
+        },
+        "delta_chunk_64-beta.f32": {
+          "bytes": 4096,
+          "sha256": "c85436243d7374734b0f1adf5491a611b79f7d5d69d75e30235667997cbc3764"
+        },
+        "delta_chunk_64-expected-y.f32": {
+          "bytes": 524288,
+          "sha256": "23a6d57732d03019ac60525b98c916c758a6f5ecdc033d4bf60eca840366e5e5"
+        },
+        "delta_chunk_64-expected-present.f32": {
+          "bytes": 1048576,
+          "sha256": "8961903dfb8e5039bd89b9e530924bb4e1733b88414f4c0fd9b5c74afc223dfa"
+        }
+      }
+    },
+    {
+      "length": 65,
+      "files": {
+        "delta_chunk_65.onnx": {
+          "bytes": 507,
+          "sha256": "0ec6ad25d47fdeba8d0d98f46818a372b627e8d4d3d8d6574a05a903afa08489"
+        },
+        "delta_chunk_65-q.f32": {
+          "bytes": 532480,
+          "sha256": "e944e7c47a67ada2f1923a0c4651c294cd5b9c44d851b902646c34ccaaa7cf0d"
+        },
+        "delta_chunk_65-k.f32": {
+          "bytes": 532480,
+          "sha256": "4558e63f7601801c5ba108054adfe5a7a9d3a680928477e8545d3b3ef821f34c"
+        },
+        "delta_chunk_65-v.f32": {
+          "bytes": 532480,
+          "sha256": "cd83116c98ba10dee357941dbc87b1d84a42d1cf92cff3d71245fa64ef578a3d"
+        },
+        "delta_chunk_65-state.f32": {
+          "bytes": 1048576,
+          "sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58"
+        },
+        "delta_chunk_65-decay.f32": {
+          "bytes": 4160,
+          "sha256": "e30756d012372225345b25f468bb38b1fad0008974f0e946327d13dae5581c8c"
+        },
+        "delta_chunk_65-beta.f32": {
+          "bytes": 4160,
+          "sha256": "8da0afd14924dc9c22dc17a84b0ecc49595f5b37025d8f0759bdbbacd94f314e"
+        },
+        "delta_chunk_65-expected-y.f32": {
+          "bytes": 532480,
+          "sha256": "dbcf8caa9d76301e018393767fceeec52c545bfc06c5f904c2800f3676c13dff"
+        },
+        "delta_chunk_65-expected-present.f32": {
+          "bytes": 1048576,
+          "sha256": "c1fe2dfdd9dfa6d319ed520cbb405676fe0917046713aa69d24be1ee5a54ab5b"
+        }
+      }
+    },
+    {
+      "length": 128,
+      "files": {
+        "delta_chunk_128.onnx": {
+          "bytes": 515,
+          "sha256": "1490c9af907a762643408656e927042044f01e9de7d740d82e8c98729bcb6b57"
+        },
+        "delta_chunk_128-q.f32": {
+          "bytes": 1048576,
+          "sha256": "69480dd1427287887271d3da362509cba3311fcf3fe17115add45ae75bec9cd0"
+        },
+        "delta_chunk_128-k.f32": {
+          "bytes": 1048576,
+          "sha256": "9e2139117b46e11937d78bc8d611f96ead162a55b2f602d7770f7f2584cdfd2d"
+        },
+        "delta_chunk_128-v.f32": {
+          "bytes": 1048576,
+          "sha256": "422271db70938f3ad24945709560ed3b7c4bab71738f0b49f970fcdd0190a162"
+        },
+        "delta_chunk_128-state.f32": {
+          "bytes": 1048576,
+          "sha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58"
+        },
+        "delta_chunk_128-decay.f32": {
+          "bytes": 8192,
+          "sha256": "70440a807e449abf28ab58237d133d94961d79a52499e24d346084a26a8aa41a"
+        },
+        "delta_chunk_128-beta.f32": {
+          "bytes": 8192,
+          "sha256": "6f2d6c453959c867d911d50f615c754c1f921487d9da5160ab57158a38175f4a"
+        },
+        "delta_chunk_128-expected-y.f32": {
+          "bytes": 1048576,
+          "sha256": "996e94fe8491872ce2ee481d1206637271ce77c9c88a31f0e9ddcec8e267fb46"
+        },
+        "delta_chunk_128-expected-present.f32": {
+          "bytes": 1048576,
+          "sha256": "bbc615e0b9f126426737943b4d5e79360764273feabef0936f1799b9b9327e1a"
+        }
+      }
+    }
+  ]
+}

@@ -298,6 +298,44 @@ def test_clean_verified_model_imports_without_global_path_change(
     assert clean_value() == "verified relative import"
 
 
+def test_cached_dependency_inspection_does_not_trigger_lazy_module_attributes(
+    monkeypatch, isolated_model_fixture
+):
+    import sys
+    import types
+
+    module = types.ModuleType("cadence_fixture_lazy_namespace")
+    calls = []
+
+    def lazy_attribute(name):
+        calls.append(name)
+        return object()  # Torch's lazy class namespace is not an import path.
+
+    module.__getattr__ = lazy_attribute
+    monkeypatch.setitem(sys.modules, module.__name__, module)
+    assert runtime.load_model(device="cuda") == (
+        "installed dependency",
+        "verified relative import",
+    )
+    assert calls == []
+
+
+@pytest.mark.parametrize("attribute", ["__file__", "__path__"])
+def test_cached_replacement_object_cannot_hide_model_origin(
+    monkeypatch, isolated_model_fixture, attribute
+):
+    import sys
+    import types
+
+    source = str(isolated_model_fixture / "unreviewed.py")
+    cached = types.SimpleNamespace(
+        **{attribute: source if attribute == "__file__" else [source]}
+    )
+    monkeypatch.setitem(sys.modules, "cadence_fixture_cached_replacement", cached)
+    with pytest.raises(ValueError, match="Unreviewed cached dependency"):
+        runtime.load_model(device="cuda")
+
+
 def test_unlisted_model_submodule_is_not_importable(isolated_model_fixture):
     import importlib
 

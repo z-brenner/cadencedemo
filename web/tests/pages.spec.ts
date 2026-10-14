@@ -23,11 +23,11 @@ test('static site inspects all three real request types without inference calls'
   await expect(
     page.getByText('Static playground · no model inference', { exact: true }),
   ).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Run decision', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toHaveCount(0)
   for (const [name, kind] of [
-    ['Choice', 'choice'],
-    ['Boolean', 'noul'],
-    ['Score', 'score'],
+    ['Choose an answer', 'choice'],
+    ['Yes or no', 'noul'],
+    ['Rate on a scale', 'score'],
   ]) {
     await page.getByRole('button', { name, exact: true }).click()
     await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
@@ -52,7 +52,7 @@ test('copied JSON is the complete validated request', async ({ page, context }) 
 
 test('static site validates input and explains separate local setup', async ({ page }) => {
   await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
-  await page.getByLabel('State', { exact: true }).fill('{bad json')
+  await page.getByLabel('Context', { exact: true }).fill('{bad json')
   await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('not valid JSON')
   await page.getByRole('button', { name: 'Setup guide', exact: true }).click()
@@ -72,18 +72,14 @@ test('repository base path, navigation, mobile layout and accessibility', async 
   page,
 }, testInfo) => {
   await expect(page).toHaveURL(/\/cadencedemo\/$/)
-  await expect(
-    page.getByRole('heading', { name: 'Give context. Get a decision.' }),
-  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Give context. Get a decision.' })).toBeVisible()
   await expect(page.locator('vite-error-overlay')).toHaveCount(0)
   await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
-    true,
-  )
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
   await page.evaluate(() => window.scrollTo(0, 0))
   await page.screenshot({
-    path: `test-results/pages-${testInfo.project.name}.png`,
+    path: `/tmp/cadence-guided-pages-${testInfo.project.name}.png`,
     fullPage: true,
   })
   await page.getByRole('link', { name: 'Cadence home' }).click()
@@ -97,14 +93,15 @@ test('repository base path, navigation, mobile layout and accessibility', async 
 
 test('selecting the active JSON format preserves context', async ({ page }) => {
   await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
-  const source = await page.getByLabel('State', { exact: true }).inputValue()
+  const source = await page.getByLabel('Context', { exact: true }).inputValue()
+  await page.getByText('Advanced input details', { exact: true }).click()
   await page.getByRole('button', { name: 'JSON', exact: true }).click()
-  await expect(page.getByLabel('State', { exact: true })).toHaveValue(source)
+  await expect(page.getByLabel('Context', { exact: true })).toHaveValue(source)
 })
 
 test('unsafe integer JSON is explained before a request can run', async ({ page }) => {
   await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
-  await page.getByLabel('State', { exact: true }).fill('{"account_id":9007199254740993}')
+  await page.getByLabel('Context', { exact: true }).fill('{"account_id":9007199254740993}')
   await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('safe range')
   await expect(page.getByRole('alert')).toContainText('strings')
