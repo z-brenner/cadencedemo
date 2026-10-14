@@ -10,7 +10,7 @@ Probabilities are model outputs, **not calibrated guarantees of correctness**. E
 
 ## Verification status
 
-The local backend uses real inference only. Mocked responses exist solely in automated tests, and screenshot previews label them explicitly. **Real CUDA end-to-end inference passed** for choice, JSON-state Boolean and ordinal score HTTP requests, followed by a real decision in the built UI. The cached smoke used **Torch 2.11.0+cu128**, separately recorded from the published Torch 2.8 profile. CPU adapter selection/integration is tested; **demo end-to-end CPU inference has not been verified**. Passing stub tests are not native CPU inference evidence. See [verification evidence](docs/VERIFICATION.md).
+The local backend uses real inference only. Mocked responses exist solely in automated tests, and screenshot previews label them explicitly. **Real CUDA and CPU FP32 end-to-end inference passed** for choice, JSON-state Boolean and ordinal score HTTP requests. CUDA also rendered a real decision in the built UI; CPU rendered all three query types in the built UI without API interception. Both cached smokes used **Torch 2.11.0+cu128**, separately recorded from the published Torch 2.8 profile. These are bounded functionality checks, not accuracy, numerical-equivalence or performance benchmarks. Passing stub tests alone are not native inference evidence. See [verification evidence](docs/VERIFICATION.md).
 
 ## Local setup
 
@@ -60,7 +60,7 @@ The package directory must match every manifest hash; arbitrary or modified runt
 
 ### Explicit CPU FP32 selection
 
-The demo includes an unchanged, SHA-checked copy of the coordinated `CpuCadence` adapter. It reconstructs the pinned BF16-rounded merged Kev base and then promotes the model to FP32, retaining the FP32 adapter/head. This is a **separate experimental precision profile**, not a claim of CUDA numerical equivalence or general task accuracy. The coordinator has run synthetic reconstruction checks on Linux x86; this demo has tested adapter selection, metadata, limits and failure handling, but **has not run end-to-end CPU inference**. Merged and INT8 profiles are not exposed or recommended here.
+The demo includes an unchanged, SHA-checked copy of the coordinated `CpuCadence` adapter. It reconstructs the pinned BF16-rounded merged Kev base and then promotes the model to FP32, retaining the FP32 adapter/head. This is a **separate experimental precision profile**, not a claim of CUDA numerical equivalence or general task accuracy. The coordinator has run synthetic reconstruction checks on Linux x86; this demo has tested adapter selection, metadata, limits and failure handling, and **passed cached end-to-end CPU FP32 HTTP/UI smoke** for all three native query types on the tested Linux host. Merged and INT8 profiles are not exposed or recommended here.
 
 Prepare the exact public package, released Kev dependency and base snapshots while network access is available. This cache preparation downloads files without loading Torch or running inference; allow roughly 1.8 GB of downloads and enough installation/cache disk space:
 
@@ -143,7 +143,7 @@ An **opt-in real inference smoke** is included. Coordinate a device slot when sh
 python -m backend.smoke --output docs/real-inference-smoke.json
 ```
 
-This runs one choice, one JSON-state Boolean and one ordinal score request via real HTTP. It checks finite normalized distributions, revision metadata and agreement with the selected device/profile. It checks functionality, not task accuracy or performance. Native model smoke is deliberately excluded from CI. Do not run it alongside an uncoordinated shared hardware job. The checked-in real evidence comes from the reserved cached CUDA smoke; CPU has not had a demo-native smoke.
+This runs one choice, one JSON-state Boolean and one ordinal score request via real HTTP. It checks finite normalized distributions, revision metadata and agreement with the selected device/profile. It checks functionality, not task accuracy or performance. Native model smoke is deliberately excluded from CI. Do not run it alongside an uncoordinated shared hardware job. The checked-in real evidence covers separate reserved cached CUDA and CPU FP32 smokes, with actual environments and resource release recorded. CPU UI evidence covers all three query types without response mocking.
 
 ## Troubleshooting
 

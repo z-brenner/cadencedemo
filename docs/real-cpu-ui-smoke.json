@@ -1,0 +1,82 @@
+{
+  "inference": "real",
+  "device": "cpu",
+  "profile": "cpu_fp32",
+  "api_interception": false,
+  "rows": [
+    {
+      "kind": "choice",
+      "result": {
+        "kind": "choice",
+        "native_option_ids": [
+          "play_music",
+          "book_restaurant",
+          "get_weather"
+        ],
+        "probabilities": {
+          "play_music": 0.9995132628003937,
+          "book_restaurant": 0.0004867231811022243,
+          "get_weather": 1.4018504157689433e-8
+        },
+        "value": null,
+        "tokens": 66,
+        "seconds": 0.9164657728979364,
+        "truncated": false,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "cpu",
+        "profile": "cpu_fp32"
+      }
+    },
+    {
+      "kind": "noul",
+      "result": {
+        "kind": "noul",
+        "native_option_ids": [
+          "false",
+          "true"
+        ],
+        "probabilities": {
+          "false": 0.04652049515430364,
+          "true": 0.9534795048456964
+        },
+        "value": 0.9534795048456964,
+        "tokens": 57,
+        "seconds": 0.798515708069317,
+        "truncated": false,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "cpu",
+        "profile": "cpu_fp32"
+      }
+    },
+    {
+      "kind": "score",
+      "result": {
+        "kind": "score",
+        "native_option_ids": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "probabilities": {
+          "0": 0.01096490593934163,
+          "1": 0.0709721586160156,
+          "2": 0.08450733374447633,
+          "3": 0.5545681991706457,
+          "4": 0.27898740252952065
+        },
+        "value": 3.019641033734988,
+        "tokens": 116,
+        "seconds": 0.6933642069343477,
+        "truncated": false,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "cpu",
+        "profile": "cpu_fp32"
+      }
+    }
+  ]
+}

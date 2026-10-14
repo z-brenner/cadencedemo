@@ -1,6 +1,6 @@
 # Demo verification
 
-Status: implementation, lightweight API integration, built UI checks and **real CUDA end-to-end smoke passed**. Explicit CPU FP32 adapter integration is tested; **demo end-to-end CPU inference remains unverified**. No heavy CPU benchmark was run by the demo workstream.
+Status: implementation, lightweight API integration, built UI checks and **real CUDA and CPU FP32 end-to-end smoke passed**. CPU covered all three query types through both HTTP and the built UI without API interception. No heavy CPU benchmark was run by the demo workstream.
 
 ## Evidence
 
@@ -50,4 +50,15 @@ The smoke environment used **Torch 2.11.0+cu128**, transformers 5.19.0, peft 0.2
 
 ## CPU integration boundary and limitations
 
-The unchanged coordinated FP32 adapter is pinned by [source hash](../backend/cpu-adapter-manifest.json) and [Apache-2.0 attribution](../NOTICE). Production selection is explicit, four threads, cached-only, and limited to 16 options. CPU and CUDA startup binding, failed selection/no fallback, source/cache guards, output device/profile metadata and CPU UI limits have lightweight tests. CPU metadata and UI tests use only test stubs; **no end-to-end native CPU demo run is claimed**. CPU portability and numerical/task-accuracy comparison remain the coordinator's separate workstream. No merged or INT8 profile is recommended by this demo.
+The unchanged coordinated FP32 adapter is pinned by [source hash](../backend/cpu-adapter-manifest.json) and [Apache-2.0 attribution](../NOTICE). Production selection is explicit, four threads, cached-only, and limited to 16 options. CPU and CUDA startup binding, failed selection/no fallback, source/cache guards, output device/profile metadata and CPU UI limits have lightweight tests. Automated CPU metadata/limit tests use test stubs; the separate reserved native CPU smoke below verifies the real inference boundary. CPU portability and numerical/task-accuracy comparison remain the coordinator's separate workstream. No merged or INT8 profile is recommended by this demo.
+
+
+## Real CPU FP32 inference
+
+A second coordinator reservation covered cached-only CPU FP32 inference, bounded to 60 seconds from worker launch. The integrated demo at commit `24e0b4f` served one native choice, one JSON-state Boolean and one ordinal score HTTP request. The built UI then ran all three query types with real responses, correctly displayed `cpu_fp32`, and kept its precision-difference explanation. There was no API interception, response mocking or INT8 selection.
+
+[Native CPU HTTP results](real-cpu-inference-smoke.json), [native UI results](real-cpu-ui-smoke.json), [actual environment/resource release](real-cpu-smoke-environment.json) and the [real CPU score screenshot](real-cpu-ui.jpg) retain sanitized evidence. The worker exited after **16.66 seconds**, its process was absent afterward, and the coordinator released the held measurement queue. No downloads or installations occurred. Evidence plus the temporary log totaled **74,986 bytes**, below the 100,000-byte reservation; temporary scripts/logs remain uncommitted.
+
+Actual profile: **CPU FP32, four threads**, Python 3.12.14 and Torch 2.11.0+cu128, with the same pinned model dependencies as the CUDA smoke. The process used the CPU even though its installed Torch wheel supports CUDA. The environment differs from the Torch 2.8 benchmark profile and is recorded without private paths. The native checks verify finite normalized distributions, query kinds, exact revision and device/profile metadata; the UI also verifies visible typed results and no uncaught page errors.
+
+The CPU smoke establishes this demo's functionality on the tested Linux host. It does not establish task accuracy, CPU/CUDA numerical equivalence, long-context quality, other CPU/OS portability or a memory/latency SLA. FP32 remains the only exposed CPU profile; merged and INT8 alternatives are not enabled or recommended by this demo.
