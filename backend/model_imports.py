@@ -23,6 +23,15 @@ def inside_package(source, package):
     )
 
 
+def stored_attribute(value, name, default=None):
+    # Bypass dynamic __getattr__/__getattribute__ namespaces while preserving
+    # real import metadata on Python's permitted cached replacement objects.
+    try:
+        return object.__getattribute__(value, name)
+    except AttributeError:
+        return default
+
+
 class VerifiedSourceLoader(importlib.abc.Loader):
     def __init__(self, source, digest):
         self.source = source
@@ -77,9 +86,11 @@ def install_model_imports(package, manifest):
     for name, module in tuple(sys.modules.items()):
         if name in MODEL_SOURCES:
             continue
-        source = getattr(module, "__file__", None)
+        # Inspect stored import metadata, never dynamic module attributes. Torch
+        # namespaces synthesize arbitrary attributes (including __path__) lazily.
+        source = stored_attribute(module, "__file__")
         origins = [source] if source else []
-        origins.extend(getattr(module, "__path__", []) or [])
+        origins.extend(stored_attribute(module, "__path__", []) or [])
         if any(inside_package(origin, package) for origin in origins):
             raise ValueError(
                 "Unreviewed cached dependency: " + name + "; start a fresh process."

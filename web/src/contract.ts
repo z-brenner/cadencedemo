@@ -1,10 +1,17 @@
 export const revision = '17cdf36034677e406033fbf97637b4db1984ca70'
-export const profiles = { cpu: 'cpu_fp32', cuda: 'cuda_bf16_fp32' } as const
+export const profiles = {
+  cpu: 'cpu_fp32',
+  cuda: 'cuda_bf16_fp32',
+  browser: 'browser_fp32',
+} as const
 export type Device = keyof typeof profiles
 export function validProfile(device: unknown, profile: unknown): device is Device {
-  return (device === 'cpu' || device === 'cuda') && profiles[device] === profile
+  return (
+    (device === 'cpu' || device === 'cuda' || device === 'browser') && profiles[device] === profile
+  )
 }
 export function deviceLabel(device: Device) {
+  if (device === 'browser') return 'In your browser · FP32'
   return device === 'cpu' ? 'CPU FP32 (experimental)' : 'CUDA · BF16 base / FP32 adapter + head'
 }
 export type Kind = 'choice' | 'noul' | 'score'
@@ -38,6 +45,7 @@ export type Result = {
   revision: string
   device: Device
   profile: (typeof profiles)[Device]
+  artifact_manifest_sha256?: string
 }
 
 export function unicodeLength(text: string): number {
@@ -65,11 +73,7 @@ export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
         if (typeof value === 'string') unicodeLength(value)
         if (typeof value === 'number' && !Number.isFinite(value))
           throw new Error('Nonfinite JSON number')
-        if (
-          typeof value === 'number' &&
-          Number.isInteger(value) &&
-          !Number.isSafeInteger(value)
-        ) {
+        if (typeof value === 'number' && Number.isInteger(value) && !Number.isSafeInteger(value)) {
           unsafeInteger = true
           throw new Error('Unsafe JSON integer')
         }
@@ -121,7 +125,11 @@ export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
   return request
 }
 
-export function validateResult(data: unknown, request: DecisionRequest): Result {
+export function validateResult(
+  data: unknown,
+  request: DecisionRequest,
+  expectedBrowserManifestSha?: string,
+): Result {
   const r = data as Result
   const q = request.questions.decision
   const keys =
@@ -137,15 +145,18 @@ export function validateResult(data: unknown, request: DecisionRequest): Result 
     r.model !== 'foolish-bandit/cadence-0.8b' ||
     r.truncated !== false ||
     !validProfile(r.device, r.profile) ||
+    (r.device === 'browser' &&
+      (!expectedBrowserManifestSha ||
+        !/^[a-f0-9]{64}$/.test(expectedBrowserManifestSha) ||
+        r.artifact_manifest_sha256 !== expectedBrowserManifestSha ||
+        r.tokens > 512)) ||
     !Array.isArray(r.native_option_ids) ||
     JSON.stringify(r.native_option_ids) !== JSON.stringify(keys) ||
     !r.probabilities ||
     Object.keys(r.probabilities).length !== keys.length ||
     keys.some(
       (k) =>
-        !Number.isFinite(r.probabilities[k]) ||
-        r.probabilities[k] < 0 ||
-        r.probabilities[k] > 1,
+        !Number.isFinite(r.probabilities[k]) || r.probabilities[k] < 0 || r.probabilities[k] > 1,
     ) ||
     Math.abs(keys.reduce((sum, k) => sum + r.probabilities[k], 0) - 1) > 0.00001 ||
     !Number.isFinite(r.seconds) ||
@@ -153,9 +164,7 @@ export function validateResult(data: unknown, request: DecisionRequest): Result 
     !Number.isInteger(r.tokens) ||
     r.tokens < 1
   )
-    throw new Error(
-      'The backend returned an invalid result. Check the backend version and retry.',
-    )
+    throw new Error('The backend returned an invalid result. Check the backend version and retry.')
   if (r.kind === 'score' || r.kind === 'noul') {
     const expected =
       r.kind === 'noul'

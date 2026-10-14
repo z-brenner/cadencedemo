@@ -60,27 +60,27 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/?preview=ui-test')
 })
 test('choice, Boolean and ordinal runs preserve native request semantics', async ({ page }) => {
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
-  await expect(page.getByText('Highest-probability option')).toBeVisible()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
+  await expect(page.getByText('Cadence favors', { exact: true })).toBeVisible()
   await expect(page.getByText('80.0%', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Boolean', exact: true }).click()
+  await page.getByRole('button', { name: 'Yes or no', exact: true }).click()
   const booleanRequest = page.waitForRequest((r) => r.url().endsWith('/api/predict'))
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   expect((await booleanRequest).postDataJSON().questions.decision.type).toBe('noul')
-  await expect(page.getByText('Probability of true', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Score', exact: true }).click()
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
-  await expect(page.getByText('Expected level', { exact: true })).toBeVisible()
+  await expect(page.getByText('Model probability of Yes', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Rate on a scale', exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
+  await expect(page.getByText('Average model rating', { exact: true })).toBeVisible()
   await expect(page.getByText('0.50 / 4', { exact: true })).toBeVisible()
-  await page.getByLabel('State', { exact: true }).fill('Different context')
+  await page.getByLabel('Context', { exact: true }).fill('Different context')
   await expect(
-    page.getByText('Inputs changed. This result belongs to your previous run.'),
+    page.getByText('You changed the inputs. Get a new decision to update this result.'),
   ).toBeVisible()
 })
 test('JSON validation, loading, recovery and raw result', async ({ page }) => {
   await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
-  await page.getByLabel('State', { exact: true }).fill('{bad json')
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByLabel('Context', { exact: true }).fill('{bad json')
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('not valid JSON')
   await page.getByRole('button', { name: 'Play music', exact: true }).click()
   await page.route('**/api/predict', (route) =>
@@ -89,9 +89,9 @@ test('JSON validation, loading, recovery and raw result', async ({ page }) => {
       json: { detail: 'Model could not load. Check local CUDA setup.' },
     }),
   )
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('Check local CUDA')
-  await expect(page.getByRole('button', { name: 'Run decision', exact: true })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeEnabled()
   await page.unroute('**/api/predict')
   let release: () => void = () => {}
   const waiting = new Promise<void>((resolve) => {
@@ -114,19 +114,20 @@ test('JSON validation, loading, recovery and raw result', async ({ page }) => {
       },
     })
   })
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Running decision…' })).toBeDisabled()
-  await expect(page.getByLabel('State', { exact: true })).toBeDisabled()
+  await expect(page.getByLabel('Context', { exact: true })).toBeDisabled()
   release()
-  await expect(page.getByText('Highest-probability option')).toBeVisible()
+  await expect(page.getByText('Cadence favors', { exact: true })).toBeVisible()
   await page.getByText('Raw JSON', { exact: true }).click()
   await expect(page.locator('.raw pre')).toContainText(revision)
 })
 test('option editing, setup dialog keyboard and accessibility', async ({ page }) => {
   await page.getByRole('button', { name: 'Add option', exact: false }).click()
+  await page.getByText('Advanced input details', { exact: true }).click()
   await expect(page.getByLabel('Option 4 ID')).toBeVisible()
   await page.getByLabel('Option 4 ID').fill('play_music')
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('unique ID')
   await page.getByRole('button', { name: 'Remove option 4' }).click()
   await page.getByRole('button', { name: 'Setup guide' }).click()
@@ -136,32 +137,24 @@ test('option editing, setup dialog keyboard and accessibility', async ({ page })
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations).toEqual([])
 })
-test('responsive screenshots explicitly identify mocked preview', async ({
-  page,
-}, testInfo) => {
+test('responsive screenshots explicitly identify mocked preview', async ({ page }, testInfo) => {
   const consoleErrors = capturedErrors.get(page)!
   await expect(page).toHaveTitle('Cadence Demo — typed decisions')
-  await expect(
-    page.getByRole('heading', { name: 'Give context. Get a decision.' }),
-  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Give context. Get a decision.' })).toBeVisible()
   await expect(page.locator('vite-error-overlay')).toHaveCount(0)
   await expect(page.getByText(/UI test preview/)).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
-    true,
-  )
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.evaluate(() => window.scrollTo(0, 0))
   await page.screenshot({
-    path: `docs/preview-${testInfo.project.name}-empty.png`,
+    path: `/tmp/cadence-guided-${testInfo.project.name}-empty.png`,
     fullPage: true,
   })
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByText('Mock result · UI test only')).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
-    true,
-  )
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.evaluate(() => window.scrollTo(0, 0))
   await page.screenshot({
-    path: `docs/preview-${testInfo.project.name}-result.png`,
+    path: `/tmp/cadence-guided-${testInfo.project.name}-result.png`,
     fullPage: true,
   })
   expect(consoleErrors).toEqual([])
@@ -207,7 +200,8 @@ test('CPU profile is reported and the editor respects its option limit', async (
   for (let i = 3; i < 16; i++)
     await page.getByRole('button', { name: 'Add option', exact: false }).click()
   await expect(page.getByRole('button', { name: 'Add option', exact: false })).toBeDisabled()
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
+  await page.getByText('Technical result details', { exact: true }).click()
   await expect(page.getByText(/precision differs from the public CUDA profile/)).toBeVisible()
 })
 
@@ -215,26 +209,140 @@ test('multilingual and astral JSON reaches the API unchanged', async ({ page }) 
   await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
   const state = { text: '日'.repeat(3000), accent: 'é'.repeat(2000), emoji: '😀'.repeat(1000) }
   const source = JSON.stringify(state)
-  await page.getByLabel('State', { exact: true }).fill(source)
+  await page.getByLabel('Context', { exact: true }).fill(source)
   const sent = page.waitForRequest((request) => request.url().endsWith('/api/predict'))
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   expect((await sent).postDataJSON().state).toEqual(state)
-  await expect(page.getByText('Highest-probability option')).toBeVisible()
-  await expect(page.getByLabel('State', { exact: true })).toHaveValue(source)
+  await expect(page.getByText('Cadence favors', { exact: true })).toBeVisible()
+  await expect(page.getByLabel('Context', { exact: true })).toHaveValue(source)
   expect(capturedErrors.get(page)).toEqual([])
 })
 
 test('selecting the active JSON format preserves context', async ({ page }) => {
   await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
-  const source = await page.getByLabel('State', { exact: true }).inputValue()
+  const source = await page.getByLabel('Context', { exact: true }).inputValue()
+  await page.getByText('Advanced input details', { exact: true }).click()
   await page.getByRole('button', { name: 'JSON', exact: true }).click()
-  await expect(page.getByLabel('State', { exact: true })).toHaveValue(source)
+  await expect(page.getByLabel('Context', { exact: true })).toHaveValue(source)
 })
 
 test('unsafe integer JSON is explained before a request can run', async ({ page }) => {
   await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
-  await page.getByLabel('State', { exact: true }).fill('{"account_id":9007199254740993}')
-  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await page.getByLabel('Context', { exact: true }).fill('{"account_id":9007199254740993}')
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('safe range')
   await expect(page.getByRole('alert')).toContainText('strings')
+})
+
+test('guided inputs hide technical controls and retain exact native choices', async ({ page }) => {
+  await expect(page.getByLabel('Context', { exact: true })).toBeVisible()
+  await expect(page.getByLabel('Question', { exact: true })).toBeVisible()
+  await expect(page.getByText('Possible answers', { exact: true })).toBeVisible()
+  await expect(page.getByLabel('Option 1 ID')).not.toBeVisible()
+  await expect(page.getByRole('button', { name: 'JSON', exact: true })).not.toBeVisible()
+  const sent = page.waitForRequest((r) => r.url().endsWith('/api/predict'))
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
+  expect(Object.keys((await sent).postDataJSON().questions.decision.criteria)).toEqual([
+    'play_music',
+    'book_restaurant',
+    'get_weather',
+  ])
+  await expect(page.locator('.answer')).toHaveText('Play music')
+  await expect(
+    page.getByText(
+      'These percentages describe the model’s output. They do not measure how likely the answer is to be correct.',
+    ),
+  ).toBeVisible()
+})
+
+test('an exact probability tie does not claim one leading answer', async ({ page }) => {
+  await page.route('**/api/predict', (route) =>
+    route.fulfill({
+      json: {
+        kind: 'choice',
+        native_option_ids: ['play_music', 'book_restaurant', 'get_weather'],
+        probabilities: { play_music: 0.45, book_restaurant: 0.45, get_weather: 0.1 },
+        value: null,
+        tokens: 48,
+        seconds: 0.045,
+        truncated: false,
+        model,
+        revision,
+        ...cudaRuntime,
+      },
+    }),
+  )
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
+  await expect(page.locator('.answer')).toHaveText('No single leading answer')
+  await expect(page.getByText('45.0%', { exact: true })).toHaveCount(2)
+})
+
+test('guided form fits a narrow phone with advanced controls open', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 })
+  await page.getByText('Advanced input details', { exact: true }).click()
+  await expect(page.getByLabel('Option 1 ID')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+})
+
+test('adding answers after a removal keeps generated IDs unique and stable', async ({ page }) => {
+  await page.getByRole('button', { name: 'Add option', exact: false }).click()
+  await page.getByText('Advanced input details', { exact: true }).click()
+  const keptId = await page.getByLabel('Option 4 ID').inputValue()
+  await page.getByRole('button', { name: 'Remove option 3', exact: true }).click()
+  await page.getByRole('button', { name: 'Add option', exact: false }).click()
+  const ids = await page
+    .locator('.native-ids input')
+    .evaluateAll((inputs) => inputs.map((input) => (input as HTMLInputElement).value))
+  expect(ids[2]).toBe(keptId)
+  expect(new Set(ids).size).toBe(ids.length)
+  await page.getByText('Advanced input details', { exact: true }).click()
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
+  await expect(page.locator('.answer')).toBeVisible()
+  await expect(page.getByRole('alert')).toHaveCount(0)
+})
+
+test('colliding readable names identify exact native choices in the editor and results', async ({
+  page,
+}) => {
+  await page.getByText('Advanced input details', { exact: true }).click()
+  const ids = ['play_music', 'play music', 'Play music']
+  for (let i = 0; i < ids.length; i++) {
+    await page.getByLabel(`Option ${i + 1} ID`).fill(ids[i])
+    await page.getByLabel(`Answer ${i + 1} description`).fill('')
+  }
+  await page.getByText('Advanced input details', { exact: true }).click()
+  const labels = ids.map((id) => `Play music (ID: ${id})`)
+  await expect(page.locator('.answer-name')).toHaveText(labels)
+  const sent = page.waitForRequest((r) => r.url().endsWith('/api/predict'))
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
+  expect(Object.keys((await sent).postDataJSON().questions.decision.criteria)).toEqual(ids)
+  await expect(page.locator('.answer')).toHaveText(labels[0])
+  await expect(page.locator('.probability-label > span')).toHaveText(labels)
+  await page.getByRole('button', { name: 'Play music', exact: true }).click()
+  await expect(page.locator('.answer-name').first()).toHaveText('Play music')
+  await expect(page.locator('.answer')).toHaveText(labels[0])
+  await expect(
+    page.getByText('You changed the inputs. Get a new decision to update this result.'),
+  ).toBeVisible()
+})
+
+test('local backend health does not accept a browser execution profile', async ({ page }) => {
+  await page.route('**/api/health', (route) =>
+    route.fulfill({
+      json: {
+        status: 'ready',
+        busy: false,
+        inference: 'real',
+        revision,
+        device: 'browser',
+        profile: 'browser_fp32',
+        limits: { options: 16 },
+      },
+    }),
+  )
+  await page.reload()
+  await expect(page.getByText('Backend not connected', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Download model', exact: true })).toHaveCount(0)
 })

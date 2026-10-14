@@ -1,0 +1,844 @@
+{
+  "tokenizerLibrary": "@huggingface/tokenizers",
+  "tokenizerLibraryVersion": "0.2.0",
+  "tokenizerLibraryUnpackedBytes": 360962,
+  "tokenizerLibraryModuleBytes": 98937,
+  "tokenizerModel": "Qwen/Qwen3.5-0.8B-Base",
+  "tokenizerRevision": "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68",
+  "tokenizerFiles": [
+    {
+      "name": "tokenizer.json",
+      "bytes": 12807196,
+      "sha256": "fe000e3ed39ed12b8d2481d527d44f93c65d37e87645d2dcc80d1bf9d50d2927"
+    },
+    {
+      "name": "tokenizer_config.json",
+      "bytes": 16712,
+      "sha256": "e611fbccc7c29ef3b1cafb1cb7ea548d189968632901d678fd62be68c47885de"
+    }
+  ],
+  "executionEnvironment": "Node.js with official browser-compatible pure JS tokenizer",
+  "modelInferenceRun": false,
+  "nativeCasesChecked": 115,
+  "allExact": true,
+  "checks": [
+    {
+      "name": "choice-text",
+      "tokens": 35,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "choice-json",
+      "tokens": 41,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "boolean-text",
+      "tokens": 22,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "boolean-json",
+      "tokens": 31,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "score-text",
+      "tokens": 36,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "score-json",
+      "tokens": 32,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "reserved-unicode",
+      "tokens": 39,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-0",
+      "tokens": 81,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-1",
+      "tokens": 57,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-2",
+      "tokens": 48,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-3",
+      "tokens": 71,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-4",
+      "tokens": 51,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-5",
+      "tokens": 74,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-6",
+      "tokens": 119,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-7",
+      "tokens": 45,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-8",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-9",
+      "tokens": 59,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-10",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-11",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-12",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-13",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-14",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-15",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-16",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-17",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-18",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-19",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-20",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-21",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-22",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-23",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-24",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-25",
+      "tokens": 51,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-26",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-27",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-28",
+      "tokens": 59,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-29",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-30",
+      "tokens": 53,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-31",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-32",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-33",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-34",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-35",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-36",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-37",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-38",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-39",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-40",
+      "tokens": 59,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-41",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-42",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-43",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-44",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-45",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-46",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-47",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-48",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-49",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-50",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-51",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-52",
+      "tokens": 57,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-53",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-54",
+      "tokens": 56,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-55",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-56",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-57",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-58",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-59",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-60",
+      "tokens": 47,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-61",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-62",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-63",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-64",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-65",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-66",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-67",
+      "tokens": 56,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-68",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-69",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-70",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-71",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-72",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-73",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-74",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-75",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-76",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-77",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-78",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-79",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-80",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-81",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-82",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-83",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-84",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-85",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-86",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-87",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-88",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-89",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-90",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-91",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-92",
+      "tokens": 56,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-93",
+      "tokens": 57,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-94",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-95",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-96",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-97",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-98",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-99",
+      "tokens": 62,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-100",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-101",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-102",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-103",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-104",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-105",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-106",
+      "tokens": 61,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    },
+    {
+      "name": "tokenizer-edge-107",
+      "tokens": 60,
+      "tokenIdsExact": true,
+      "readoutIndicesExact": true,
+      "allEncodingFieldsExact": true
+    }
+  ],
+  "browserVerification": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "casesChecked": 115,
+    "allExact": true,
+    "modelInferenceRun": false,
+    "networkRequests": 0
+  },
+  "limitations": [
+    "One question per causal row; no option isolation.",
+    "Canonical browser JSON wire values; no raw numeric lexeme preservation.",
+    "JSON nesting above 128 levels is rejected. Numeric integers beyond the safe JavaScript range and nonfinite numbers are rejected.",
+    "Tokenizer parity alone does not establish browser model inference parity."
+  ]
+}

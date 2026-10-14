@@ -1,0 +1,511 @@
+{
+  "kind": "trained-layer-browser-probe",
+  "modelWeightsLoaded": true,
+  "fullCadenceModelLoaded": false,
+  "trainedLayerWeightsLoaded": true,
+  "createdAt": "2026-10-14T04:19:24.121Z",
+  "ortWebVersion": "1.30.0",
+  "browserVersion": "155.0.8059.39",
+  "browserAutomation": "Playwright; Browser skill absent",
+  "softwareGpuRequested": true,
+  "wasmThreads": 1,
+  "graphOptimizationLevel": "disabled",
+  "url": "http://127.0.0.1:44089/",
+  "capability": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "webgpuApi": true,
+    "adapterAvailable": true,
+    "adapterInfo": {
+      "vendor": "google",
+      "architecture": "swiftshader",
+      "device": "",
+      "description": "",
+      "isFallbackAdapter": true
+    },
+    "features": [
+      "depth32float-stencil8",
+      "rg11b10ufloat-renderable",
+      "bgra8unorm-storage",
+      "texture-compression-bc",
+      "core-features-and-limits",
+      "chromium-experimental-sampling-resource-table",
+      "chromium-experimental-timestamp-query-inside-passes",
+      "float32-filterable",
+      "indirect-first-instance",
+      "texture-compression-astc-sliced-3d",
+      "float32-blendable",
+      "subgroup-size-control",
+      "texture-compression-unaligned",
+      "texture-compression-astc",
+      "texture-compression-etc2",
+      "depth-clip-control",
+      "texture-compression-bc-sliced-3d",
+      "clip-distances",
+      "timestamp-query",
+      "texture-component-swizzle",
+      "subgroups"
+    ],
+    "limits": {
+      "maxBufferSize": 1073741824,
+      "maxStorageBufferBindingSize": 1073741824
+    }
+  },
+  "runs": [
+    {
+      "provider": "wasm",
+      "disableCpuFallback": false,
+      "cases": [
+        {
+          "name": "trained_delta_layer_63",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "ee10fbc96fb953d1f848d18d76083047db139c7f049fb10d2c509fd2489a0a4f",
+          "sessionCreated": true,
+          "sessionCreateMs": 1062.2150000333786,
+          "runMs": 248.04499995708466,
+          "outputs": {
+            "output": {
+              "type": "float32",
+              "dims": [
+                1,
+                63,
+                1024
+              ],
+              "elements": 64512,
+              "firstValues": [
+                -0.0011918003438040614,
+                -0.00019860915199387819,
+                -0.00008009341399883851,
+                -0.00015044547035358846,
+                -0.00034583613160066307,
+                -0.0002901774423662573,
+                -0.00027320501976646483,
+                0.00002726397360675037
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "output": {
+              "maxAbsError": 1.1175870895385742e-8,
+              "maxRelativeError": 0.0022855601855553687,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 7.496896429739661e-7
+            }
+          },
+          "maxAbsError": 1.1175870895385742e-8,
+          "passed": true,
+          "elapsedMs": 1350.1100000143051
+        },
+        {
+          "name": "trained_delta_layer_64",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "8cc4d3182c02b6fa7b899bbd922eb7e8a45d6d757f41f496a0f6e50f7cd2fb04",
+          "sessionCreated": true,
+          "sessionCreateMs": 238.875,
+          "runMs": 193.62000000476837,
+          "outputs": {
+            "output": {
+              "type": "float32",
+              "dims": [
+                1,
+                64,
+                1024
+              ],
+              "elements": 65536,
+              "firstValues": [
+                -0.0002381736267125234,
+                -0.00023940975370351225,
+                -0.000015549287127214484,
+                -0.00013089596177451313,
+                -0.00010748517524916679,
+                -0.00000969587745203171,
+                0.00007760920561850071,
+                0.000020830289940931834
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "output": {
+              "maxAbsError": 2.2351741790771484e-8,
+              "maxRelativeError": 0.002510205376893282,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 7.224985952763912e-7
+            }
+          },
+          "maxAbsError": 2.2351741790771484e-8,
+          "passed": true,
+          "elapsedMs": 451.2699999809265
+        },
+        {
+          "name": "trained_delta_layer_65",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "09457aba98814dba7a3b28a0ef944a33b4a4306e931a779f0b98c88e836bb935",
+          "sessionCreated": true,
+          "sessionCreateMs": 250.04499995708466,
+          "runMs": 165.20999991893768,
+          "outputs": {
+            "output": {
+              "type": "float32",
+              "dims": [
+                1,
+                65,
+                1024
+              ],
+              "elements": 66560,
+              "firstValues": [
+                -0.001074507599696517,
+                -0.00015405492740683258,
+                -0.00006771202606614679,
+                -1.3644159935211064e-7,
+                -0.00009196304745273665,
+                -0.0002941065176855773,
+                -0.00037197876372374594,
+                -0.00009689372382126749
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "output": {
+              "maxAbsError": 1.4901161193847656e-8,
+              "maxRelativeError": 0.0026014959075837396,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 8.57570455705515e-7
+            }
+          },
+          "maxAbsError": 1.4901161193847656e-8,
+          "passed": true,
+          "elapsedMs": 435.5
+        },
+        {
+          "name": "trained_delta_layer_128",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "94ec8ab73dbdf3e69b711c5365888732040b54cc8222759464e635cf92944284",
+          "sessionCreated": true,
+          "sessionCreateMs": 237.3549998998642,
+          "runMs": 262.88499999046326,
+          "outputs": {
+            "output": {
+              "type": "float32",
+              "dims": [
+                1,
+                128,
+                1024
+              ],
+              "elements": 131072,
+              "firstValues": [
+                -0.0023841960355639458,
+                -0.0000528717901033815,
+                -0.00029404120869003236,
+                0.00011451353202573955,
+                -0.00032855250174179673,
+                -0.0002869167074095458,
+                -0.0003042647731490433,
+                0.00013832647528033704
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "output": {
+              "maxAbsError": 3.725290298461914e-8,
+              "maxRelativeError": 0.0027909585357554154,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 7.079759001838213e-7
+            }
+          },
+          "maxAbsError": 3.725290298461914e-8,
+          "passed": true,
+          "elapsedMs": 533.2400000095367
+        }
+      ]
+    },
+    {
+      "provider": "webgpu",
+      "disableCpuFallback": false,
+      "cases": [
+        {
+          "name": "trained_delta_layer_63",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "ee10fbc96fb953d1f848d18d76083047db139c7f049fb10d2c509fd2489a0a4f",
+          "sessionCreated": true,
+          "sessionCreateMs": 380.40499997138977,
+          "runMs": 3676.1749999523163,
+          "outputs": {
+            "output": {
+              "type": "float32",
+              "dims": [
+                1,
+                63,
+                1024
+              ],
+              "elements": 64512,
+              "firstValues": [
+                -0.0011918022064492106,
+                -0.00019860913744196296,
+                -0.00008009356679394841,
+                -0.00015044573228806257,
+                -0.000345836189808324,
+                -0.0002901776460930705,
+                -0.00027320501976646483,
+                0.000027263638912700117
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "output": {
+              "maxAbsError": 3.725290298461914e-8,
+              "maxRelativeError": 0.0029577904570032842,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 0.0000014012427842466429
+            }
+          },
+          "maxAbsError": 3.725290298461914e-8,
+          "passed": true,
+          "elapsedMs": 4077.149999976158
+        },
+        {
+          "name": "trained_delta_layer_64",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "8cc4d3182c02b6fa7b899bbd922eb7e8a45d6d757f41f496a0f6e50f7cd2fb04",
+          "sessionCreated": true,
+          "sessionCreateMs": 199.73500001430511,
+          "runMs": 5286.1050000190735,
+          "outputs": {
+            "output": {
+              "type": "float32",
+              "dims": [
+                1,
+                64,
+                1024
+              ],
+              "elements": 65536,
+              "firstValues": [
+                -0.00023817432520445436,
+                -0.00023940943356137723,
+                -0.000015549481759080663,
+                -0.00013089556887280196,
+                -0.0001074850297300145,
+                -0.000009696233064460102,
+                0.00007760864536976442,
+                0.0000208303754334338
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "output": {
+              "maxAbsError": 4.470348358154297e-8,
+              "maxRelativeError": 0.0028230715543031693,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 0.0000013597206205470382
+            }
+          },
+          "maxAbsError": 4.470348358154297e-8,
+          "passed": true,
+          "elapsedMs": 5499.924999952316
+        },
+        {
+          "name": "trained_delta_layer_65",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "09457aba98814dba7a3b28a0ef944a33b4a4306e931a779f0b98c88e836bb935",
+          "sessionCreated": true,
+          "sessionCreateMs": 286.0200001001358,
+          "runMs": 4793.670000076294,
+          "outputs": {
+            "output": {
+              "type": "float32",
+              "dims": [
+                1,
+                65,
+                1024
+              ],
+              "elements": 66560,
+              "firstValues": [
+                -0.0010745070176199079,
+                -0.00015405472368001938,
+                -0.00006771205516997725,
+                -1.3667397524841363e-7,
+                -0.00009196301107294858,
+                -0.00029410645947791636,
+                -0.0003719782398547977,
+                -0.00009689400030765682
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "output": {
+              "maxAbsError": 4.0978193283081055e-8,
+              "maxRelativeError": 0.004705725586973131,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 0.0000015108797346441488
+            }
+          },
+          "maxAbsError": 4.0978193283081055e-8,
+          "passed": true,
+          "elapsedMs": 5099.655000090599
+        },
+        {
+          "name": "trained_delta_layer_128",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "94ec8ab73dbdf3e69b711c5365888732040b54cc8222759464e635cf92944284",
+          "sessionCreated": true,
+          "sessionCreateMs": 263.61500000953674,
+          "runMs": 5709.185000061989,
+          "outputs": {
+            "output": {
+              "type": "float32",
+              "dims": [
+                1,
+                128,
+                1024
+              ],
+              "elements": 131072,
+              "firstValues": [
+                -0.0023841962683945894,
+                -0.00005287191743263975,
+                -0.00029404129600152373,
+                0.0001145136629929766,
+                -0.0003285519196651876,
+                -0.00028691659099422395,
+                -0.00030426520970650017,
+                0.00013832720287609845
+              ]
+            }
+          },
+          "errorsByOutput": {
+            "output": {
+              "maxAbsError": 1.4901161193847656e-7,
+              "maxRelativeError": 0.007710241334279999,
+              "relativeDenominatorFloor": 0.000001,
+              "relativeL2Error": 0.0000016425325446633115
+            }
+          },
+          "maxAbsError": 1.4901161193847656e-7,
+          "passed": true,
+          "elapsedMs": 5995.764999985695
+        }
+      ]
+    },
+    {
+      "provider": "webgpu",
+      "disableCpuFallback": true,
+      "cases": [
+        {
+          "name": "trained_delta_layer_63",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "ee10fbc96fb953d1f848d18d76083047db139c7f049fb10d2c509fd2489a0a4f",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.",
+          "elapsedMs": 232.70499992370605
+        },
+        {
+          "name": "trained_delta_layer_64",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "8cc4d3182c02b6fa7b899bbd922eb7e8a45d6d757f41f496a0f6e50f7cd2fb04",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.",
+          "elapsedMs": 222.17500007152557
+        },
+        {
+          "name": "trained_delta_layer_65",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "09457aba98814dba7a3b28a0ef944a33b4a4306e931a779f0b98c88e836bb935",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.",
+          "elapsedMs": 254.625
+        },
+        {
+          "name": "trained_delta_layer_128",
+          "operator": "actual trained Cadence DeltaNet layer (FP32)",
+          "bytes": 43733539,
+          "sha256": "f56cd71d9214c75156b5894212e98d6eee46ee5b67c081085a3a39b7b052c243",
+          "sourceFixtureSha256": "94ec8ab73dbdf3e69b711c5365888732040b54cc8222759464e635cf92944284",
+          "sessionCreated": false,
+          "passed": false,
+          "failurePhase": "session-create",
+          "error": "Error: Can't create a session. ERROR_CODE: 1, ERROR_MESSAGE: This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.",
+          "elapsedMs": 239.03999996185303
+        }
+      ]
+    }
+  ],
+  "logs": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-13 21:19:02.793583 [W:onnxruntime:, session_state.cc:1397 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-13 21:19:02.795838 [W:onnxruntime:, session_state.cc:1399 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-13 21:19:06.738934 [W:onnxruntime:, session_state.cc:1397 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-13 21:19:06.739353 [W:onnxruntime:, session_state.cc:1399 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-13 21:19:12.307663 [W:onnxruntime:, session_state.cc:1397 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-13 21:19:12.308058 [W:onnxruntime:, session_state.cc:1399 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-13 21:19:17.392963 [W:onnxruntime:, session_state.cc:1397 VerifyEachNodeIsAssignedToAnEp] Some nodes were not assigned to the preferred execution providers which may or may not have an negative impact on performance. e.g. ORT explicitly assigns shape related ops to CPU to improve perf.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[0;93m2026-10-13 21:19:17.393358 [W:onnxruntime:, session_state.cc:1399 VerifyEachNodeIsAssignedToAnEp] Rerunning with verbose output on a non-minimal build will show node assignments.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[1;31m2026-10-13 21:19:23.399348 [E:onnxruntime:, inference_session.cc:2985 Initialize] This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[1;31m2026-10-13 21:19:23.623229 [E:onnxruntime:, inference_session.cc:2985 Initialize] This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[1;31m2026-10-13 21:19:23.877283 [E:onnxruntime:, inference_session.cc:2985 Initialize] This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.\u001b[m"
+    },
+    {
+      "type": "error",
+      "text": "\u001b[1;31m2026-10-13 21:19:24.117203 [E:onnxruntime:, inference_session.cc:2985 Initialize] This session contains graph nodes that are assigned to the default CPU EP, but fallback to CPU EP has been explicitly disabled by the user.\u001b[m"
+    }
+  ]
+}
