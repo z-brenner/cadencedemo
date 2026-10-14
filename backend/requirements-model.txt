@@ -1,0 +1,6 @@
+# torch is installed separately using the CUDA wheel index in README.
+transformers==5.19.0
+peft==0.21.2
+safetensors==0.8.0
+numpy==2.5.4
+accelerate==1.15.0
