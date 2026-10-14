@@ -6,10 +6,10 @@ Status: implementation, lightweight API integration, built UI checks and **real 
 
 | Check | Result |
 |---|---|
-| Python backend suite | 28 passed: three native types, JSON state, malformed/oversized/invalid inputs, load failure, context overflow, invalid distribution/timing, single-flight/load-once, shutdown, pinned-package rejection |
-| Frontend contract | 5 passed, including JSON numeric overflow regression and semantic IDs |
+| Python backend suite | 62 passed: three native types, JSON state, malformed/oversized/invalid inputs, load failure, context overflow, invalid distribution/timing, single-flight/load-once, shutdown, pinned-package rejection |
+| Frontend contract | 34 passed, including shared multilingual/astral boundary fixtures, compact numeric JSON length, invalid Unicode, JSON numeric overflow and semantic IDs |
 | TypeScript + Vite production build | Passed; ~67.8 kB gzipped JavaScript |
-| Production-build browser suite | 10 passed across desktop 1280×1000 and mobile 390×844 |
+| Production-build browser suite | 12 passed across desktop 1280×1000 and mobile 390×844 |
 | Axe accessibility | Zero violations in both viewport checks |
 | Browser page identity, nonblank, overlay, console | Correct title/main content, no Vite error overlay, no console/page errors in screenshot/result flow |
 | Desktop/mobile overflow | No horizontal document overflow in empty and result states |
@@ -17,7 +17,7 @@ Status: implementation, lightweight API integration, built UI checks and **real 
 | `npm audit --audit-level=moderate` | Zero vulnerabilities reported |
 | Ruff source check | Passed |
 | Pinned source/config/learned weights | Existing supplied release package matches all nine manifest hashes; no inference run ([machine-readable evidence](model-package-verification.json)) |
-| Independent code review | Four P2 findings fixed with failing-then-passing regressions: nonfinite JSON numbers, worker/model lifecycle cleanup, cached module origin verification and effective Hub offline state |
+| Independent code review | Four P2 findings fixed with failing-then-passing regressions: nonfinite JSON numbers, worker/model lifecycle cleanup, cached module origin verification and effective Hub offline state; Unicode follow-up counter depth regression fixed and re-reviewed with no remaining findings |
 
 The in-app browser was attempted first and returned **“Browser is not available: iab.”** Playwright with installed Google Chrome was used as the authorized visual-test fallback. The bundled Chromium installer reported unsupported Ubuntu 26.04 on this host. CI uses Playwright's bundled Chromium on its runner.
 
@@ -50,7 +50,7 @@ The smoke environment used **Torch 2.11.0+cu128**, transformers 5.19.0, peft 0.2
 
 ## CPU integration boundary and limitations
 
-The unchanged coordinated FP32 adapter is pinned by [source hash](../backend/cpu-adapter-manifest.json) and [Apache-2.0 attribution](../NOTICE). Production selection is explicit, four threads, cached-only, and limited to 16 options. CPU and CUDA startup binding, failed selection/no fallback, source/cache guards, output device/profile metadata and CPU UI limits have lightweight tests. Automated CPU metadata/limit tests use test stubs; the separate reserved native CPU smoke below verifies the real inference boundary. CPU portability and numerical/task-accuracy comparison remain the coordinator's separate workstream. No merged or INT8 profile is recommended by this demo.
+The unchanged coordinated FP32 adapter is pinned by [source hash](../backend/cpu-adapter-manifest.json) and [Apache-2.0 attribution](../NOTICE). Production selection is explicit, four threads, cached-only, and limited to 16 options. CPU and CUDA startup binding, failed selection/no fallback, source/cache guards, output device/profile metadata and CPU UI limits have lightweight tests. Automated CPU metadata/limit tests use test stubs; the separate reserved native CPU smoke below verifies the real inference boundary. The separate bounded study is summarized in [benchmark and CPU guidance](BENCHMARK_AND_CPU_GUIDANCE.md); other CPU/OS portability remains unestablished. No merged or INT8 profile is recommended by this demo.
 
 
 ## Real CPU FP32 inference
@@ -62,3 +62,9 @@ A second coordinator reservation covered cached-only CPU FP32 inference, bounded
 Actual profile: **CPU FP32, four threads**, Python 3.12.14 and Torch 2.11.0+cu128, with the same pinned model dependencies as the CUDA smoke. The process used the CPU even though its installed Torch wheel supports CUDA. The environment differs from the Torch 2.8 benchmark profile and is recorded without private paths. The native checks verify finite normalized distributions, query kinds, exact revision and device/profile metadata; the UI also verifies visible typed results and no uncaught page errors.
 
 The CPU smoke establishes this demo's functionality on the tested Linux host. It does not establish task accuracy, CPU/CUDA numerical equivalence, long-context quality, other CPU/OS portability or a memory/latency SLA. FP32 remains the only exposed CPU profile; merged and INT8 alternatives are not enabled or recommended by this demo.
+
+## Unicode limit regression
+
+The review reproduction `{ "text": "日" × 3000 }` measured 3,011 UTF-16 units with browser compact JSON but 18,012 characters under the former backend ASCII-escaped, spaced serialization. The backend rejected it while the UI accepted it. Regression tests failed before the fix and pass with the shared browser-compatible budget. Twelve fixtures exercise accented, CJK, Arabic, astral and multilingual-key states at or below the exact boundary and one unit above it. Deeply nested bounded arrays/objects also preserve their former acceptance. Eleven shared number/escape fixtures cover compact JSON formatting. Instructions, IDs and all three kinds of descriptions also test astral boundaries; invalid surrogate inputs are rejected.
+
+The real FastAPI validation path with a native test stub checks acceptance/rejection and that accepted state reaches the loader unchanged. Frontend contract tests independently evaluate the same fixtures. Desktop/mobile browser tests send a mixed CJK/accent/emoji state and verify the complete JSON payload and editor remain unchanged; HTTP responses are explicitly mocked for those automated tests. These are validation regressions, not additional model inference or multilingual accuracy evidence. The 64 KiB byte cap, option caps and native context guards remain independent limits.
