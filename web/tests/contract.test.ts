@@ -150,6 +150,10 @@ it('uses compact JSON budget without spacing or exponent padding', () => {
 for (const sample of compactCases) {
   it(`measures compact JSON scalar syntax: ${sample.source}`, () => {
     const draft = { ...base, format: 'json' as const, state: sample.source }
+    if (!sample.browserAccepted) {
+      expect(() => makeRequest(draft)).toThrow(/safe range/)
+      return
+    }
     const request = makeRequest(draft)
     expect(JSON.stringify(request.state).length).toBe(sample.units)
   })
@@ -219,4 +223,16 @@ it('accepts the exact UTF-8 body limit and rejects one additional byte', () => {
     new TextEncoder().encode(JSON.stringify(makeRequest({ ...draft, state }))).length,
   ).toBe(65536)
   expect(() => makeRequest({ ...draft, state: state + 'x' })).toThrow(/64 KiB/)
+})
+
+it('rejects unsafe JSON integers instead of silently rounding context', () => {
+  for (const state of [
+    '{"account_id":9007199254740993}',
+    '{"n":-9007199254740993}',
+    '{"nested":[9007199254740992]}',
+  ])
+    expect(() => makeRequest({ ...base, format: 'json', state })).toThrow(/safe range/)
+  const state =
+    '{"max":9007199254740991,"min":-9007199254740991,"account_id":"9007199254740993"}'
+  expect(makeRequest({ ...base, format: 'json', state }).state).toEqual(JSON.parse(state))
 })

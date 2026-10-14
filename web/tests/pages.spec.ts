@@ -101,3 +101,11 @@ test('selecting the active JSON format preserves context', async ({ page }) => {
   await page.getByRole('button', { name: 'JSON', exact: true }).click()
   await expect(page.getByLabel('State', { exact: true })).toHaveValue(source)
 })
+
+test('unsafe integer JSON is explained before a request can run', async ({ page }) => {
+  await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
+  await page.getByLabel('State', { exact: true }).fill('{"account_id":9007199254740993}')
+  await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
+  await expect(page.getByRole('alert')).toContainText('safe range')
+  await expect(page.getByRole('alert')).toContainText('strings')
+})
