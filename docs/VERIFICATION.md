@@ -8,7 +8,7 @@ The isolated candidate runs the complete trained model in Chrome 155/WASM. [Full
 
 Current checks: **81 backend tests, 47 frontend unit tests, 28 local UI cases, 12 static Pages cases and 14 browser UI cases pass**, along with TypeScript, both production builds, Ruff, whitespace checks and the online dependency audit. Browser/local automated UI tests are explicitly labeled mocks; real runtime evidence above is separate. Independent reviews cleared runtime/provenance/cache handling after fixing input-error recovery and cleared guided UX after fixing generated-ID uniqueness and readable-label collisions.
 
-The public site is unchanged. External artifact publication is awaiting approval, followed by immutable-revision/CORS and hosted real-inference verification. See [qualification, resource measurements and hosting gates](BROWSER_FEASIBILITY.md).
+Public browser inference is not enabled; the default Pages request explorer is preserved. External artifact publication is awaiting approval, followed by immutable-revision/CORS and hosted real-inference verification. See [qualification, resource measurements and hosting gates](BROWSER_FEASIBILITY.md).
 
 ## Original backend release verification
 

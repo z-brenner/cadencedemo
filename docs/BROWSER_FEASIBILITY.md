@@ -1,6 +1,6 @@
 # Browser inference qualification — local candidate
 
-The complete Cadence model runs in the production guided UI in **Chrome 155 on Linux, using ONNX Runtime Web 1.30.0 WASM**. Model/runtime downloads require an explicit preparation click, and no inference API is called. The current public site is unchanged. External artifact publication and the browser-enabled Pages replacement remain pending approval and hosting verification.
+The complete Cadence model runs in the production guided UI in **Chrome 155 on Linux, using ONNX Runtime Web 1.30.0 WASM**. Model/runtime downloads require an explicit preparation click, and no inference API is called. The default Pages build remains a functional request explorer. External artifact publication and enabling public browser inference remain pending approval and hosting verification.
 
 ## Exact model and precision
 
