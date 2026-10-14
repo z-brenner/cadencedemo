@@ -40,16 +40,27 @@ export type Result = {
   profile: (typeof profiles)[Device]
 }
 
+export function unicodeLength(text: string): number {
+  for (const character of text) {
+    const point = character.codePointAt(0)!
+    if (point >= 0xd800 && point <= 0xdfff)
+      throw new Error('Use valid Unicode, without unpaired surrogates.')
+  }
+  return text.length
+}
+
 export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
   if (!draft.state.trim()) throw new Error('Add a state to evaluate.')
-  if (draft.state.length > 12000) throw new Error('Keep the state within 12,000 characters.')
+  if (unicodeLength(draft.state) > 12000) throw new Error('Keep the state within 12,000 characters.')
   if (!draft.instructions.trim()) throw new Error('Add instructions for this decision.')
-  if (draft.instructions.length > 2000)
+  if (unicodeLength(draft.instructions) > 2000)
     throw new Error('Keep instructions within 2,000 characters.')
   let state: string | object = draft.state
   if (draft.format === 'json') {
     try {
-      state = JSON.parse(draft.state, (_key, value) => {
+      state = JSON.parse(draft.state, (key, value) => {
+        unicodeLength(key)
+        if (typeof value === 'string') unicodeLength(value)
         if (typeof value === 'number' && !Number.isFinite(value))
           throw new Error('Nonfinite JSON number')
         return value
@@ -64,7 +75,7 @@ export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
   }
   if (draft.options.length < 2 || draft.options.length > maxOptions)
     throw new Error(`Use between 2 and ${maxOptions} options or levels.`)
-  if (draft.options.some((o) => o.description.length > 500))
+  if (draft.options.some((o) => unicodeLength(o.description) > 500))
     throw new Error('Keep each description within 500 characters.')
   let criteria: Record<string, string | null> | string[]
   if (draft.kind === 'score') {
@@ -72,7 +83,7 @@ export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
       throw new Error('Describe every score level, from lowest to highest.')
     criteria = draft.options.map((o) => o.description)
   } else {
-    if (draft.options.some((o) => !o.id.trim() || o.id.length > 64))
+    if (draft.options.some((o) => !o.id.trim() || unicodeLength(o.id) > 64))
       throw new Error('Option IDs need 1–64 characters.')
     if (new Set(draft.options.map((o) => o.id)).size !== draft.options.length)
       throw new Error('Each option needs a unique ID.')

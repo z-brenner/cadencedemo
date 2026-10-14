@@ -1,0 +1,14 @@
+[
+  {"name":"review_accent_repro","format":"json","key":"x","glyph":"é","repeat":2000,"padding":"","units":2008,"accepted":true},
+  {"name":"cjk_repro","format":"json","key":"text","glyph":"日","repeat":3000,"padding":"","units":3011,"accepted":true},
+  {"name":"arabic_boundary","format":"json","key":"text","glyph":"ش","repeat":11989,"padding":"","units":12000,"accepted":true},
+  {"name":"arabic_over","format":"json","key":"text","glyph":"ش","repeat":11990,"padding":"","units":12001,"accepted":false},
+  {"name":"astral_json_boundary","format":"json","key":"text","glyph":"😀","repeat":5994,"padding":"x","units":12000,"accepted":true},
+  {"name":"astral_json_over","format":"json","key":"text","glyph":"😀","repeat":5994,"padding":"xx","units":12001,"accepted":false},
+  {"name":"unicode_key_boundary","format":"json","key":"é😀","glyph":"日","repeat":11990,"padding":"","units":12000,"accepted":true},
+  {"name":"unicode_key_over","format":"json","key":"é😀","glyph":"日","repeat":11991,"padding":"","units":12001,"accepted":false},
+  {"name":"cjk_text_boundary","format":"text","glyph":"日","repeat":12000,"padding":"","units":12000,"accepted":true},
+  {"name":"cjk_text_over","format":"text","glyph":"日","repeat":12001,"padding":"","units":12001,"accepted":false},
+  {"name":"astral_text_boundary","format":"text","glyph":"😀","repeat":6000,"padding":"","units":12000,"accepted":true},
+  {"name":"astral_text_over","format":"text","glyph":"😀","repeat":6000,"padding":"x","units":12001,"accepted":false}
+]

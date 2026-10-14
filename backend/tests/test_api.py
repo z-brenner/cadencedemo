@@ -1,4 +1,7 @@
 import math
+import json
+from pathlib import Path
+import pytest
 import threading
 from fastapi.testclient import TestClient
 from backend.app import create_app
@@ -261,3 +264,106 @@ def test_device_is_bound_at_startup_even_if_environment_changes(monkeypatch):
         result = client.post("/api/predict", json=payload()).json()
         assert result["device"] == "cpu"
         assert selected == ["cpu"]
+
+
+UNICODE_CASES = json.loads(
+    (Path(__file__).parents[2] / "tests/fixtures/unicode-state-limits.json").read_text()
+)
+
+
+@pytest.mark.parametrize("case", UNICODE_CASES, ids=lambda case: case["name"])
+def test_unicode_state_limits_match_browser_fixtures_without_truncation(case):
+    native = NativeStub()
+    text = case["glyph"] * case["repeat"] + case["padding"]
+    state = {case["key"]: text} if case["format"] == "json" else text
+    data = payload()
+    data["state"] = state
+    with TestClient(create_app(lambda: native)) as client:
+        response = client.post("/api/predict", json=data)
+    assert response.status_code == (200 if case["accepted"] else 422)
+    if case["accepted"]:
+        assert native.requests[0]["state"] == state
+    else:
+        assert native.requests == []
+
+
+@pytest.mark.parametrize(
+    "field,units", [("instructions", 2000), ("id", 64), ("description", 500)]
+)
+def test_astral_question_fields_use_utf16_limits(field, units):
+    native = NativeStub()
+    data = payload()
+    q = data["questions"]["decision"]
+
+    def assign(text):
+        if field == "instructions":
+            q["instructions"] = text
+        elif field == "id":
+            q["criteria"] = {text: "first", "other": "second"}
+        else:
+            q["criteria"]["music"] = text
+
+    with TestClient(create_app(lambda: native)) as client:
+        assign("😀" * (units // 2))
+        assert client.post("/api/predict", json=data).status_code == 200
+        assign("😀" * (units // 2) + "x")
+        assert client.post("/api/predict", json=data).status_code == 422
+    assert len(native.requests) == 1
+
+
+def test_json_compact_budget_has_no_python_spacing_or_float_padding():
+    native = NativeStub()
+    data = payload()
+    data["state"] = {"text": "日" * 11980, "n": 1e-7}
+    # JSON.stringify measures this exact object at 12000 UTF-16 units.
+    with TestClient(create_app(lambda: native)) as client:
+        assert client.post("/api/predict", json=data).status_code == 200
+        data["state"]["text"] += "x"
+        assert client.post("/api/predict", json=data).status_code == 422
+
+
+@pytest.mark.parametrize("kind", ["choice", "noul", "score"])
+def test_all_description_kinds_use_utf16_boundaries(kind):
+    native = NativeStub()
+    data = payload(kind)
+
+    def assign(text):
+        criteria = data["questions"]["decision"]["criteria"]
+        if kind == "score":
+            criteria[0] = text
+        else:
+            criteria[next(iter(criteria))] = text
+
+    with TestClient(create_app(lambda: native)) as client:
+        assign("😀" * 250)
+        assert client.post("/api/predict", json=data).status_code == 200
+        assign("😀" * 250 + "x")
+        assert client.post("/api/predict", json=data).status_code == 422
+    assert len(native.requests) == 1
+
+
+def test_invalid_unicode_is_rejected_before_model_load():
+    def forbidden():
+        raise AssertionError("invalid Unicode must not load model")
+
+    data = payload()
+    data["state"] = {"text": "\ud800"}
+    raw = json.dumps(data, ensure_ascii=True)
+    with TestClient(create_app(forbidden)) as client:
+        assert (
+            client.post(
+                "/api/predict",
+                content=raw,
+                headers={"Content-Type": "application/json"},
+            ).status_code
+            == 422
+        )
+
+
+def test_deeply_nested_bounded_json_reaches_native_unchanged():
+    state = json.loads("[" * 500 + "0" + "]" * 500)
+    stub = NativeStub()
+    with TestClient(create_app(loader=lambda: stub)) as client:
+        response = client.post("/api/predict", json=payload() | {"state": state})
+    assert response.status_code == 200
+    assert stub.requests[0]["state"] == state

@@ -199,3 +199,16 @@ test('CPU profile is reported and the editor respects its option limit', async (
   await page.getByRole('button', { name: 'Run decision', exact: true }).click()
   await expect(page.getByText(/precision differs from the public CUDA profile/)).toBeVisible()
 })
+
+test('multilingual and astral JSON reaches the API unchanged', async ({ page }) => {
+  await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
+  const state = { text: '日'.repeat(3000), accent: 'é'.repeat(2000), emoji: '😀'.repeat(1000) }
+  const source = JSON.stringify(state)
+  await page.getByLabel('State', { exact: true }).fill(source)
+  const sent = page.waitForRequest((request) => request.url().endsWith('/api/predict'))
+  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  expect((await sent).postDataJSON().state).toEqual(state)
+  await expect(page.getByText('Highest-probability option')).toBeVisible()
+  await expect(page.getByLabel('State', { exact: true })).toHaveValue(source)
+  expect(capturedErrors.get(page)).toEqual([])
+})

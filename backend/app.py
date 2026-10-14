@@ -4,7 +4,6 @@ from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 import asyncio
-import json
 import logging
 import math
 import threading
@@ -16,6 +15,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from backend.config import MODEL_ID, REVISION, OPTION_LIMITS, PROFILES
+from backend.validation import compact_json_length, utf16_length
 
 MAX_BODY = 65536
 log = logging.getLogger("cadence.demo")
@@ -32,7 +32,9 @@ class Question(BaseModel):
         if self.type == "score":
             if not isinstance(self.criteria, list) or not 2 <= len(self.criteria) <= 32:
                 raise ValueError("Score needs 2–32 ordered levels.")
-            if any(not text.strip() or len(text) > 500 for text in self.criteria):
+            if any(
+                not text.strip() or utf16_length(text) > 500 for text in self.criteria
+            ):
                 raise ValueError(
                     "Each score level needs a description of up to 500 characters."
                 )
@@ -44,14 +46,16 @@ class Question(BaseModel):
             if self.type == "choice" and not 2 <= len(self.criteria) <= 32:
                 raise ValueError("Choice needs 2–32 options.")
             for key, value in self.criteria.items():
-                if not key.strip() or len(key) > 64:
+                if not key.strip() or utf16_length(key) > 64:
                     raise ValueError(
                         "Option IDs must be nonempty and at most 64 characters."
                     )
-                if value is not None and len(value) > 500:
+                if value is not None and utf16_length(value) > 500:
                     raise ValueError(
                         "Option descriptions are limited to 500 characters."
                     )
+        if utf16_length(self.instructions) > 2000:
+            raise ValueError("Instructions are limited to 2,000 UTF-16 units.")
         if not self.instructions.strip():
             raise ValueError("Instructions must not be blank.")
         return self
@@ -69,16 +73,18 @@ class DecisionRequest(BaseModel):
         if isinstance(self.state, str):
             if not self.state.strip():
                 raise ValueError("State must not be blank.")
-            size = len(self.state)
+            size = utf16_length(self.state)
         else:
             if not self.state:
                 raise ValueError("JSON state must not be empty.")
             try:
-                size = len(json.dumps(self.state, allow_nan=False))
+                size = compact_json_length(self.state)
             except (ValueError, RecursionError):
                 raise ValueError("JSON state must be finite and valid.")
         if size > 12000:
-            raise ValueError("State is limited to 12,000 characters.")
+            raise ValueError(
+                "State is limited to 12,000 UTF-16 units (compact JSON for objects/arrays)."
+            )
         return self
 
 

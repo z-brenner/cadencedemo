@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { makeRequest, summarize, validateResult } from '../src/contract'
+import unicodeCases from '../../tests/fixtures/unicode-state-limits.json'
+import compactCases from '../../tests/fixtures/compact-json-lengths.json'
 const base = {
   kind: 'choice' as const,
   format: 'text' as const,
@@ -122,4 +124,50 @@ it('rejects inconsistent device metadata and respects CPU option limits', () => 
       16,
     ),
   ).toThrow(/16/)
+})
+
+for (const sample of unicodeCases) {
+  it(`uses shared Unicode boundary: ${sample.name}`, () => {
+    const text = sample.glyph.repeat(sample.repeat) + sample.padding
+    const state = sample.format === 'json' ? JSON.stringify({ [sample.key!]: text }) : text
+    expect(state.length).toBe(sample.units)
+    const draft = { ...base, format: sample.format as 'text' | 'json', state }
+    if (sample.accepted)
+      expect(makeRequest(draft).state).toEqual(sample.format === 'json' ? JSON.parse(state) : text)
+    else expect(() => makeRequest(draft)).toThrow(/12,000/)
+  })
+}
+it('uses compact JSON budget without spacing or exponent padding', () => {
+  const state = JSON.stringify({ text: '日'.repeat(11980), n: 1e-7 })
+  expect(state.length).toBe(12000)
+  expect(makeRequest({ ...base, format: 'json', state }).state).toEqual(JSON.parse(state))
+})
+for (const sample of compactCases) {
+  it(`measures compact JSON scalar syntax: ${sample.source}`, () => {
+    const draft = { ...base, format: 'json' as const, state: sample.source }
+    const request = makeRequest(draft)
+    expect(JSON.stringify(request.state).length).toBe(sample.units)
+  })
+}
+for (const [field, limit] of [['instructions', 2000], ['id', 64], ['description', 500]] as const) {
+  it(`uses UTF-16 boundary for ${field}`, () => {
+    const make = (text: string) => field === 'instructions'
+      ? { ...base, instructions: text }
+      : { ...base, options: [
+          { id: field === 'id' ? text : 'music', description: field === 'description' ? text : 'first' },
+          base.options[1],
+        ] }
+    expect(() => makeRequest(make('😀'.repeat(limit / 2)))).not.toThrow()
+    expect(() => makeRequest(make('😀'.repeat(limit / 2) + 'x'))).toThrow()
+  })
+}
+it('rejects unpaired surrogates without altering Unicode text', () => {
+  expect(() => makeRequest({ ...base, state: '\ud800' })).toThrow(/Unicode/)
+  expect(() => makeRequest({ ...base, format: 'json', state: '{"text":"\\ud800"}' })).toThrow(/valid JSON/)
+  expect(makeRequest({ ...base, state: 'é日😀é' }).state).toBe('é日😀é')
+})
+it('keeps deeply nested bounded JSON unchanged', () => {
+  const state = '['.repeat(500) + '0' + ']'.repeat(500)
+  const request = makeRequest({ ...base, format: 'json', state })
+  expect(JSON.stringify(request.state)).toBe(state)
 })
