@@ -165,7 +165,7 @@ An **opt-in real inference smoke** is included. Coordinate a device slot when sh
 python -m backend.smoke --output docs/real-inference-smoke.json
 ```
 
-This runs one choice, one JSON-state Boolean and one ordinal score request via real HTTP. It checks finite normalized distributions, revision metadata and agreement with the selected device/profile. It checks functionality, not task accuracy or performance. Native model smoke is deliberately excluded from CI. Do not run it alongside an uncoordinated shared hardware job. The checked-in real evidence covers separate reserved cached CUDA and CPU FP32 smokes, with actual environments and resource release recorded. CPU UI evidence covers all three query types without response mocking.
+This runs the three fictional legal-work defaults (choice, Boolean and ordinal score), each with text state, via real HTTP. It checks finite normalized distributions, revision metadata and agreement with the selected device/profile. It checks functionality, not task accuracy or performance. Native model smoke is deliberately excluded from CI. Do not run it alongside an uncoordinated shared hardware job. The checked-in real evidence covers separate reserved cached CUDA and CPU FP32 smokes, with actual environments and resource release recorded. CPU UI evidence covers all three query types without response mocking.
 
 ## Troubleshooting
 
