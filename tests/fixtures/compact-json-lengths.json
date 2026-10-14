@@ -1,46 +1,57 @@
 [
   {
     "source": "{\"n\":1.0}",
-    "units": 7
+    "units": 7,
+    "browserAccepted": true
   },
   {
     "source": "{\"n\":-0.0}",
-    "units": 7
+    "units": 7,
+    "browserAccepted": true
   },
   {
     "source": "{\"n\":1e-7}",
-    "units": 10
+    "units": 10,
+    "browserAccepted": true
   },
   {
     "source": "{\"n\":1e-6}",
-    "units": 14
+    "units": 14,
+    "browserAccepted": true
   },
   {
     "source": "{\"n\":1e16}",
-    "units": 23
+    "units": 23,
+    "browserAccepted": false
   },
   {
     "source": "{\"n\":1e20}",
-    "units": 27
+    "units": 27,
+    "browserAccepted": false
   },
   {
     "source": "{\"n\":1e21}",
-    "units": 11
+    "units": 11,
+    "browserAccepted": false
   },
   {
     "source": "{\"n\":-1.7976931348623157e308}",
-    "units": 30
+    "units": 30,
+    "browserAccepted": false
   },
   {
     "source": "{\"n\":5e-324}",
-    "units": 12
+    "units": 12,
+    "browserAccepted": true
   },
   {
     "source": "{\"é😀\":[true,false,null,\"ش\\n\\t\\\"\",{\"x\":\"日\"}]}",
-    "units": 45
+    "units": 45,
+    "browserAccepted": true
   },
   {
     "source": "[\"😀\",\"é\",\"\\u0001\",{\"a\":0.00001}]",
-    "units": 34
+    "units": 34,
+    "browserAccepted": true
   }
 ]

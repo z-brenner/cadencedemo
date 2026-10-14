@@ -7,10 +7,10 @@ Status: implementation, lightweight API integration, built UI checks and **real 
 | Check | Result |
 |---|---|
 | Python backend suite | 75 passed: three native types, JSON state, malformed/oversized/invalid inputs, load failure, context overflow, invalid distribution/timing, single-flight/load-once, shutdown, pinned-package rejection |
-| Frontend contract | 36 passed, including shared multilingual/astral boundary fixtures, compact numeric JSON length, invalid Unicode, JSON numeric overflow and semantic IDs |
+| Frontend contract | 37 passed, including shared multilingual/astral boundary fixtures, compact numeric JSON length, invalid Unicode, JSON numeric overflow and semantic IDs |
 | TypeScript + Vite production build | Passed; ~68.6 kB local / ~67.8 kB Pages gzipped JavaScript |
-| Production-build browser suite | 14 passed across desktop 1280×1000 and mobile 390×844 |
-| Static Pages browser suite | 10 passed across desktop/mobile: all query types, JSON copy/validation, local setup, base assets/home navigation, zero API calls |
+| Production-build browser suite | 16 passed across desktop 1280×1000 and mobile 390×844 |
+| Static Pages browser suite | 12 passed across desktop/mobile: all query types, JSON copy/validation, local setup, base assets/home navigation, zero API calls |
 | Axe accessibility | Zero violations in both viewport checks |
 | Browser page identity, nonblank, overlay, console | Correct title/main content, no Vite error overlay, no console/page errors in screenshot/result flow |
 | Desktop/mobile overflow | No horizontal document overflow in empty and result states |
@@ -81,3 +81,5 @@ A lightweight check of all nine public manifest hashes imported the actual pinne
 The separate Pages build labels itself “Static playground · no model inference.” Its meaningful path is example → edit → inspect validated request → copy exact JSON → local setup. The public build has no inference transport or mock outputs. Automated desktop/mobile tests use its actual assets at `/cadencedemo/`, without HTTP interception, and assert zero `/api/` requests. The backend contract test confirms no CORS response permission and a rejected Pages-origin JSON preflight. This website does not promise direct hosted-to-local inference; real inference uses the separate local UI and same-origin Vite proxy. [Hosting details](HOSTING.md) document deployment scope and limitations.
 
 Full-PR pre-merge review found two further P2 editor issues: repeated active-JSON selection changed state, and browser validation omitted the API byte cap. Both were reproduced with failing tests and fixed: selecting the current format preserves context, and the exact compact request permits 65,536 UTF-8 bytes but rejects 65,537. Static JSON copy uses compact serialization to preserve that byte budget. Final re-review found no remaining actionable issues. The requested Demo badge/title and expandable plain-English usage explanation are covered by both rendered build modes.
+
+A late automated review identified unsafe-integer rounding during the initial merge command. A scoped follow-up rejects integer-valued browser JSON numbers outside the safe range, with positive/negative/nested regressions and preserved safe endpoints/string IDs. Both rendered modes show a useful error before sending or labeling a rounded request validated. The static build had already completed deployment when cancellation was attempted; follow-up publication replaces it after reviewed green CI.

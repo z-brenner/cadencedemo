@@ -136,18 +136,29 @@ test('option editing, setup dialog keyboard and accessibility', async ({ page })
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations).toEqual([])
 })
-test('responsive screenshots explicitly identify mocked preview', async ({ page }, testInfo) => {
+test('responsive screenshots explicitly identify mocked preview', async ({
+  page,
+}, testInfo) => {
   const consoleErrors = capturedErrors.get(page)!
   await expect(page).toHaveTitle('Cadence Demo — typed decisions')
-  await expect(page.getByRole('heading', { name: 'Give context. Get a decision.' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Give context. Get a decision.' }),
+  ).toBeVisible()
   await expect(page.locator('vite-error-overlay')).toHaveCount(0)
   await expect(page.getByText(/UI test preview/)).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+    true,
+  )
   await page.evaluate(() => window.scrollTo(0, 0))
-  await page.screenshot({ path: `docs/preview-${testInfo.project.name}-empty.png`, fullPage: true })
+  await page.screenshot({
+    path: `docs/preview-${testInfo.project.name}-empty.png`,
+    fullPage: true,
+  })
   await page.getByRole('button', { name: 'Run decision', exact: true }).click()
   await expect(page.getByText('Mock result · UI test only')).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+    true,
+  )
   await page.evaluate(() => window.scrollTo(0, 0))
   await page.screenshot({
     path: `docs/preview-${testInfo.project.name}-result.png`,
@@ -213,10 +224,17 @@ test('multilingual and astral JSON reaches the API unchanged', async ({ page }) 
   expect(capturedErrors.get(page)).toEqual([])
 })
 
-
 test('selecting the active JSON format preserves context', async ({ page }) => {
   await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
   const source = await page.getByLabel('State', { exact: true }).inputValue()
   await page.getByRole('button', { name: 'JSON', exact: true }).click()
   await expect(page.getByLabel('State', { exact: true })).toHaveValue(source)
+})
+
+test('unsafe integer JSON is explained before a request can run', async ({ page }) => {
+  await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
+  await page.getByLabel('State', { exact: true }).fill('{"account_id":9007199254740993}')
+  await page.getByRole('button', { name: 'Run decision', exact: true }).click()
+  await expect(page.getByRole('alert')).toContainText('safe range')
+  await expect(page.getByRole('alert')).toContainText('strings')
 })

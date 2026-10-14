@@ -58,15 +58,28 @@ export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
     throw new Error('Keep instructions within 2,000 characters.')
   let state: string | object = draft.state
   if (draft.format === 'json') {
+    let unsafeInteger = false
     try {
       state = JSON.parse(draft.state, (key, value) => {
         unicodeLength(key)
         if (typeof value === 'string') unicodeLength(value)
         if (typeof value === 'number' && !Number.isFinite(value))
           throw new Error('Nonfinite JSON number')
+        if (
+          typeof value === 'number' &&
+          Number.isInteger(value) &&
+          !Number.isSafeInteger(value)
+        ) {
+          unsafeInteger = true
+          throw new Error('Unsafe JSON integer')
+        }
         return value
       })
     } catch {
+      if (unsafeInteger)
+        throw new Error(
+          'JSON integers must stay within JavaScript’s safe range (±9,007,199,254,740,991). Encode larger identifiers as strings.',
+        )
       throw new Error('State is not valid JSON. Use a JSON object or array.')
     }
     if (state === null || typeof state !== 'object' || !Object.keys(state).length)
