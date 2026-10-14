@@ -16,7 +16,7 @@ The local backend uses real inference only. Mocked responses exist solely in aut
 
 ## Public website
 
-The [public research demo](https://z-brenner.github.io/cadencedemo/) runs Cadence in your browser after an explicit model download. No Python backend or inference API is needed. The page identifies experimental outputs, offers six editable examples, and displays the model's preference across supplied answers. Inputs stay on your device; the asset download host receives ordinary network information. See [hosting details](docs/HOSTING.md).
+The [public research demo](https://z-brenner.github.io/cadencedemo/) runs Cadence in your browser after an explicit model download. No Python backend or inference API is needed. The page identifies experimental outputs, offers six editable fictional legal-work examples, and displays the model's preference across supplied answers. Route documents or review requests, check explicit notice/renewal wording, and prioritize review against supplied internal workflow criteria. Cadence remains a general-purpose research model; these examples are not validated legal advice, document generation, or a legal accuracy benchmark. Use fictional inputs, avoid real client information, and check outputs against the supplied source text. Inputs stay on your device; the asset download host receives ordinary network information. See [example details](docs/LEGAL_WORK_EXAMPLES.md) and [hosting details](docs/HOSTING.md).
 
 ## Browser inference
 
@@ -128,7 +128,7 @@ This produces `dist/`. Keep the backend running and use `npm run preview` to ins
 ```bash
 curl http://127.0.0.1:8000/api/predict \
   -H 'Content-Type: application/json' \
-  --data '{"state":"Can you play some jazz?","questions":{"decision":{"type":"choice","instructions":"Choose the intent.","criteria":{"music":"Play music.","weather":"Check the forecast."}}}}'
+  --data '{"state":"Fictional excerpt: Each party must keep shared project information confidential.","questions":{"decision":{"type":"choice","instructions":"Choose the document category.","criteria":{"confidentiality_agreement":"An agreement about keeping shared information confidential.","meeting_notes":"Notes recording a meeting discussion."}}}}'
 ```
 
 For Boolean use `type: "noul"` and criteria with exactly `"false"` and `"true"`. For score use `type: "score"` and an ascending array of descriptions. `state` may be nonempty text or a nonempty JSON object/array. Requests accept exactly one question named `decision`; no chat messages or generic generation parameters.

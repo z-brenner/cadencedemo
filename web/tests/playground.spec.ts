@@ -78,11 +78,11 @@ test('choice, Boolean and ordinal runs preserve native request semantics', async
   ).toBeVisible()
 })
 test('JSON validation, loading, recovery and raw result', async ({ page }) => {
-  await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
+  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
   await page.getByLabel('Context', { exact: true }).fill('{bad json')
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('not valid JSON')
-  await page.getByRole('button', { name: 'Play music', exact: true }).click()
+  await page.getByRole('button', { name: 'Route a document', exact: true }).click()
   await page.route('**/api/predict', (route) =>
     route.fulfill({
       status: 503,
@@ -102,8 +102,8 @@ test('JSON validation, loading, recovery and raw result', async ({ page }) => {
     await route.fulfill({
       json: {
         kind: 'choice',
-        native_option_ids: ['play_music', 'book_restaurant', 'get_weather'],
-        probabilities: { play_music: 0.8, book_restaurant: 0.1, get_weather: 0.1 },
+        native_option_ids: ['confidentiality_agreement', 'services_agreement', 'meeting_notes'],
+        probabilities: { confidentiality_agreement: 0.8, services_agreement: 0.1, meeting_notes: 0.1 },
         value: null,
         tokens: 48,
         seconds: 0.045,
@@ -126,7 +126,7 @@ test('option editing, setup dialog keyboard and accessibility', async ({ page })
   await page.getByRole('button', { name: 'Add option', exact: false }).click()
   await page.getByText('Advanced input details', { exact: true }).click()
   await expect(page.getByLabel('Option 4 ID')).toBeVisible()
-  await page.getByLabel('Option 4 ID').fill('play_music')
+  await page.getByLabel('Option 4 ID').fill('confidentiality_agreement')
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('unique ID')
   await page.getByRole('button', { name: 'Remove option 4' }).click()
@@ -206,7 +206,7 @@ test('CPU profile is reported and the editor respects its option limit', async (
 })
 
 test('multilingual and astral JSON reaches the API unchanged', async ({ page }) => {
-  await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
+  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
   const state = { text: '日'.repeat(3000), accent: 'é'.repeat(2000), emoji: '😀'.repeat(1000) }
   const source = JSON.stringify(state)
   await page.getByLabel('Context', { exact: true }).fill(source)
@@ -219,7 +219,7 @@ test('multilingual and astral JSON reaches the API unchanged', async ({ page }) 
 })
 
 test('selecting the active JSON format preserves context', async ({ page }) => {
-  await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
+  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
   const source = await page.getByLabel('Context', { exact: true }).inputValue()
   await page.getByText('Advanced input details', { exact: true }).click()
   await page.getByRole('button', { name: 'JSON', exact: true }).click()
@@ -227,7 +227,7 @@ test('selecting the active JSON format preserves context', async ({ page }) => {
 })
 
 test('unsafe integer JSON is explained before a request can run', async ({ page }) => {
-  await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
+  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
   await page.getByLabel('Context', { exact: true }).fill('{"account_id":9007199254740993}')
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('safe range')
@@ -243,11 +243,11 @@ test('guided inputs hide technical controls and retain exact native choices', as
   const sent = page.waitForRequest((r) => r.url().endsWith('/api/predict'))
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   expect(Object.keys((await sent).postDataJSON().questions.decision.criteria)).toEqual([
-    'play_music',
-    'book_restaurant',
-    'get_weather',
+    'confidentiality_agreement',
+    'services_agreement',
+    'meeting_notes',
   ])
-  await expect(page.locator('.answer')).toHaveText('Play music')
+  await expect(page.locator('.answer')).toHaveText('Confidentiality agreement')
   await expect(
     page.getByText(
       'These percentages describe the model’s output. They do not measure how likely the answer is to be correct.',
@@ -260,8 +260,8 @@ test('an exact probability tie does not claim one leading answer', async ({ page
     route.fulfill({
       json: {
         kind: 'choice',
-        native_option_ids: ['play_music', 'book_restaurant', 'get_weather'],
-        probabilities: { play_music: 0.45, book_restaurant: 0.45, get_weather: 0.1 },
+        native_option_ids: ['confidentiality_agreement', 'services_agreement', 'meeting_notes'],
+        probabilities: { confidentiality_agreement: 0.45, services_agreement: 0.45, meeting_notes: 0.1 },
         value: null,
         tokens: 48,
         seconds: 0.045,
@@ -307,21 +307,21 @@ test('colliding readable names identify exact native choices in the editor and r
   page,
 }) => {
   await page.getByText('Advanced input details', { exact: true }).click()
-  const ids = ['play_music', 'play music', 'Play music']
+  const ids = ['confidentiality_agreement', 'confidentiality agreement', 'Confidentiality agreement']
   for (let i = 0; i < ids.length; i++) {
     await page.getByLabel(`Option ${i + 1} ID`).fill(ids[i])
     await page.getByLabel(`Answer ${i + 1} description`).fill('')
   }
   await page.getByText('Advanced input details', { exact: true }).click()
-  const labels = ids.map((id) => `Play music (ID: ${id})`)
+  const labels = ids.map((id) => `Confidentiality agreement (ID: ${id})`)
   await expect(page.locator('.answer-name')).toHaveText(labels)
   const sent = page.waitForRequest((r) => r.url().endsWith('/api/predict'))
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   expect(Object.keys((await sent).postDataJSON().questions.decision.criteria)).toEqual(ids)
   await expect(page.locator('.answer')).toHaveText(labels[0])
   await expect(page.locator('.probability-label > span')).toHaveText(labels)
-  await page.getByRole('button', { name: 'Play music', exact: true }).click()
-  await expect(page.locator('.answer-name').first()).toHaveText('Play music')
+  await page.getByRole('button', { name: 'Route a document', exact: true }).click()
+  await expect(page.locator('.answer-name').first()).toHaveText('Confidentiality agreement')
   await expect(page.locator('.answer')).toHaveText(labels[0])
   await expect(
     page.getByText('You changed the inputs. Get a new decision to update this result.'),

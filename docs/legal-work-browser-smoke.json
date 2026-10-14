@@ -1,0 +1,275 @@
+{
+  "mode": "Reviewed local build preview; not deployed. Real worker, pinned verified cache and actual WASM inference.",
+  "site": "https://z-brenner.github.io/cadencedemo/",
+  "deployedCommit": null,
+  "physicalIOS": false,
+  "scope": "Bounded fictional workflow functionality checks; not legal accuracy validation or advice.",
+  "sourceHashes": {
+    "web/src/App.tsx": "e43736cf623a4bbe94c5dd1fa38a1521c23a9736f793fe22a4809ce91f66a06d",
+    "web/src/examples.ts": "e3bceb4d48bf9ae49d75a05fecff0b867e6f9955a0e737c263eb99f2f5928436"
+  },
+  "examples": [
+    {
+      "name": "Route a document",
+      "displayed": "Confidentiality agreement",
+      "result": {
+        "kind": "choice",
+        "native_option_ids": [
+          "confidentiality_agreement",
+          "services_agreement",
+          "meeting_notes"
+        ],
+        "probabilities": {
+          "confidentiality_agreement": 0.9995443543680221,
+          "services_agreement": 0.0003912201256444681,
+          "meeting_notes": 0.0000644255063333558
+        },
+        "value": null,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "browser",
+        "profile": "browser_fp32",
+        "artifact_manifest_sha256": "3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657",
+        "tokens": 86,
+        "seconds": 13.247099999904632,
+        "truncated": false
+      },
+      "request": {
+        "state": "Fictional document excerpt: Each party must keep the other party’s confidential information private and use it only to evaluate the proposed collaboration.",
+        "questions": {
+          "decision": {
+            "type": "choice",
+            "instructions": "Choose the document category that best matches this excerpt.",
+            "criteria": {
+              "confidentiality_agreement": "An agreement about keeping shared information confidential.",
+              "services_agreement": "An agreement describing services, deliverables and payment.",
+              "meeting_notes": "Notes recording a meeting discussion and action items."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Route a review request",
+      "displayed": "Contract review",
+      "result": {
+        "kind": "choice",
+        "native_option_ids": [
+          "contract_review",
+          "case_research",
+          "invoice_review"
+        ],
+        "probabilities": {
+          "contract_review": 0.9935406656861836,
+          "case_research": 0.006238195351951734,
+          "invoice_review": 0.00022113896186460626
+        },
+        "value": null,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "browser",
+        "profile": "browser_fp32",
+        "artifact_manifest_sha256": "3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657",
+        "tokens": 86,
+        "seconds": 13.677799999952317,
+        "truncated": false
+      },
+      "request": {
+        "state": {
+          "fictional": true,
+          "message": "Please review this draft confidentiality agreement before we share the project plans.",
+          "attachment": "draft_confidentiality_agreement.txt"
+        },
+        "questions": {
+          "decision": {
+            "type": "choice",
+            "instructions": "Route this fictional legal-work request to the most relevant work queue.",
+            "criteria": {
+              "contract_review": "Reviewing draft agreements and their clauses.",
+              "case_research": "Researching authorities for a stated legal issue.",
+              "invoice_review": "Checking legal invoices and billing entries."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Check a notice term",
+      "displayed": "78.8%",
+      "result": {
+        "kind": "noul",
+        "native_option_ids": [
+          "false",
+          "true"
+        ],
+        "probabilities": {
+          "false": 0.21160553196294604,
+          "true": 0.7883944680370539
+        },
+        "value": 0.7883944680370539,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "browser",
+        "profile": "browser_fp32",
+        "artifact_manifest_sha256": "3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657",
+        "tokens": 90,
+        "seconds": 13.386799999952316,
+        "truncated": false
+      },
+      "request": {
+        "state": "Fictional clause: Either party may end this agreement by giving the other party at least 30 days of written notice.",
+        "questions": {
+          "decision": {
+            "type": "noul",
+            "instructions": "Does the provided clause explicitly require at least 30 days of written notice to end the agreement? Check only the supplied words.",
+            "criteria": {
+              "false": "No: the clause does not explicitly state that requirement.",
+              "true": "Yes: the clause explicitly states at least 30 days of written notice."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Check automatic renewal",
+      "displayed": "0.9%",
+      "result": {
+        "kind": "noul",
+        "native_option_ids": [
+          "false",
+          "true"
+        ],
+        "probabilities": {
+          "false": 0.9911695396293437,
+          "true": 0.008830460370656405
+        },
+        "value": 0.008830460370656405,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "browser",
+        "profile": "browser_fp32",
+        "artifact_manifest_sha256": "3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657",
+        "tokens": 83,
+        "seconds": 14.149900000095368,
+        "truncated": false
+      },
+      "request": {
+        "state": "Fictional clause: This agreement lasts for one year. Any extension requires a new written agreement signed by both parties.",
+        "questions": {
+          "decision": {
+            "type": "noul",
+            "instructions": "Does the provided clause explicitly say the agreement renews automatically? Check only the supplied words.",
+            "criteria": {
+              "false": "No: automatic renewal is absent, or an extension requires a new signed agreement.",
+              "true": "Yes: the agreement explicitly renews automatically without a new signed agreement."
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Prioritize review",
+      "displayed": "3.61 / 4",
+      "result": {
+        "kind": "score",
+        "native_option_ids": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "probabilities": {
+          "0": 0.00027972271069022937,
+          "1": 0.018062394757789754,
+          "2": 0.003132927356748119,
+          "3": 0.32798393530479264,
+          "4": 0.6505410198699793
+        },
+        "value": 3.610444134865581,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "browser",
+        "profile": "browser_fp32",
+        "artifact_manifest_sha256": "3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657",
+        "tokens": 150,
+        "seconds": 16.036199999928474,
+        "truncated": false
+      },
+      "request": {
+        "state": "Fictional work item: A draft vendor agreement is waiting for review. The team’s internal target is tomorrow. A reviewer must check the payment terms before the team can finish its review.",
+        "questions": {
+          "decision": {
+            "type": "score",
+            "instructions": "Rate document-review priority using the supplied internal workflow levels. Use only the stated timing and work status; do not infer a legal deadline or legal risk.",
+            "criteria": [
+              "Archived: review is complete and no action remains.",
+              "Low: review is needed but no internal target date is stated.",
+              "Routine: review is needed with an internal target more than a week away.",
+              "Soon: review is needed with an internal target in two to seven days.",
+              "First: review is still needed and the internal target is today or tomorrow."
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "Prioritize an archive item",
+      "displayed": "0.00 / 4",
+      "result": {
+        "kind": "score",
+        "native_option_ids": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "probabilities": {
+          "0": 0.9985528449674237,
+          "1": 0.00120041666826193,
+          "2": 0.00009616402196719745,
+          "3": 0.0000861317017334995,
+          "4": 0.00006444264061357586
+        },
+        "value": 0.0019089103798511269,
+        "model": "foolish-bandit/cadence-0.8b",
+        "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+        "device": "browser",
+        "profile": "browser_fp32",
+        "artifact_manifest_sha256": "3b773382a7463f5b2bffcba7dd0d0896fbccff33e85ed65cedf60fea19529657",
+        "tokens": 142,
+        "seconds": 15.8045,
+        "truncated": false
+      },
+      "request": {
+        "state": "Fictional work item: Review of the draft vendor agreement is complete. All review comments were addressed. The file is archived and no action remains.",
+        "questions": {
+          "decision": {
+            "type": "score",
+            "instructions": "Rate document-review priority using the supplied internal workflow levels. Use only the stated timing and work status; do not infer a legal deadline or legal risk.",
+            "criteria": [
+              "Archived: review is complete and no action remains.",
+              "Low: review is needed but no internal target date is stated.",
+              "Routine: review is needed with an internal target more than a week away.",
+              "Soon: review is needed with an internal target in two to seven days.",
+              "First: review is still needed and the internal target is today or tomorrow."
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "checks": {
+    "axeViolations": [],
+    "overflow": {
+      "320": false,
+      "390": false,
+      "1280": false
+    },
+    "errors": [],
+    "apiOrPostRequests": [],
+    "savedFileCount": 89
+  },
+  "browser": "155.0.8059.39"
+}
