@@ -119,7 +119,10 @@ it('rejects inconsistent device metadata and respects CPU option limits', () => 
     makeRequest(
       {
         ...base,
-        options: Array.from({ length: 17 }, (_, i) => ({ id: String(i), description: 'option' })),
+        options: Array.from({ length: 17 }, (_, i) => ({
+          id: String(i),
+          description: 'option',
+        })),
       },
       16,
     ),
@@ -133,7 +136,9 @@ for (const sample of unicodeCases) {
     expect(state.length).toBe(sample.units)
     const draft = { ...base, format: sample.format as 'text' | 'json', state }
     if (sample.accepted)
-      expect(makeRequest(draft).state).toEqual(sample.format === 'json' ? JSON.parse(state) : text)
+      expect(makeRequest(draft).state).toEqual(
+        sample.format === 'json' ? JSON.parse(state) : text,
+      )
     else expect(() => makeRequest(draft)).toThrow(/12,000/)
   })
 }
@@ -149,25 +154,69 @@ for (const sample of compactCases) {
     expect(JSON.stringify(request.state).length).toBe(sample.units)
   })
 }
-for (const [field, limit] of [['instructions', 2000], ['id', 64], ['description', 500]] as const) {
+for (const [field, limit] of [
+  ['instructions', 2000],
+  ['id', 64],
+  ['description', 500],
+] as const) {
   it(`uses UTF-16 boundary for ${field}`, () => {
-    const make = (text: string) => field === 'instructions'
-      ? { ...base, instructions: text }
-      : { ...base, options: [
-          { id: field === 'id' ? text : 'music', description: field === 'description' ? text : 'first' },
-          base.options[1],
-        ] }
+    const make = (text: string) =>
+      field === 'instructions'
+        ? { ...base, instructions: text }
+        : {
+            ...base,
+            options: [
+              {
+                id: field === 'id' ? text : 'music',
+                description: field === 'description' ? text : 'first',
+              },
+              base.options[1],
+            ],
+          }
     expect(() => makeRequest(make('😀'.repeat(limit / 2)))).not.toThrow()
     expect(() => makeRequest(make('😀'.repeat(limit / 2) + 'x'))).toThrow()
   })
 }
 it('rejects unpaired surrogates without altering Unicode text', () => {
   expect(() => makeRequest({ ...base, state: '\ud800' })).toThrow(/Unicode/)
-  expect(() => makeRequest({ ...base, format: 'json', state: '{"text":"\\ud800"}' })).toThrow(/valid JSON/)
+  expect(() => makeRequest({ ...base, format: 'json', state: '{"text":"\\ud800"}' })).toThrow(
+    /valid JSON/,
+  )
   expect(makeRequest({ ...base, state: 'é日😀é' }).state).toBe('é日😀é')
 })
 it('keeps deeply nested bounded JSON unchanged', () => {
   const state = '['.repeat(500) + '0' + ']'.repeat(500)
   const request = makeRequest({ ...base, format: 'json', state })
   expect(JSON.stringify(request.state)).toBe(state)
+})
+
+it('rejects UTF-8 request bodies beyond the API byte limit', () => {
+  const draft = {
+    ...base,
+    state: '日'.repeat(12000),
+    instructions: '日'.repeat(2000),
+    options: Array.from({ length: 32 }, (_, i) => ({
+      id: String(i),
+      description: '日'.repeat(500),
+    })),
+  }
+  expect(() => makeRequest(draft)).toThrow(/64 KiB/)
+})
+
+it('accepts the exact UTF-8 body limit and rejects one additional byte', () => {
+  const draft = {
+    ...base,
+    state: 'x',
+    instructions: '日'.repeat(2000),
+    options: Array.from({ length: 32 }, (_, i) => ({
+      id: String(i),
+      description: '日'.repeat(500),
+    })),
+  }
+  const overhead = new TextEncoder().encode(JSON.stringify(makeRequest(draft))).length - 1
+  const state = 'x'.repeat(65536 - overhead)
+  expect(
+    new TextEncoder().encode(JSON.stringify(makeRequest({ ...draft, state }))).length,
+  ).toBe(65536)
+  expect(() => makeRequest({ ...draft, state: state + 'x' })).toThrow(/64 KiB/)
 })

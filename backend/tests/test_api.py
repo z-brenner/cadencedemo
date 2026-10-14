@@ -367,3 +367,25 @@ def test_deeply_nested_bounded_json_reaches_native_unchanged():
         response = client.post("/api/predict", json=payload() | {"state": state})
     assert response.status_code == 200
     assert stub.requests[0]["state"] == state
+
+
+def test_pages_origin_has_no_cross_origin_inference_permission():
+    def forbidden():
+        raise AssertionError("health/preflight must not load model")
+
+    with TestClient(create_app(loader=forbidden)) as client:
+        headers = {"Origin": "https://z-brenner.github.io"}
+        response = client.get("/api/health", headers=headers)
+        assert response.status_code == 200
+        assert response.json()["status"] == "cold"
+        assert "access-control-allow-origin" not in response.headers
+        response = client.options(
+            "/api/predict",
+            headers=headers
+            | {
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+        assert response.status_code == 405
+        assert "access-control-allow-origin" not in response.headers

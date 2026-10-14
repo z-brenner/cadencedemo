@@ -51,7 +51,8 @@ export function unicodeLength(text: string): number {
 
 export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
   if (!draft.state.trim()) throw new Error('Add a state to evaluate.')
-  if (unicodeLength(draft.state) > 12000) throw new Error('Keep the state within 12,000 characters.')
+  if (unicodeLength(draft.state) > 12000)
+    throw new Error('Keep the state within 12,000 characters.')
   if (!draft.instructions.trim()) throw new Error('Add instructions for this decision.')
   if (unicodeLength(draft.instructions) > 2000)
     throw new Error('Keep instructions within 2,000 characters.')
@@ -96,10 +97,15 @@ export function makeRequest(draft: Draft, maxOptions = 32): DecisionRequest {
       throw new Error('Boolean uses false and true criteria.')
     criteria = Object.fromEntries(draft.options.map((o) => [o.id, o.description || null]))
   }
-  return {
+  const request: DecisionRequest = {
     state,
     questions: { decision: { type: draft.kind, instructions: draft.instructions, criteria } },
   }
+  if (new TextEncoder().encode(JSON.stringify(request)).byteLength > 65536)
+    throw new Error(
+      'Keep the complete request within the 64 KiB UTF-8 limit. Shorten the context or descriptions.',
+    )
+  return request
 }
 
 export function validateResult(data: unknown, request: DecisionRequest): Result {
@@ -124,7 +130,9 @@ export function validateResult(data: unknown, request: DecisionRequest): Result 
     Object.keys(r.probabilities).length !== keys.length ||
     keys.some(
       (k) =>
-        !Number.isFinite(r.probabilities[k]) || r.probabilities[k] < 0 || r.probabilities[k] > 1,
+        !Number.isFinite(r.probabilities[k]) ||
+        r.probabilities[k] < 0 ||
+        r.probabilities[k] > 1,
     ) ||
     Math.abs(keys.reduce((sum, k) => sum + r.probabilities[k], 0) - 1) > 0.00001 ||
     !Number.isFinite(r.seconds) ||
@@ -132,7 +140,9 @@ export function validateResult(data: unknown, request: DecisionRequest): Result 
     !Number.isInteger(r.tokens) ||
     r.tokens < 1
   )
-    throw new Error('The backend returned an invalid result. Check the backend version and retry.')
+    throw new Error(
+      'The backend returned an invalid result. Check the backend version and retry.',
+    )
   if (r.kind === 'score' || r.kind === 'noul') {
     const expected =
       r.kind === 'noul'

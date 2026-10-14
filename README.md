@@ -1,5 +1,7 @@
 # Cadence demo
 
+[Open the public request explorer](https://z-brenner.github.io/cadencedemo/) · [Hosting and runtime boundaries](docs/HOSTING.md)
+
 A local playground for [Cadence 0.8B](https://huggingface.co/foolish-bandit/cadence-0.8b): give it context, a question and criteria, then inspect a typed decision distribution. Cadence is a ~758M parameter decision model. It **does not generate chat or text**.
 
 - **Choice** — labeled options, returned by their semantic IDs.
@@ -12,11 +14,20 @@ Probabilities are model outputs, **not calibrated guarantees of correctness**. E
 
 The local backend uses real inference only. Mocked responses exist solely in automated tests, and screenshot previews label them explicitly. **Real CUDA and CPU FP32 end-to-end inference passed** for choice, JSON-state Boolean and ordinal score HTTP requests. CUDA also rendered a real decision in the built UI; CPU rendered all three query types in the built UI without API interception. Both cached smokes used **Torch 2.11.0+cu128**, separately recorded from the published Torch 2.8 profile. These are bounded functionality checks, not accuracy, numerical-equivalence or performance benchmarks. Passing stub tests alone are not native inference evidence. See [verification evidence](docs/VERIFICATION.md).
 
+## Public website
+
+GitHub Pages serves a static request explorer: edit the six examples, validate choice/Boolean/score inputs, inspect and copy their exact JSON. It produces no model decisions, probabilities or mocked inference, and sends no input to a backend. To run the model, follow local setup and open the local playground in a separate tab. Pages does not connect to localhost; the loopback API has no cross-origin CORS permission. No hosted inference backend or credentials are configured. See [hosting details](docs/HOSTING.md).
+
 ## Local setup
 
 Requirements: Node.js 22.12+, Python **3.12**, and access to Hugging Face when preparing the model cache. Default `CADENCE_DEVICE=cuda` uses the public CUDA/BF16 profile and requires compatible NVIDIA hardware/driver. Explicit `CADENCE_DEVICE=cpu` uses the coordinated experimental FP32 port described below. MPS and automatic device fallback are unsupported.
 
-Create an isolated environment in this repository:
+Clone the repository, then create an isolated environment:
+
+```bash
+git clone https://github.com/z-brenner/cadencedemo.git
+cd cadencedemo
+```
 
 ```bash
 python3.12 -m venv .venv
@@ -56,7 +67,7 @@ export HF_HUB_OFFLINE=1
 python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 ```
 
-The package directory must match every manifest hash; arbitrary or modified runtimes are rejected before import. `HF_HUB_OFFLINE=1` also stops upstream Transformers/Hub downloads. Default use downloads the pinned public package through the normal Hugging Face cache. No token is required for the public package. Upstream artifacts must already be cached for offline use.
+The package directory must match every manifest hash; arbitrary or modified runtimes are rejected before import. Only the five manifest-listed model Python modules are imported through an isolated source loader; the model directory never receives import precedence. Extra modules/packages or bytecode cannot supply model dependencies. The loader compiles the exact bytes it rechecks against the manifest. Cached model modules must belong to that loader; source/alias dependencies from the model directory are rejected. Do not place the model directory on PYTHONPATH or sys.path; use CADENCE_MODEL_DIR alone. `HF_HUB_OFFLINE=1` also stops upstream Transformers/Hub downloads. Default use downloads the pinned public package through the normal Hugging Face cache. No token is required for the public package. Upstream artifacts must already be cached for offline use.
 
 ### Explicit CPU FP32 selection
 
@@ -98,7 +109,7 @@ The unchanged CPU adapter uses a `public_cache` sibling of the package directory
 npm run build
 ```
 
-This produces `dist/`. Keep the backend running and use `npm run preview` to inspect the built UI at the printed loopback URL. Both Vite development and preview servers proxy `/api` to port 8000. The preview server alone does not provide model inference. No public deployment is included.
+This produces `dist/`. Keep the backend running and use `npm run preview` to inspect the built UI at the printed loopback URL. Both Vite development and preview servers proxy `/api` to port 8000. The preview server alone does not provide model inference. The public Pages build uses `npm run build:pages` and writes `dist-pages/` at base `/cadencedemo/`; it has no inference transport. Only that directory is deployed by the Pages workflow.
 
 ## API
 
@@ -116,7 +127,7 @@ Successful responses contain `kind`, `native_option_ids`, `probabilities`, `valu
 
 Demo limits: 64 KiB body, 12,000 state UTF-16 units (compact JSON length for objects/arrays), 2,000 instruction UTF-16 units, 2–32 options/levels on CUDA or 2–16 on CPU, 64-unit IDs and 500-unit descriptions. These browser-compatible counts treat BMP characters such as é or 日 as one unit and astral characters such as 😀 as two; combining marks count separately. JSON is measured without ASCII escape expansion or added separator spaces; values are preserved. The JSON editor also caps the source text at 12,000 units, including whitespace. Unpaired Unicode surrogates are rejected. Empty choice descriptions become native null descriptions. Inputs are rejected rather than truncated. Native token limits can still reject a character-valid request. One request including model loading may run at a time; further calls receive 429. The service also limits total attempts to 12 per minute. The browser waits up to five minutes. If it times out, backend work may still be running; it retains the busy lock until completion.
 
-This is a **loopback developer demo**, without user authentication or production job scheduling. Keep the documented loopback binding and one backend worker. Stop the backend to release the model and its device resources. Deployment, hosting and credentials are outside this change.
+This is a **loopback developer demo**, without user authentication or production job scheduling. Keep the documented loopback binding and one backend worker. Stop the backend to release the model and its device resources. GitHub Pages hosts only the static request explorer; a public inference backend and credentials are outside this change.
 
 ## Testing
 

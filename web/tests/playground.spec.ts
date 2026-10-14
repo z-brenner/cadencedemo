@@ -138,7 +138,7 @@ test('option editing, setup dialog keyboard and accessibility', async ({ page })
 })
 test('responsive screenshots explicitly identify mocked preview', async ({ page }, testInfo) => {
   const consoleErrors = capturedErrors.get(page)!
-  await expect(page).toHaveTitle('Cadence — typed decision playground')
+  await expect(page).toHaveTitle('Cadence Demo — typed decisions')
   await expect(page.getByRole('heading', { name: 'Give context. Get a decision.' })).toBeVisible()
   await expect(page.locator('vite-error-overlay')).toHaveCount(0)
   await expect(page.getByText(/UI test preview/)).toBeVisible()
@@ -211,4 +211,12 @@ test('multilingual and astral JSON reaches the API unchanged', async ({ page }) 
   await expect(page.getByText('Highest-probability option')).toBeVisible()
   await expect(page.getByLabel('State', { exact: true })).toHaveValue(source)
   expect(capturedErrors.get(page)).toEqual([])
+})
+
+
+test('selecting the active JSON format preserves context', async ({ page }) => {
+  await page.getByRole('button', { name: 'Classify support intent', exact: true }).click()
+  const source = await page.getByLabel('State', { exact: true }).inputValue()
+  await page.getByRole('button', { name: 'JSON', exact: true }).click()
+  await expect(page.getByLabel('State', { exact: true })).toHaveValue(source)
 })

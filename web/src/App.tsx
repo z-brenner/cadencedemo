@@ -23,6 +23,8 @@ type Health = {
   limits: { options: number }
 }
 type Saved = { result: Result; draft: Draft; request: ReturnType<typeof makeRequest> }
+type Prepared = { draft: Draft; request: ReturnType<typeof makeRequest> }
+const hosted = import.meta.env.MODE === 'pages'
 const kindNames: Record<Kind, string> = { choice: 'Choice', noul: 'Boolean', score: 'Score' }
 function Wave({ small = false }: { small?: boolean }) {
   return (
@@ -49,6 +51,7 @@ export default function App() {
   const [draft, setDraft] = useState<Draft>(() => defaultDraft('choice'))
   const [selected, setSelected] = useState('Play music')
   const [saved, setSaved] = useState<Saved | null>(null)
+  const [prepared, setPrepared] = useState<Prepared | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [health, setHealth] = useState<Health | null>(null)
@@ -62,6 +65,7 @@ export default function App() {
   const preview = new URLSearchParams(window.location.search).get('preview') === 'ui-test'
 
   useEffect(() => {
+    if (hosted) return
     let mounted = true
     const check = async () => {
       try {
@@ -118,7 +122,8 @@ export default function App() {
     setError('')
     setCopyStatus('')
   }
-  const stale = saved !== null && JSON.stringify(saved.draft) !== JSON.stringify(draft)
+  const previous = saved ?? prepared
+  const stale = previous !== null && JSON.stringify(previous.draft) !== JSON.stringify(draft)
 
   const maxOptions = health?.limits.options ?? 32
 
@@ -129,6 +134,13 @@ export default function App() {
     } catch (e) {
       setError((e as Error).message)
       setTimeout(() => errorRef.current?.focus(), 0)
+      return
+    }
+    if (hosted) {
+      setPrepared({ request, draft: structuredClone(draft) })
+      setError('')
+      setCopyStatus('')
+      setTimeout(() => resultRef.current?.focus(), 0)
       return
     }
     setBusy(true)
@@ -180,19 +192,22 @@ export default function App() {
     }
   }
   async function copy() {
-    if (!saved) return
+    if (!saved && !prepared) return
     try {
       await navigator.clipboard.writeText(
-        JSON.stringify({ request: saved.request, result: saved.result }, null, 2),
+        saved
+          ? JSON.stringify({ request: saved.request, result: saved.result }, null, 2)
+          : JSON.stringify(prepared!.request),
       )
-      setCopyStatus('Copied request and result.')
+      setCopyStatus(saved ? 'Copied request and result.' : 'Copied request JSON.')
     } catch {
       setCopyStatus('Clipboard is unavailable. Open Raw JSON to select and copy the result.')
     }
   }
   const summary = saved ? summarize(saved.result) : null
-  const status =
-    health?.status === 'loading'
+  const status = hosted
+    ? 'Static site · no inference'
+    : health?.status === 'loading'
       ? 'Loading model'
       : health?.busy
         ? 'Backend busy'
@@ -213,6 +228,7 @@ export default function App() {
         <a className="brand" href="./" aria-label="Cadence home">
           <Wave small />
           Cadence
+          <span className="demo-badge">Demo</span>
         </a>
         <nav aria-label="Resources">
           <a
@@ -228,6 +244,18 @@ export default function App() {
         </nav>
       </header>
       <main>
+        {hosted && (
+          <aside className="hosted-banner" aria-label="Hosting and inference">
+            <strong>Static playground · no model inference</strong>
+            <p>
+              Edit examples and inspect a validated request. Run Cadence with the local setup
+              guide.
+            </p>
+            <button className="text-button" onClick={() => setSetup(true)}>
+              Run locally →
+            </button>
+          </aside>
+        )}
         {preview && (
           <div className="preview-banner" role="status">
             UI test preview — results are mocked by the automated test. No model inference.
@@ -235,7 +263,44 @@ export default function App() {
         )}
         <section className="intro">
           <h1>Give context. Get a decision.</h1>
-          <p>Explore choice, Boolean and ordinal score queries with Cadence 0.8B.</p>
+          <p>
+            {hosted
+              ? 'Explore typed decision inputs. Run the model locally when you’re ready.'
+              : 'Explore choice, Boolean and ordinal score queries with Cadence 0.8B.'}
+          </p>
+          <details className="about-demo">
+            <summary>How to use this demo</summary>
+            <p>
+              Cadence is a small model that turns context and a question into a structured
+              decision. It chooses an option, estimates the probability of true, or scores
+              ordered levels. It does not generate chat replies.
+            </p>
+            <ol>
+              <li>
+                Pick an example. Edit its state (the context), instructions (your question), and
+                possible answers.
+              </li>
+              <li>
+                {hosted
+                  ? 'Inspect and copy the request JSON. Use the setup guide to run these inputs in the local playground.'
+                  : 'Run a decision. First use loads the model; later runs reuse it.'}
+              </li>
+              <li>
+                Read the distribution as the model’s preference across your answers. A high
+                probability does not establish correctness or certainty.
+              </li>
+            </ol>
+            <p>
+              This is a demo. The public website explores inputs; real inference runs locally.{' '}
+              <a
+                href="https://github.com/z-brenner/cadencedemo/blob/main/docs/BENCHMARK_AND_CPU_GUIDANCE.md"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Evaluation and CPU limitations ↗
+              </a>
+            </p>
+          </details>
         </section>
         <section className="presets" aria-label="Example presets">
           <span>Example presets</span>
@@ -290,6 +355,7 @@ export default function App() {
                         aria-pressed={draft.format === format}
                         className={draft.format === format ? 'selected' : ''}
                         onClick={() =>
+                          draft.format !== format &&
                           edit({
                             format,
                             state:
@@ -322,8 +388,8 @@ export default function App() {
                 />
                 <p id="state-hint" className="hint">
                   {draft.format === 'json'
-                    ? 'Use a JSON object or array. Fields are rendered as labeled context.'
-                    : 'The context to evaluate. Cadence returns a decision, not generated text.'}
+                    ? 'State is the context: use a JSON object or array of facts.'
+                    : 'State is the text context you want Cadence to evaluate.'}
                 </p>
               </div>
               <div className="field">
@@ -333,8 +399,12 @@ export default function App() {
                   value={draft.instructions}
                   maxLength={2000}
                   rows={2}
+                  aria-describedby="instructions-hint"
                   onChange={(e) => edit({ instructions: e.target.value })}
                 />
+                <p id="instructions-hint" className="hint">
+                  The question or task you want the model to decide.
+                </p>
               </div>
               <div className="field options">
                 <div className="field-label">
@@ -353,6 +423,13 @@ export default function App() {
                         : ''}
                   </span>
                 </div>
+                {draft.kind !== 'score' && (
+                  <p className="hint">
+                    {draft.kind === 'noul'
+                      ? 'Describe what false and true mean for your question.'
+                      : 'Each option is a possible answer. IDs identify the answers; descriptions explain them.'}
+                  </p>
+                )}
                 {draft.options.map((option, i) => (
                   <div className={`option-row ${draft.kind}`} key={i}>
                     <span className="option-index" aria-hidden="true">
@@ -380,7 +457,9 @@ export default function App() {
                       value={option.description}
                       maxLength={500}
                       placeholder={
-                        draft.kind === 'score' ? 'Describe this level' : 'Description (optional)'
+                        draft.kind === 'score'
+                          ? 'Describe this level'
+                          : 'Description (optional)'
                       }
                       onChange={(e) =>
                         edit({
@@ -396,7 +475,9 @@ export default function App() {
                         type="button"
                         aria-label={`Remove ${draft.kind === 'score' ? 'level' : 'option'} ${draft.kind === 'score' ? i : i + 1}`}
                         disabled={draft.options.length <= 2}
-                        onClick={() => edit({ options: draft.options.filter((_, j) => j !== i) })}
+                        onClick={() =>
+                          edit({ options: draft.options.filter((_, j) => j !== i) })
+                        }
                       >
                         <svg
                           width="16"
@@ -435,8 +516,8 @@ export default function App() {
                 )}
                 {draft.kind === 'score' && (
                   <p className="hint">
-                    Levels are indexed from 0. The score is the probability-weighted mean of these
-                    indices.
+                    Levels are indexed from 0. The score is the probability-weighted mean of
+                    these indices.
                   </p>
                 )}
               </div>
@@ -454,7 +535,8 @@ export default function App() {
                 </>
               ) : (
                 <>
-                  <span aria-hidden="true">▶</span> Run decision
+                  <span aria-hidden="true">{hosted ? '↗' : '▶'}</span>{' '}
+                  {hosted ? 'Inspect request' : 'Run decision'}
                 </>
               )}
             </button>
@@ -470,9 +552,9 @@ export default function App() {
           <section className="result panel" aria-labelledby="result-title" aria-busy={busy}>
             <div className="result-header">
               <h2 id="result-title" ref={resultRef} tabIndex={-1}>
-                Result
+                {hosted ? 'Request' : 'Result'}
               </h2>
-              {saved && (
+              {(saved || prepared) && (
                 <button className="text-button" onClick={() => void copy()}>
                   Copy JSON
                 </button>
@@ -534,18 +616,48 @@ export default function App() {
                   {copyStatus}
                 </p>
               </div>
+            ) : prepared ? (
+              <div className="result-content request-preview">
+                {stale && (
+                  <p className="stale" role="status">
+                    Inputs changed. Inspect again to update this request.
+                  </p>
+                )}
+                <p className="result-label">Validated typed request</p>
+                <h3>Ready for local inference.</h3>
+                <p>No inference has run.</p>
+                <p className="hint">
+                  Copy this JSON for the local API, or use these inputs in the local playground.
+                  No probability or decision is produced on this site. Device and native token
+                  limits are checked again locally.
+                </p>
+                <div className="raw">
+                  <pre>{JSON.stringify(prepared.request, null, 2)}</pre>
+                </div>
+                <p className="hint" role="status">
+                  {copyStatus}
+                </p>
+              </div>
             ) : (
               <div className="empty">
                 <Wave />
-                <h3>{busy ? 'Evaluating your context…' : 'Your decision starts here.'}</h3>
+                <h3>
+                  {hosted
+                    ? 'Explore a typed request.'
+                    : busy
+                      ? 'Evaluating your context…'
+                      : 'Your decision starts here.'}
+                </h3>
                 <p>
-                  {busy
-                    ? 'The distribution will appear here when local inference finishes.'
-                    : 'Run a query to see the model distribution.'}
+                  {hosted
+                    ? 'Inspect a request to see the JSON you can send to Cadence locally.'
+                    : busy
+                      ? 'The distribution will appear here when local inference finishes.'
+                      : 'Run a query to see the model distribution.'}
                 </p>
                 {!busy && health === null && (
                   <button className="text-button" onClick={() => setSetup(true)}>
-                    Connect your local backend →
+                    {hosted ? 'Local setup guide →' : 'Connect your local backend →'}
                   </button>
                 )}
               </div>
@@ -572,8 +684,8 @@ export default function App() {
             <div>
               <h3>Boolean</h3>
               <p>
-                Answer yes or no to a question. Returns the probability of true, using the model’s
-                native <code>noul</code> type.
+                Answer yes or no to a question. Returns the probability of true, using the
+                model’s native <code>noul</code> type.
               </p>
             </div>
             <div>
@@ -591,7 +703,7 @@ export default function App() {
         </section>
         <footer>
           <span>
-            Local inference ·{' '}
+            {hosted ? 'Static request explorer · ' : 'Local inference · '}
             {health
               ? health.device === 'cpu'
                 ? 'CPU FP32 (experimental)'
@@ -624,6 +736,12 @@ export default function App() {
           CPU, cache the pinned model files first and select CADENCE_DEVICE=cpu with
           HF_HUB_OFFLINE=1. CPU precision differs from the CUDA profile. MPS is unsupported.
         </p>
+        {hosted && (
+          <p>
+            Open the local playground in a separate tab after starting both servers below. This
+            GitHub Pages site does not connect to your local backend.
+          </p>
+        )}
         <ol>
           <li>Install the backend and model dependencies using the repository README.</li>
           <li>
@@ -637,15 +755,31 @@ export default function App() {
             Start this UI:<pre>npm ci{`\n`}npm run dev</pre>
           </li>
         </ol>
+        {hosted && (
+          <p>
+            <a
+              className="setup-link"
+              href="http://127.0.0.1:5173"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open local playground
+            </a>{' '}
+            (after setup). The local UI proxies requests to the loopback API on the same origin.
+          </p>
+        )}
         <p>
           The first decision reconstructs the pinned model at revision{' '}
           <code>{revision.slice(0, 12)}</code>. Fresh use downloads roughly 1.8 GB of upstream
-          weights. CPU requires those files already cached. The model stays loaded for subsequent
-          requests.
+          weights. CPU requires those files already cached. The model stays loaded for
+          subsequent requests.
         </p>
         <p>
-          Text stays between this browser and your local backend. Initial setup contacts Hugging
-          Face for model files. No request history is stored by the demo.
+          {hosted
+            ? 'Inputs edited on this static site stay in this tab. For inference, use the local UI and backend. '
+            : 'Text stays between this browser and your local backend. '}
+          Initial setup contacts Hugging Face for model files. No request history is stored by
+          the demo.
         </p>
         <a
           className="setup-link"

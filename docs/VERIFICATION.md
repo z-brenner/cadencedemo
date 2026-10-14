@@ -6,10 +6,11 @@ Status: implementation, lightweight API integration, built UI checks and **real 
 
 | Check | Result |
 |---|---|
-| Python backend suite | 62 passed: three native types, JSON state, malformed/oversized/invalid inputs, load failure, context overflow, invalid distribution/timing, single-flight/load-once, shutdown, pinned-package rejection |
-| Frontend contract | 34 passed, including shared multilingual/astral boundary fixtures, compact numeric JSON length, invalid Unicode, JSON numeric overflow and semantic IDs |
-| TypeScript + Vite production build | Passed; ~67.8 kB gzipped JavaScript |
-| Production-build browser suite | 12 passed across desktop 1280×1000 and mobile 390×844 |
+| Python backend suite | 75 passed: three native types, JSON state, malformed/oversized/invalid inputs, load failure, context overflow, invalid distribution/timing, single-flight/load-once, shutdown, pinned-package rejection |
+| Frontend contract | 36 passed, including shared multilingual/astral boundary fixtures, compact numeric JSON length, invalid Unicode, JSON numeric overflow and semantic IDs |
+| TypeScript + Vite production build | Passed; ~68.6 kB local / ~67.8 kB Pages gzipped JavaScript |
+| Production-build browser suite | 14 passed across desktop 1280×1000 and mobile 390×844 |
+| Static Pages browser suite | 10 passed across desktop/mobile: all query types, JSON copy/validation, local setup, base assets/home navigation, zero API calls |
 | Axe accessibility | Zero violations in both viewport checks |
 | Browser page identity, nonblank, overlay, console | Correct title/main content, no Vite error overlay, no console/page errors in screenshot/result flow |
 | Desktop/mobile overflow | No horizontal document overflow in empty and result states |
@@ -68,3 +69,15 @@ The CPU smoke establishes this demo's functionality on the tested Linux host. It
 The review reproduction `{ "text": "日" × 3000 }` measured 3,011 UTF-16 units with browser compact JSON but 18,012 characters under the former backend ASCII-escaped, spaced serialization. The backend rejected it while the UI accepted it. Regression tests failed before the fix and pass with the shared browser-compatible budget. Twelve fixtures exercise accented, CJK, Arabic, astral and multilingual-key states at or below the exact boundary and one unit above it. Deeply nested bounded arrays/objects also preserve their former acceptance. Eleven shared number/escape fixtures cover compact JSON formatting. Instructions, IDs and all three kinds of descriptions also test astral boundaries; invalid surrogate inputs are rejected.
 
 The real FastAPI validation path with a native test stub checks acceptance/rejection and that accepted state reaches the loader unchanged. Frontend contract tests independently evaluate the same fixtures. Desktop/mobile browser tests send a mixed CJK/accent/emoji state and verify the complete JSON payload and editor remain unchanged; HTTP responses are explicitly mocked for those automated tests. These are validation regressions, not additional model inference or multilingual accuracy evidence. The 64 KiB byte cap, option caps and native context guards remain independent limits.
+
+## Import isolation follow-up
+
+Harmless authored fixtures reproduced extra module/package dependency shadowing despite successful manifest verification. They failed before the fix. The loader now permits only the five pinned Cadence source modules, leaves `sys.path` unchanged, uses an empty model-package search path and preserves lazy native imports. It hashes the bytes it compiles, ignoring unverified cached bytecode. Tests cover clean relative/lazy imports, repeated loads, altered source before import, matching-filename foreign cache entries, extra child modules, an ancestor-path root alias and cached dependency origins. The original public package path stays unchanged for weights and the sibling CPU cache.
+
+A lightweight check of all nine public manifest hashes imported the actual pinned `cadence_runtime` and `cadence_kev.api`, parsed a native typed request and exercised pure softmax while leaving `sys.path` unchanged. Torch was not imported and no inference ran. The retained real CUDA/CPU smokes above predate this import-isolation follow-up; no new model smoke was run during it.
+
+## Static Pages behavior
+
+The separate Pages build labels itself “Static playground · no model inference.” Its meaningful path is example → edit → inspect validated request → copy exact JSON → local setup. The public build has no inference transport or mock outputs. Automated desktop/mobile tests use its actual assets at `/cadencedemo/`, without HTTP interception, and assert zero `/api/` requests. The backend contract test confirms no CORS response permission and a rejected Pages-origin JSON preflight. This website does not promise direct hosted-to-local inference; real inference uses the separate local UI and same-origin Vite proxy. [Hosting details](HOSTING.md) document deployment scope and limitations.
+
+Full-PR pre-merge review found two further P2 editor issues: repeated active-JSON selection changed state, and browser validation omitted the API byte cap. Both were reproduced with failing tests and fixed: selecting the current format preserves context, and the exact compact request permits 65,536 UTF-8 bytes but rejects 65,537. Static JSON copy uses compact serialization to preserve that byte budget. Final re-review found no remaining actionable issues. The requested Demo badge/title and expandable plain-English usage explanation are covered by both rendered build modes.
