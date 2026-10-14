@@ -137,7 +137,7 @@ test('model preparation requires a click and preserves typed browser decisions',
   await expect(page.getByText(/1.54 GB/)).toBeVisible()
   await expect(page.getByText(/download host sees your IP/)).toBeVisible()
   await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: 'Is this spam?', exact: true }).click()
+  await page.getByRole('button', { name: 'Check a notice term', exact: true }).click()
   expect(await page.evaluate(() => (window as any).__cadenceWorkers.length)).toBe(0)
   await page.getByRole('button', { name: 'Download model', exact: true }).click()
   await expect(page.getByRole('progressbar', { name: 'Model file download' })).toHaveAttribute(
@@ -335,14 +335,14 @@ test('a recoverable oversized input can be shortened and rerun without preparing
   await expect(page.getByText(/Verified saved files were reused/)).toBeVisible()
   await page.getByText('Model and saved files', { exact: true }).click()
   await expect(page.getByText('Runtime: WASM', { exact: true })).toBeVisible()
-  await page.getByLabel('Context', { exact: true }).fill('Can you play jazz?')
+  await page.getByLabel('Context', { exact: true }).fill('Fictional excerpt: Keep all shared project information confidential.')
   await expect(page.locator('.error')).toHaveCount(0)
   await expect(page.locator('.model-error')).toHaveCount(0)
   await page.evaluate(() => {
     ;(window as any).__cadenceHoldResult = false
   })
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
-  await expect(page.locator('.answer')).toHaveText('Play music')
+  await expect(page.locator('.answer')).toHaveText('Confidentiality agreement')
   expect(
     await page.evaluate(() => {
       const workers = (window as any).__cadenceWorkers

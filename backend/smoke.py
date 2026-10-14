@@ -9,46 +9,63 @@ from backend.app import MODEL_ID, REVISION
 
 REQUESTS = [
     {
-        "state": "Can you play some jazz for dinner?",
+        "state": "Fictional document excerpt: Each party must keep the other party’s confidential "
+        "information private and use it only to evaluate the proposed collaboration.",
         "questions": {
             "decision": {
                 "type": "choice",
-                "instructions": "Choose the intent that best matches this request.",
+                "instructions": "Choose the document category that best matches this "
+                "excerpt.",
                 "criteria": {
-                    "play_music": "Play music or a specific genre.",
-                    "book_restaurant": "Find or book a restaurant.",
-                    "get_weather": "Check the weather forecast.",
+                    "confidentiality_agreement": "An agreement about keeping "
+                    "shared information "
+                    "confidential.",
+                    "services_agreement": "An agreement describing services, "
+                    "deliverables and payment.",
+                    "meeting_notes": "Notes recording a meeting discussion "
+                    "and action items.",
                 },
             }
         },
     },
     {
-        "state": {
-            "message": "Congratulations! You won a free holiday. Enter your bank details to claim it."
-        },
+        "state": "Fictional clause: Either party may end this agreement by giving the other party at "
+        "least 30 days of written notice.",
         "questions": {
             "decision": {
                 "type": "noul",
-                "instructions": "Does this message look like spam?",
+                "instructions": "Does the provided clause explicitly require at least "
+                "30 days of written notice to end the agreement? "
+                "Check only the supplied words.",
                 "criteria": {
-                    "false": "An ordinary message without spam signals.",
-                    "true": "An unsolicited or deceptive promotional message.",
+                    "false": "No: the clause does not explicitly state that "
+                    "requirement.",
+                    "true": "Yes: the clause explicitly states at least 30 "
+                    "days of written notice.",
                 },
             }
         },
     },
     {
-        "state": "Customer: I was charged twice. Reply: I will check both transactions and refund the duplicate charge.",
+        "state": "Fictional work item: A draft vendor agreement is waiting for review. The team’s "
+        "internal target is tomorrow. A reviewer must check the payment terms before the team "
+        "can finish its review.",
         "questions": {
             "decision": {
                 "type": "score",
-                "instructions": "Rate the helpfulness of this reply using the ordered levels.",
+                "instructions": "Rate document-review priority using the supplied "
+                "internal workflow levels. Use only the stated timing "
+                "and work status; do not infer a legal deadline or "
+                "legal risk.",
                 "criteria": [
-                    "Not helpful.",
-                    "Slightly helpful.",
-                    "Moderately helpful.",
-                    "Helpful.",
-                    "Very helpful.",
+                    "Archived: review is complete and no action remains.",
+                    "Low: review is needed but no internal target date is stated.",
+                    "Routine: review is needed with an internal target more "
+                    "than a week away.",
+                    "Soon: review is needed with an internal target in "
+                    "two to seven days.",
+                    "First: review is still needed and the internal target "
+                    "is today or tomorrow.",
                 ],
             }
         },

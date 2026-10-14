@@ -4,7 +4,7 @@ The demo keeps its existing native request contract and model revision. The visi
 
 ## Interface behavior
 
-- Start with an editable example. The examples classify requests or rate provided content; they do not perform actions or retrieve live weather.
+- Start with an editable fictional legal-work example. Six presets route documents/review requests, check explicit notice/renewal terms, and rate review priority using supplied internal workflow criteria. Defaults for all three answer formats come from those presets. The page identifies the general-purpose research model, asks users to check outputs against source text, and explains that it does not draft documents or provide legal advice. See [the examples](LEGAL_WORK_EXAMPLES.md).
 - Context and Question use ordinary prose styling. Answer descriptions wrap on mobile. Numbered fields and a single primary form action explain the sequence.
 - Advanced input details contains state format and exact native choice IDs. Display names may replace underscores and capitalize the first character; this does not modify any request value. If readable names collide (ignoring case), the editor, winning-answer summary, and probability rows append the exact native ID. Results derive labels from the saved run, including after the current inputs change. Editing an answer description preserves its existing native ID. Custom IDs remain editable in advanced details. Added answers receive the first unused `option_N` ID; removing or adding another answer never renumbers the remaining IDs.
 - Local mode uses Get decision and the existing real backend. Static Pages uses Inspect request, displays No inference has run, and produces only a validated request. Request JSON is a disclosure; Copy JSON remains available.

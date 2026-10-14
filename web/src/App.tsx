@@ -93,7 +93,7 @@ function Wave({ small = false }: { small?: boolean }) {
 export default function App() {
   const browserModel = useBrowserModel()
   const [draft, setDraft] = useState<Draft>(() => defaultDraft('choice'))
-  const [selected, setSelected] = useState('Play music')
+  const [selected, setSelected] = useState(examples[0].name)
   const [saved, setSaved] = useState<Saved | null>(null)
   const [prepared, setPrepared] = useState<Prepared | null>(null)
   const [error, setError] = useState('')
@@ -529,7 +529,7 @@ export default function App() {
           </section>
         )}
         <section className="presets" aria-label="Example presets">
-          <span>Try an example</span>
+          <span>Try a legal-work example</span>
           <div>
             {examples.map((e) => (
               <button
@@ -546,8 +546,9 @@ export default function App() {
           </div>
         </section>
         <p className="scenario-note">
-          Cadence compares the answers you provide. It does not play music, book tables, or check
-          live weather.
+          Fictional legal-work examples for a general-purpose research model. Cadence compares
+          supplied answers; it does not draft documents or provide legal advice. Check outputs against
+          the source text and avoid entering real client information.
         </p>
         <div className="workbench" id="workbench">
           <form
@@ -975,21 +976,21 @@ export default function App() {
             <div>
               <h3>Choose an answer</h3>
               <p>
-                Compare possible answers, such as which team should handle a support message.
+                Compare possible answers, such as which work queue should review a draft agreement.
                 Cadence returns a preference for each answer.
               </p>
             </div>
             <div>
               <h3>Yes or no</h3>
               <p>
-                Ask whether a message looks like spam. Cadence estimates the probability of Yes and
+                Check whether a supplied clause explicitly contains a notice term. Cadence estimates the probability of Yes and
                 No using the descriptions you provide.
               </p>
             </div>
             <div>
               <h3>Rate on a scale</h3>
               <p>
-                Rate how helpful a reply is. Describe levels from lowest to highest, then see the
+                Prioritize document review using stated internal targets. Describe levels from lowest to highest, then see the
                 model’s preference across the scale.
               </p>
             </div>
