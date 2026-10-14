@@ -1,0 +1,8 @@
+{
+  "file": "cpu_runtime.py",
+  "sha256": "9f64f137a55f553428bbf3dfff1e4a5127b1a24506d7208a6057e67e753a93fe",
+  "license": "Apache-2.0",
+  "source_artifact": "generalization_cpu_v1/cpu_runtime.py",
+  "profile": "fp32",
+  "threads": 4
+}

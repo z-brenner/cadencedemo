@@ -1,0 +1,15 @@
+Cadence demo CPU adapter
+
+backend/cpu_runtime.py is an unchanged copy of the coordinated Cadence CPU
+qualification artifact generalization_cpu_v1/cpu_runtime.py. Its module declares
+new wrapper contributions under Apache-2.0. Source SHA256:
+9f64f137a55f553428bbf3dfff1e4a5127b1a24506d7208a6057e67e753a93fe
+
+This demo exposes only the FP32 profile at four threads. The adapter reconstructs
+the pinned public BF16-rounded merged Kev base before promoting the model to
+FP32. It is a separate precision profile from the public CUDA runtime.
+
+Cadence, Kev and Qwen upstream code/model authorship and licenses remain in the
+pinned public package's LICENSE, LICENSE.QWEN, NOTICE and NOTICE.QWEN. This demo
+does not bundle their model weights or dataset rows. No upstream endorsement or
+CUDA/CPU numerical equivalence is implied.

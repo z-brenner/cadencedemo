@@ -1,0 +1,2 @@
+# Preserve the coordinated CPU adapter byte-for-byte; its reviewed source hash is checked at load.
+extend-exclude = ["backend/cpu_runtime.py"]

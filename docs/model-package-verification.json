@@ -1,0 +1,17 @@
+{
+  "public_repository": "foolish-bandit/cadence-0.8b",
+  "revision": "17cdf36034677e406033fbf97637b4db1984ca70",
+  "verified_against": "existing supplied release package (read-only)",
+  "inference_run": false,
+  "files": {
+    "cadence_runtime.py": true,
+    "cadence_config.json": true,
+    "cadence_kev/__init__.py": true,
+    "cadence_kev/api.py": true,
+    "cadence_kev/model.py": true,
+    "cadence_kev/checkpoint.py": true,
+    "requirements.txt": true,
+    "adapter.safetensors": true,
+    "head.safetensors": true
+  }
+}

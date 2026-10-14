@@ -1,0 +1,11 @@
+{
+  "cadence_runtime.py": "44880c6d1ddee3b9284010e31c4e42d9b9ac0900a54dfe3a654d8ecb2f8aa23c",
+  "cadence_config.json": "5f61b7c399405b1c16574ce19a18996d81039bf380caad8e8a0a0e3115c8385f",
+  "cadence_kev/__init__.py": "3d3c45268f638d10def84b47f209f650b584c61e7cfd155000a9c2ded43ae651",
+  "cadence_kev/api.py": "7bffacfb762c626b8bc2f670f350295af5ccb0883dbe90239c7d2f8e5ef56582",
+  "cadence_kev/model.py": "2634ffe7747d69473fb6596942c248e5df2586df3610bd1adb47e7e9acd99f96",
+  "cadence_kev/checkpoint.py": "f3edb4d159c0aa12d7006fc599fe6ebc3f2c288b3b69890c289f7dac451dd03d",
+  "requirements.txt": "65aa4fab1c53f6a2587ab06d15363f5b36d2a7ca2aaa528d16fd99296ef52204",
+  "adapter.safetensors": "8503b6c37554cba7d5ef62f81160e772f7adaa22a654edeb690e87b2a0b0f450",
+  "head.safetensors": "c952702d5583c4083d5a75ebedb36796e8e64732ec1602f18296d398a2d923e1"
+}
