@@ -1,3 +1,4 @@
+import { chooseExample } from './helpers'
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 const manifestSha = 'a'.repeat(64)
@@ -102,6 +103,7 @@ test.beforeEach(async ({ page }) => {
     { revision, manifestSha },
   )
   await page.goto('/?preview=ui-test')
+  await page.getByText('Customize inputs', { exact: false }).click()
 })
 
 async function ready(page: import('@playwright/test').Page, fromCache = false) {
@@ -134,10 +136,11 @@ test('model preparation requires a click and preserves typed browser decisions',
   page,
 }, testInfo) => {
   await expect(page.getByText(/UI test preview/)).toBeVisible()
-  await expect(page.getByText(/1.54 GB/)).toBeVisible()
+  await expect(page.locator('.action-caption')).toContainText('1.54 GB')
+  await page.getByText('Model and saved files', { exact: true }).click()
   await expect(page.getByText(/download host sees your IP/)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: 'Check a notice term', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toHaveCount(0)
+  await chooseExample(page, 'Check a notice term')
   expect(await page.evaluate(() => (window as any).__cadenceWorkers.length)).toBe(0)
   await page.getByRole('button', { name: 'Download model', exact: true }).click()
   await expect(page.getByRole('progressbar', { name: 'Model file download' })).toHaveAttribute(
@@ -198,7 +201,7 @@ test('cancel and retry reuse only completed verified files and ignore retired wo
       data: { type: 'ready', provider: 'wasm', fromCache: false },
     }),
   )
-  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toHaveCount(0)
   await page.getByRole('button', { name: 'Retry model preparation', exact: true }).click()
   await ready(page, true)
   await expect(page.getByText(/Verified saved files were reused/)).toBeVisible()
@@ -265,7 +268,7 @@ test('canceling an in-flight decision settles the form and requires preparation 
   await expect(page.getByLabel('Context', { exact: true })).toBeDisabled()
   await page.getByRole('button', { name: 'Cancel decision', exact: true }).click()
   await expect(page.getByLabel('Context', { exact: true })).toBeEnabled()
-  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toHaveCount(0)
   await expect(page.locator('.distribution')).toHaveCount(0)
   expect(apiCalls).toEqual([])
 })
@@ -409,4 +412,59 @@ test('full received bytes stay below100 until EOF and verification use a distinc
   }}))
   await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeEnabled()
   await expect(page.getByText(/100% of model files verified/)).toBeVisible()
+})
+
+test('first screen previews inputs with one next action and optional editing', async ({ page }) => {
+  await page.getByText('Customize inputs', { exact: false }).click()
+  await expect(page.getByLabel('Context', { exact: true })).toHaveCount(0)
+  await expect(page.locator('.preview-context')).toContainText('Fictional document excerpt')
+  await expect(page.getByRole('button', { name: 'Download model', exact: true })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toHaveCount(0)
+  await chooseExample(page, 'Check automatic renewal')
+  await expect(page.locator('.preview-context')).toContainText('new written agreement')
+  await page.getByText('Customize inputs', { exact: false }).click()
+  await page.getByLabel('Context', { exact: true }).fill('Fictional clause: The agreement renews automatically.')
+  await expect(page.locator('.preview-context')).toHaveText('Fictional clause: The agreement renews automatically.')
+  expect(await page.evaluate(() => (window as any).__cadenceWorkers.length)).toBe(0)
+})
+
+test('saved-file discovery is local and does not assert verification or download automatically', async ({ page }) => {
+  await page.evaluate(async sha => {
+    const cache = await caches.open(`cadence-browser-${sha}`)
+    await cache.put('https://example.test/saved-file', new Response('unverified'))
+  }, manifestSha)
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Use saved model', exact: true })).toBeVisible()
+  await expect(page.locator('.action-caption')).toContainText('download missing files')
+  await expect(page.getByText(/100% of model files verified/)).toHaveCount(0)
+  expect(await page.evaluate(() => (window as any).__cadenceWorkers.length)).toBe(0)
+})
+
+test('real work-step status remains distinct from a time estimate during inference', async ({ page }) => {
+  await page.getByRole('button', { name: 'Download model', exact: true }).click()
+  await ready(page)
+  await page.evaluate(() => { (window as any).__cadenceHoldResult = true })
+  await page.getByRole('button', { name: 'Get decision', exact: true }).click()
+  await page.evaluate(() => (window as any).__cadenceWorkers.at(-1).onmessage({ data: {
+    type: 'status', status: 'running', stage: 'Evaluating model layer 11 of 24', inferenceStep: 10,
+  }}))
+  await expect(page.getByRole('progressbar', { name: 'Decision steps' })).toHaveAttribute('value', '10')
+  await expect(page.locator('.inference-progress')).toContainText('not a time estimate')
+  await expect(page.getByRole('button', { name: 'Cancel decision', exact: true })).toBeEnabled()
+  await page.getByRole('button', { name: 'Cancel decision', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Retry model preparation', exact: true })).toBeEnabled()
+})
+
+test('narrow keyboard editing keeps the whole focused control above the action bar', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 })
+  await page.getByLabel('Context', { exact: true }).focus()
+  for (let i=0;i<10;i++) {
+    await expect.poll(() => page.evaluate(() => {
+      const active = document.activeElement as HTMLElement
+      const dock = document.querySelector('.action-dock')!.getBoundingClientRect()
+      if (active.closest('.action-dock')) return true
+      return active.getBoundingClientRect().bottom <= dock.top
+    })).toBe(true)
+    await page.keyboard.press('Tab')
+  }
 })

@@ -1,3 +1,4 @@
+import { chooseExample } from './helpers'
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 const revision = '17cdf36034677e406033fbf97637b4db1984ca70'
@@ -58,6 +59,7 @@ test.beforeEach(async ({ page }) => {
     })
   })
   await page.goto('/?preview=ui-test')
+  await page.getByText('Customize inputs', { exact: false }).click()
 })
 test('choice, Boolean and ordinal runs preserve native request semantics', async ({ page }) => {
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
@@ -78,11 +80,11 @@ test('choice, Boolean and ordinal runs preserve native request semantics', async
   ).toBeVisible()
 })
 test('JSON validation, loading, recovery and raw result', async ({ page }) => {
-  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
+  await chooseExample(page, 'Route a review request')
   await page.getByLabel('Context', { exact: true }).fill('{bad json')
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('not valid JSON')
-  await page.getByRole('button', { name: 'Route a document', exact: true }).click()
+  await chooseExample(page, 'Route a document')
   await page.route('**/api/predict', (route) =>
     route.fulfill({
       status: 503,
@@ -140,7 +142,7 @@ test('option editing, setup dialog keyboard and accessibility', async ({ page })
 test('responsive screenshots explicitly identify mocked preview', async ({ page }, testInfo) => {
   const consoleErrors = capturedErrors.get(page)!
   await expect(page).toHaveTitle('Cadence Demo — typed decisions')
-  await expect(page.getByRole('heading', { name: 'Give context. Get a decision.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Small model. Real decisions.' })).toBeVisible()
   await expect(page.locator('vite-error-overlay')).toHaveCount(0)
   await expect(page.getByText(/UI test preview/)).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -195,6 +197,7 @@ test('CPU profile is reported and the editor respects its option limit', async (
     })
   })
   await page.reload()
+  await page.getByText('Customize inputs', { exact: false }).click()
   await expect(page.locator('footer')).toContainText('CPU FP32 (experimental)')
   await expect(page.getByText('3 / 16', { exact: true })).toBeVisible()
   for (let i = 3; i < 16; i++)
@@ -206,7 +209,7 @@ test('CPU profile is reported and the editor respects its option limit', async (
 })
 
 test('multilingual and astral JSON reaches the API unchanged', async ({ page }) => {
-  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
+  await chooseExample(page, 'Route a review request')
   const state = { text: '日'.repeat(3000), accent: 'é'.repeat(2000), emoji: '😀'.repeat(1000) }
   const source = JSON.stringify(state)
   await page.getByLabel('Context', { exact: true }).fill(source)
@@ -219,7 +222,7 @@ test('multilingual and astral JSON reaches the API unchanged', async ({ page }) 
 })
 
 test('selecting the active JSON format preserves context', async ({ page }) => {
-  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
+  await chooseExample(page, 'Route a review request')
   const source = await page.getByLabel('Context', { exact: true }).inputValue()
   await page.getByText('Advanced input details', { exact: true }).click()
   await page.getByRole('button', { name: 'JSON', exact: true }).click()
@@ -227,7 +230,7 @@ test('selecting the active JSON format preserves context', async ({ page }) => {
 })
 
 test('unsafe integer JSON is explained before a request can run', async ({ page }) => {
-  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
+  await chooseExample(page, 'Route a review request')
   await page.getByLabel('Context', { exact: true }).fill('{"account_id":9007199254740993}')
   await page.getByRole('button', { name: 'Get decision', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('safe range')
@@ -320,7 +323,7 @@ test('colliding readable names identify exact native choices in the editor and r
   expect(Object.keys((await sent).postDataJSON().questions.decision.criteria)).toEqual(ids)
   await expect(page.locator('.answer')).toHaveText(labels[0])
   await expect(page.locator('.probability-label > span')).toHaveText(labels)
-  await page.getByRole('button', { name: 'Route a document', exact: true }).click()
+  await chooseExample(page, 'Route a document')
   await expect(page.locator('.answer-name').first()).toHaveText('Confidentiality agreement')
   await expect(page.locator('.answer')).toHaveText(labels[0])
   await expect(

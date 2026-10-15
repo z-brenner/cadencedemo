@@ -4,6 +4,7 @@ import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm?url'
 import mjsUrl from 'onnxruntime-web/ort-wasm-simd-threaded.jsep.mjs?url'
 import { encodeRequest } from './encoding'
 import { PreparationProgress } from './progress'
+import { readModelStream, ProgressGate } from './stream'
 import { sha256, unpackWeights, validateManifest, type Manifest } from './assets'
 import { revision, type DecisionRequest, type Result } from '../contract'
 
@@ -30,12 +31,13 @@ let assetBase = '',
   fromCache = true
 class BrowserInputError extends Error {}
 
-function status(status: string, stage: string) {
+function status(status: string, stage: string, inferenceStep?: number) {
   send({
     type: 'status',
     status,
     stage,
-    ...progress?.snapshot(),
+    ...(status === 'running' ? {} : progress?.snapshot()),
+    ...(inferenceStep === undefined ? {} : { inferenceStep }),
     fromCache,
   })
 }
@@ -52,7 +54,9 @@ async function savedBytes(file: string, repairInvalid = false): Promise<Uint8Arr
   if (value.byteLength !== expected.bytes || (await sha256(value)) !== expected.sha256) {
     await cache!.delete(url(file))
     if (!repairInvalid)
-      throw new Error('A saved model file failed verification. Download the model again to repair it.')
+      throw new Error(
+        'A saved model file failed verification. Download the model again to repair it.',
+      )
     return null
   }
   return value
@@ -70,36 +74,18 @@ async function bytes(file: string, downloading = false): Promise<Uint8Array> {
   const response = await fetch(url(file), { credentials: 'omit', referrerPolicy: 'no-referrer' })
   if (!response.ok || !response.body)
     throw new Error(`Model download failed (${response.status}). Check your connection and retry.`)
-  let value: Uint8Array
-  const reader = response.body.getReader(),
-    chunks: Uint8Array[] = []
-  let count = 0
-  for (;;) {
-    const { done, value } = await reader.read()
-    if (done) break
-    count += value.byteLength
-    if (count > expected.bytes) {
-      await reader.cancel()
-      throw new Error('A model download exceeded its verified size.')
-    }
-    chunks.push(value)
+  const gate = new ProgressGate()
+  const value = await readModelStream(response.body, expected.bytes, (count) => {
     progress!.received(file, count)
-    status('downloading', `Downloading ${file}`)
-  }
+    if (gate.allow(performance.now(), count === expected.bytes))
+      status('downloading', `Downloading ${file}`)
+  })
   progress!.finished(file)
   status('verifying', `Verifying and saving ${file}`)
-  value = new Uint8Array(count)
-  let offset = 0
-  for (const chunk of chunks) {
-    value.set(chunk, offset)
-    offset += chunk.byteLength
-  }
-  if (count !== expected.bytes || (await sha256(value)) !== expected.sha256)
-    throw new Error(
-      'A model download failed verification. Retry to fetch the correct pinned file.',
-    )
+  if ((await sha256(value)) !== expected.sha256)
+    throw new Error('A model download failed verification. Retry to fetch the correct pinned file.')
   try {
-    await cache!.put(url(file), new Response(new Uint8Array(value).buffer))
+    await cache!.put(url(file), new Response(value.buffer))
   } catch {
     throw new Error(
       'The browser could not save the model. Free local storage or allow storage for this site, then retry.',
@@ -205,6 +191,8 @@ async function run(request: DecisionRequest): Promise<Result> {
   const cos = rotary.slice(0, n * r),
     sin = rotary.slice(manifest.maxTokens * r, manifest.maxTokens * r + n * r)
   const mask = new Float32Array(n * n)
+  const options = BigInt64Array.from(encoding.opt_idx[0], BigInt)
+  const decide = BigInt64Array.from(encoding.decide_idx, BigInt)
   for (let i = 0; i < n; i++)
     for (let j = i + 1; j < n; j++) mask[i * n + j] = -3.4028234663852886e38
   for (let index = 0; index < manifest.graphs.length; index++) {
@@ -212,6 +200,7 @@ async function run(request: DecisionRequest): Promise<Result> {
     status(
       'running',
       index < 24 ? `Evaluating model layer ${index + 1} of 24` : 'Comparing answers',
+      index,
     )
     const weights = unpackWeights(await bytes(graph.weights), graph.decodedBytes, graph.packing)
     const session = await ort.InferenceSession.create(await bytes(graph.graph), {
@@ -224,8 +213,8 @@ async function run(request: DecisionRequest): Promise<Result> {
       cos,
       sin,
       mask,
-      options: BigInt64Array.from(encoding.opt_idx[0], BigInt),
-      decide: BigInt64Array.from(encoding.decide_idx, BigInt),
+      options,
+      decide,
     }
     const feeds: Record<string, ort.Tensor> = {}
     try {
@@ -248,6 +237,7 @@ async function run(request: DecisionRequest): Promise<Result> {
       const outputs = await session.run(feeds)
       try {
         if (graph.name === 'readout') {
+          status('running', 'Decision complete', 25)
           const logits = Array.from((await outputs.logits.getData()) as Float32Array)
           if (logits.length !== optionIds.length || logits.some((z) => !Number.isFinite(z)))
             throw new Error('The browser model returned invalid scores.')

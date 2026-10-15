@@ -38,3 +38,8 @@ Screenshot evidence is saved under `/tmp/cadence-guided-*`; the test suite no lo
 `npm run test:browser` reproducibly builds the isolated fixture in `/tmp/cadence-browser-ui-dist` and runs `playwright.browser.config.ts` on port 5176. Its asset URL and manifest SHA are fixtures for the explicitly mocked Worker. The default/static suites use builds without browser asset configuration. CI runs all three suites.
 
 Input encoding errors, including exceeding 512 tokens, settle only that request and restore readiness. The user can shorten the input and retry with the same prepared worker; corrupted-cache and runtime failures remain fatal. Fourteen browser UI cases verify this recovery, cancellation, cache isolation, model provenance and lack of API fallback. Actual model/download/cache evidence is recorded separately in [the production UI smoke](browser-real-ui-smoke.json).
+
+
+## Compact scenario flow
+
+The initial screen previews the selected draft directly. Desktop uses six example cards; phones use a native selector. Context/question/answer-format editing lives under Customize inputs and mounts only when opened. It updates that same preview, rather than maintaining a second request. Stage actions and explicit download consent stay reachable, and keyboard focus clears the mobile action bar. Empty results are compact; finished results retain native probabilities, exact mean ratings and source criteria. Research/execution/model details move into disclosures. See [UX and loading changes](UX_AND_LOADING.md) for measured baseline, memory-allocation work and remaining phone limitations.

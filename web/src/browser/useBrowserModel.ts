@@ -33,9 +33,26 @@ export function useBrowserModel() {
   const [error, setError] = useState('')
   const [provider, setProvider] = useState<'wasm' | 'webgpu' | null>(null)
   const [fromCache, setFromCache] = useState(false)
+  const [hasSavedFiles, setHasSavedFiles] = useState(false)
+  const [inferenceStep, setInferenceStep] = useState(0)
   const workerRef = useRef<Worker | null>(null)
   const pendingRef = useRef<Pending | null>(null)
   const statusRef = useRef<BrowserModelStatus>('idle')
+
+  useEffect(() => {
+    if (!browserModelAvailable || !('caches' in window)) return
+    let active = true
+    void (async () => {
+      const name = `cadence-browser-${manifestSha}`
+      if (!(await caches.has(name))) return
+      const saved = await caches.open(name)
+      const keys = await saved.keys()
+      if (active) setHasSavedFiles(keys.length > 0)
+    })().catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
 
   function updateStatus(next: BrowserModelStatus) {
     statusRef.current = next
@@ -60,7 +77,9 @@ export function useBrowserModel() {
   function prepare() {
     if (
       !browserModelAvailable ||
-      ['checking', 'downloading', 'verifying', 'loading', 'running', 'ready'].includes(statusRef.current)
+      ['checking', 'downloading', 'verifying', 'loading', 'running', 'ready'].includes(
+        statusRef.current,
+      )
     )
       return
     stopWorker('Model preparation restarted.')
@@ -86,17 +105,29 @@ export function useBrowserModel() {
         if (workerRef.current !== worker) return
         const message = event.data
         if (message.type === 'status') {
-          if (['checking', 'downloading', 'verifying', 'loading', 'running'].includes(message.status))
+          if (
+            ['checking', 'downloading', 'verifying', 'loading', 'running'].includes(message.status)
+          )
             updateStatus(message.status)
           if (Number.isFinite(message.downloadedBytes) && message.downloadedBytes >= 0)
             setDownloadedBytes(message.downloadedBytes)
           if (Number.isFinite(message.totalBytes) && message.totalBytes >= 0)
             setTotalBytes(message.totalBytes)
-          if (Number.isSafeInteger(message.cachedBytes) && message.cachedBytes >= 0) setCachedBytes(message.cachedBytes)
-          if (Number.isSafeInteger(message.checkedFiles) && message.checkedFiles >= 0) setCheckedFiles(message.checkedFiles)
-          if (Number.isSafeInteger(message.totalFiles) && message.totalFiles >= 0) setTotalFiles(message.totalFiles)
-          if (typeof message.downloadComplete === 'boolean') setDownloadComplete(message.downloadComplete)
+          if (Number.isSafeInteger(message.cachedBytes) && message.cachedBytes >= 0)
+            setCachedBytes(message.cachedBytes)
+          if (Number.isSafeInteger(message.checkedFiles) && message.checkedFiles >= 0)
+            setCheckedFiles(message.checkedFiles)
+          if (Number.isSafeInteger(message.totalFiles) && message.totalFiles >= 0)
+            setTotalFiles(message.totalFiles)
+          if (typeof message.downloadComplete === 'boolean')
+            setDownloadComplete(message.downloadComplete)
           if (typeof message.stage === 'string') setStage(message.stage)
+          if (
+            Number.isInteger(message.inferenceStep) &&
+            message.inferenceStep >= 0 &&
+            message.inferenceStep <= 25
+          )
+            setInferenceStep(message.inferenceStep)
           if (typeof message.fromCache === 'boolean') setFromCache(message.fromCache)
         } else if (message.type === 'ready') {
           if (message.provider !== 'wasm' && message.provider !== 'webgpu') {
@@ -105,6 +136,7 @@ export function useBrowserModel() {
           }
           setProvider(message.provider)
           setFromCache(message.fromCache === true)
+          setHasSavedFiles(true)
           setStage('Cadence is ready')
           updateStatus('ready')
         } else if (message.type === 'result') {
@@ -146,10 +178,10 @@ export function useBrowserModel() {
           setFromCache(false)
           setDownloadedBytes(0)
           setTotalBytes(0)
-      setCachedBytes(0)
-      setCheckedFiles(0)
-      setTotalFiles(0)
-      setDownloadComplete(false)
+          setCachedBytes(0)
+          setCheckedFiles(0)
+          setTotalFiles(0)
+          setDownloadComplete(false)
           setStage('Saved model cleared')
           updateStatus('idle')
         }
@@ -182,6 +214,7 @@ export function useBrowserModel() {
     if (statusRef.current !== 'ready' || !workerRef.current || pendingRef.current)
       return Promise.reject(new Error('Prepare Cadence on this device before getting a decision.'))
     const requestId = crypto.randomUUID()
+    setInferenceStep(0)
     updateStatus('running')
     return new Promise((resolve, reject) => {
       pendingRef.current = { requestId, request, resolve, reject }
@@ -203,6 +236,7 @@ export function useBrowserModel() {
         throw new Error('Saved model storage is unavailable in this browser.')
       await caches.delete(`cadence-browser-${manifestSha}`)
       setFromCache(false)
+      setHasSavedFiles(false)
       setDownloadedBytes(0)
       setTotalBytes(0)
       setCachedBytes(0)
@@ -227,6 +261,8 @@ export function useBrowserModel() {
     error,
     provider,
     fromCache,
+    hasSavedFiles,
+    inferenceStep,
     prepare,
     cancel,
     run,
