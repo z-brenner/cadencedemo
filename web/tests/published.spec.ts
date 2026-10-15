@@ -21,10 +21,13 @@ test('published research demo exposes honest opt-in download before any model ac
   await expect(page.getByText('Not available yet', { exact: true })).toHaveCount(0)
   await expect(page.getByText('Static playground · no model inference', { exact: true })).toHaveCount(0)
   await expect(page.getByText(/UI test preview/)).toHaveCount(0)
+  await expect(page.locator('.preview-context')).toBeVisible()
+  await expect(page.getByLabel('Context', { exact: true })).toHaveCount(0)
+  await page.getByText('Customize inputs', { exact: false }).click()
   for (const name of ['Choose an answer', 'Yes or no', 'Rate on a scale']) {
     await page.getByRole('button', { name, exact: true }).click()
     await expect(page.getByLabel('Context', { exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Get decision', exact: true })).toHaveCount(0)
   }
   await page.getByText('Model and saved files', { exact: true }).click()
   await expect(page.locator('.model-details')).toContainText('512 packed tokens')

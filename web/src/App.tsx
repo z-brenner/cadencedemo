@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type FocusEvent } from 'react'
 import { defaultDraft, examples } from './examples'
 import { browserModelAvailable, useBrowserModel } from './browser/useBrowserModel'
 import { downloadPercentage, downloadByteLabel } from './browser/progress'
@@ -47,6 +47,21 @@ function nextOptionId(options: Draft['options']) {
   let index = 1
   while (used.has(`option_${index}`)) index += 1
   return `option_${index}`
+}
+
+function keepControlVisible(event: FocusEvent<HTMLElement>) {
+  const target = event.target as HTMLElement
+  if (!matchMedia('(max-width: 680px)').matches || target.closest('.action-dock')) return
+  requestAnimationFrame(() => {
+    if (document.activeElement !== target) return
+    const dock = document.querySelector('.action-dock')?.getBoundingClientRect()
+    const viewport = window.visualViewport
+    const top = viewport?.offsetTop ?? 0
+    const bottom = Math.min(dock?.top ?? innerHeight, top + (viewport?.height ?? innerHeight)) - 12
+    const rect = target.getBoundingClientRect()
+    if (rect.height < bottom - top - 12 && rect.bottom > bottom)
+      window.scrollBy({ top: rect.bottom - bottom, behavior: 'instant' })
+  })
 }
 function friendlySummary(result: Result) {
   if (result.kind === 'score')
@@ -102,6 +117,7 @@ export default function App() {
   const [elapsed, setElapsed] = useState(0)
   const [copyStatus, setCopyStatus] = useState('')
   const [setup, setSetup] = useState(false)
+  const [editorOpen, setEditorOpen] = useState(false)
   const resultRef = useRef<HTMLHeadingElement>(null)
   const errorRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -287,6 +303,39 @@ export default function App() {
                 ? 'Model setup needs attention'
                 : 'Backend not connected'
 
+  const runAction = (
+    <>
+      <button
+        className="run"
+        type="button"
+        onClick={() => void run()}
+        disabled={busy || (browserModelAvailable && browserModel.status !== 'ready')}
+      >
+        {busy ? (
+          <>
+            <span className="spinner" aria-hidden="true" />{' '}
+            {health?.status === 'loading' ? 'Loading model…' : 'Running decision…'}
+          </>
+        ) : (
+          <>
+            <span aria-hidden="true">{staticExplorer ? '↗' : '▶'}</span>{' '}
+            {staticExplorer ? 'Inspect request' : 'Get decision'}
+          </>
+        )}
+      </button>
+      {busy && (
+        <p className="loading-note" role="status">
+          {elapsed}s elapsed.{' '}
+          {browserModelAvailable
+            ? 'The model is evaluating your inputs in this browser.'
+            : health?.status === 'loading'
+              ? 'First use downloads and loads the pinned model; this can take several minutes.'
+              : 'One decision is running on the local backend.'}
+        </p>
+      )}
+    </>
+  )
+
   return (
     <>
       <a className="skip" href="#workbench">
@@ -311,7 +360,7 @@ export default function App() {
           </a>
         </nav>
       </header>
-      <main>
+      <main onFocusCapture={keepControlVisible}>
         {preview && (
           <div className="preview-banner" role="status">
             UI test preview — results are mocked by the automated test. No model inference.
@@ -319,53 +368,17 @@ export default function App() {
         )}
         <section className="intro">
           <p className="research-label">Research project · interactive demo</p>
-          <h1>Give context. Get a decision.</h1>
+          <h1>
+            Small model. <span>Real decisions.</span>
+          </h1>
           <p>
             {staticExplorer
               ? 'Try a familiar example, then make it your own. Explore how Cadence compares the answers you provide.'
               : browserModelAvailable
-                ? 'Add context, ask a question, and compare answers on your device with Cadence 0.8B.'
+                ? 'Try a legal-work task. See how Cadence compares your answers, entirely on your device.'
                 : 'Add context, ask a question, and compare the possible answers with Cadence 0.8B.'}
           </p>
-          <p className="research-note">
-            Experimental model outputs can be wrong. Test them for your use case before relying on
-            them.
-          </p>
-          <details className="about-demo">
-            <summary>How to use this demo</summary>
-            <p>
-              Cadence is a research project exploring small models for structured decisions. It turns
-              context and a question into a structured decision. It chooses an option, estimates the
-              probability of true, or scores ordered levels. It
-              does not generate chat replies.
-            </p>
-            <ol>
-              <li>Pick an example. Edit the context, question, and possible answers.</li>
-              <li>
-                {staticExplorer
-                  ? 'Inspect and copy the request JSON. Use the setup guide to run these inputs in the local playground.'
-                  : browserModelAvailable
-                    ? 'Download the model, then get a decision. Later visits can reuse verified saved files.'
-                    : 'Get a decision. First use loads the model; later runs reuse it.'}
-              </li>
-              <li>
-                Read the distribution as the model’s preference across your answers. A high
-                probability does not establish correctness or certainty.
-              </li>
-            </ol>
-            <p>
-              {browserModelAvailable
-                ? 'This demo runs the trained model in your browser after you download it.'
-                : 'This is a demo. The public website explores inputs; real inference runs locally.'}{' '}
-              <a
-                href="https://github.com/z-brenner/cadencedemo/blob/main/docs/BENCHMARK_AND_CPU_GUIDANCE.md"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Evaluation and CPU limitations ↗
-              </a>
-            </p>
-          </details>
+          <p className="research-note">A research demo, not legal advice. Outputs can be wrong.</p>
         </section>
         {staticExplorer && (
           <aside className="staticExplorer-banner" aria-labelledby="download-availability-title">
@@ -375,8 +388,8 @@ export default function App() {
                 <span className="availability-status">Not available yet</span>
               </div>
               <p>
-                Browser model files are awaiting publication. For now, explore requests below or
-                run the model locally.
+                Browser model files are awaiting publication. For now, explore requests below or run
+                the model locally.
               </p>
               <p className="availability-mode">Static playground · no model inference</p>
             </div>
@@ -385,445 +398,552 @@ export default function App() {
             </button>
           </aside>
         )}
-        {browserModelAvailable && (
-          <section className="model-preparation" aria-labelledby="model-preparation-title">
-            <div className="model-preparation-heading">
-              <h2 id="model-preparation-title">Run Cadence on this device</h2>
-              {browserModel.status === 'ready' && <span className="ready-label">Files ready</span>}
-            </div>
-            <p>
-              First use downloads about 1.54 GB of model files plus 28 MB of browser runtime. Your
-              inputs stay on this device. The download host sees your IP address; your inputs are
-              not sent to an inference API.
-            </p>
-            {browserModel.status === 'idle' && (
-              <p className="hint">
-                The model is downloaded only when you choose Download model. A desktop browser is
-                recommended. Limited device memory can prevent execution.
-              </p>
-            )}
-            {['checking', 'downloading', 'verifying', 'loading'].includes(browserModel.status) && (
-              <div className="download-progress" role="status">
-                <p>
-                  {browserModel.status === 'downloading'
-                    ? 'Downloading remaining model files…'
-                    : browserModel.status === 'verifying'
-                      ? 'Verifying and saving downloaded files…'
-                      : browserModel.status === 'loading'
-                        ? 'All model files verified. Preparing tokenizer…'
-                        : browserModel.stage === 'Clearing saved model'
-                          ? 'Clearing saved model…'
-                          : 'Checking saved model files…'}
-                </p>
-                {browserModel.status === 'downloading' && browserModel.totalBytes > 0 ? (
-                  <>
-                    <progress
-                      max={browserModel.totalBytes}
-                      value={browserModel.downloadComplete
-                        ? browserModel.downloadedBytes
-                        : Math.min(browserModel.downloadedBytes, browserModel.totalBytes - 1)}
-                      aria-label="Model file download"
-                    />
-                    <p>
-                      {downloadByteLabel(browserModel.downloadedBytes, browserModel.totalBytes)} ({downloadPercentage(browserModel)!.toFixed(1)}%)
-                    </p>
-                  </>
-                ) : (
-                  <progress aria-label={browserModel.stage === 'Clearing saved model'
-                    ? 'Clearing saved model'
-                    : browserModel.status === 'checking'
-                      ? 'Verifying saved model files'
-                      : browserModel.status === 'loading'
-                        ? 'Preparing tokenizer' : 'Verifying downloaded model files'} />
-                )}
-                {browserModel.status === 'checking' && browserModel.totalFiles > 0 && (
-                  <p>{browserModel.checkedFiles} of {browserModel.totalFiles} files checked.</p>
-                )}
-                {browserModel.cachedBytes > 0 && (
-                  <p className="hint">{(browserModel.cachedBytes / 1_000_000).toFixed(1)} MB of saved model files verified; excluded from the download total.</p>
-                )}
-                {browserModel.status === 'downloading' && (
-                  <p className="hint">Progress measures this attempt’s remaining model download. Files are verified before use; the browser runtime loads on the first decision.</p>
-                )}
-              </div>
-            )}
-            {browserModel.status === 'ready' && (
-              <p role="status">
-                Model files are ready on this device. 100% of model files verified.
-                {browserModel.fromCache ? ' Verified saved files were reused.' : ''} Get decision
-                initializes the browser runtime and evaluates your question.
-              </p>
-            )}
-            {browserModel.status === 'running' && (
-              <p role="status">Evaluating your question on this device…</p>
-            )}
-            {browserModel.status === 'canceled' && (
-              <p role="status">
-                Canceled. Your inputs are unchanged. Retry reuses only completed, verified files; an
-                unfinished file downloads again.
-              </p>
-            )}
-            {browserModel.error && !error && (
-              <p className="model-error" role="alert">
-                {browserModel.error}
-              </p>
-            )}
-            {browserModel.stage === 'Saved model cleared' && (
-              <p role="status">Saved files for this model release cleared.</p>
-            )}
-            <div className="model-actions">
-              {['idle', 'canceled', 'error'].includes(browserModel.status) && (
-                <button
-                  className="run"
-                  type="button"
-                  onClick={() => {
-                    setError('')
-                    browserModel.prepare()
-                  }}
-                >
-                  {browserModel.status === 'idle' ? 'Download model' : 'Retry model preparation'}
-                </button>
-              )}
-              {['checking', 'downloading', 'verifying', 'loading', 'running'].includes(browserModel.status) &&
-                browserModel.stage !== 'Clearing saved model' && (
-                  <button className="secondary" type="button" onClick={() => browserModel.cancel()}>
-                    {browserModel.status === 'running' ? 'Cancel decision' : 'Cancel preparation'}
-                  </button>
-                )}
-              {browserModel.status === 'error' && (
-                <button className="text-button" type="button" onClick={() => setSetup(true)}>
-                  Local setup guide
-                </button>
-              )}
-            </div>
-            <details className="model-details">
-              <summary>Model and saved files</summary>
-              <p className="hint">
-                Verified files are saved in this browser. If local storage is unavailable,
-                preparation stops with an error. Saved files can be cleared or evicted, so a later
-                visit may need another download.
-              </p>
-              <p className="hint">
-                The browser uses FP32 inference, up to 16 answers, and up to 512 packed tokens.
-                Oversized requests are rejected; they are not silently shortened.
-              </p>
-              {browserModel.stage && <p className="hint">Current step: {browserModel.stage}</p>}
-              {browserModel.provider && (
-                <p className="hint">Runtime: {browserModel.provider.toUpperCase()}</p>
-              )}
-              <p className="hint">Model revision: {revision}</p>
-              <button
-                className="secondary"
-                type="button"
-                disabled={
-                  busy || ['checking', 'downloading', 'verifying', 'loading'].includes(browserModel.status)
-                }
-                onClick={() => {
-                  setError('')
-                  void browserModel.clearCache()
-                }}
-              >
-                Clear saved model
-              </button>
-            </details>
-          </section>
-        )}
         <section className="presets" aria-label="Example presets">
           <span>Try a legal-work example</span>
+          <select
+            className="mobile-example-picker"
+            aria-label="Legal-work example"
+            value={selected}
+            disabled={busy}
+            onChange={(event) => loadExample(event.target.value)}
+          >
+            {!selected && (
+              <option value="" disabled>
+                Custom inputs
+              </option>
+            )}
+            {examples.map((example) => (
+              <option key={example.name} value={example.name}>
+                {example.name}
+              </option>
+            ))}
+          </select>
           <div>
             {examples.map((e) => (
               <button
                 key={e.name}
                 type="button"
                 className={selected === e.name ? 'preset active' : 'preset'}
+                aria-label={e.name}
                 disabled={busy}
                 onClick={() => loadExample(e.name)}
                 aria-pressed={selected === e.name}
               >
-                {e.name}
+                <span>{e.name}</span>
+                <small>
+                  {e.draft.kind === 'choice'
+                    ? 'Choose'
+                    : e.draft.kind === 'noul'
+                      ? 'Yes / no'
+                      : 'Rate'}
+                </small>
               </button>
             ))}
           </div>
         </section>
-        <p className="scenario-note">
-          Fictional legal-work examples for a general-purpose research model. Cadence compares
-          supplied answers; it does not draft documents or provide legal advice. Check outputs against
-          the source text and avoid entering real client information.
-        </p>
         <div className="workbench" id="workbench">
-          <form
-            className="editor panel"
-            onSubmit={(e) => {
-              e.preventDefault()
-              void run()
-            }}
-          >
-            <fieldset disabled={busy} className="edit-fields">
-              <div className="toolbar">
-                <fieldset className="control-group">
-                  <legend>Answer format</legend>
-                  <div className="segmented">
-                    {(['choice', 'noul', 'score'] as Kind[]).map((kind) => (
-                      <button
-                        key={kind}
-                        type="button"
-                        aria-pressed={draft.kind === kind}
-                        className={draft.kind === kind ? 'selected' : ''}
-                        onClick={() => changeKind(kind)}
-                      >
-                        {kindNames[kind]}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
+          <section className="input-panel panel" aria-label="Selected scenario">
+            <div className="example-preview">
+              <div className="scenario-heading">
+                <span className="document-mark" aria-hidden="true">
+                  ↳
+                </span>
+                <h2>{selected || 'Your scenario'}</h2>
+                <span className="type-tag">{kindNames[draft.kind]}</span>
               </div>
-              <div className="field">
-                <div className="field-label">
-                  <label htmlFor="state">
-                    <span className="step" aria-hidden="true">
-                      1
-                    </span>
-                    Context
-                  </label>
-                  <span>{draft.state.length.toLocaleString()} / 12,000</span>
-                </div>
-                <textarea
-                  id="state"
-                  aria-label="Context"
-                  className={draft.format === 'json' ? 'code' : undefined}
-                  value={draft.state}
-                  maxLength={12000}
-                  rows={4}
-                  onChange={(e) => edit({ state: e.target.value })}
-                  aria-describedby="state-hint"
-                  spellCheck={draft.format === 'text'}
-                />
-                <p id="state-hint" className="hint">
-                  {draft.format === 'json'
-                    ? 'This example uses structured context. Keep it as a JSON object or array.'
-                    : 'What should Cadence consider? Describe a situation or paste a message.'}
-                </p>
-              </div>
-              <div className="field">
-                <label htmlFor="instructions">
-                  <span className="step" aria-hidden="true">
-                    2
-                  </span>
-                  Question
-                </label>
-                <textarea
-                  id="instructions"
-                  aria-label="Question"
-                  value={draft.instructions}
-                  maxLength={2000}
-                  rows={2}
-                  aria-describedby="instructions-hint"
-                  onChange={(e) => edit({ instructions: e.target.value })}
-                />
-                <p id="instructions-hint" className="hint">
-                  What should Cadence decide? Ask a question the answers below can resolve.
-                </p>
-              </div>
-              <div className="field options">
-                <div className="field-label">
-                  <span className="label">
-                    <span className="step" aria-hidden="true">
-                      3
-                    </span>
-                    <span>
-                      {draft.kind === 'score'
-                        ? 'Rating levels'
-                        : draft.kind === 'noul'
-                          ? 'What Yes and No mean'
-                          : 'Possible answers'}
-                    </span>
-                  </span>
-                  <span>
-                    {draft.kind === 'score'
-                      ? 'Lowest → highest'
-                      : draft.kind === 'choice'
-                        ? `${draft.options.length} / ${maxOptions}`
-                        : ''}
-                  </span>
-                </div>
-                {draft.kind !== 'score' && (
-                  <p className="hint">
-                    {draft.kind === 'noul'
-                      ? 'Describe what a Yes or No answer means for your question.'
-                      : 'Describe each answer so Cadence can compare them.'}
-                  </p>
-                )}
-                {draft.options.map((option, i) => (
-                  <div className={`option-row ${draft.kind}`} key={i}>
-                    <span className="option-index" aria-hidden="true">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="answer-name">
-                      {draft.kind === 'score'
-                        ? `Level ${i}`
-                        : draft.kind === 'choice'
-                          ? choiceLabel(option.id, draftOptionIds)
-                          : answerLabel(option.id)}
-                    </span>
-                    <textarea
-                      className="answer-description"
-                      rows={2}
-                      aria-label={`${draft.kind === 'score' ? 'Level' : 'Answer'} ${draft.kind === 'score' ? i : i + 1} description`}
-                      value={option.description}
-                      maxLength={500}
-                      placeholder={
-                        draft.kind === 'score' ? 'Describe this level' : 'Describe this answer'
-                      }
-                      onChange={(e) =>
-                        edit({
-                          options: draft.options.map((o, j) =>
-                            j === i ? { ...o, description: e.target.value } : o,
-                          ),
-                        })
-                      }
-                    />
-                    {draft.kind !== 'noul' && (
-                      <button
-                        className="remove"
-                        type="button"
-                        aria-label={`Remove ${draft.kind === 'score' ? 'level' : 'option'} ${draft.kind === 'score' ? i : i + 1}`}
-                        disabled={draft.options.length <= 2}
-                        onClick={() => edit({ options: draft.options.filter((_, j) => j !== i) })}
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M4 6h16M9 6V3h6v3M7 6l1 15h8l1-15M10 10v7M14 10v7"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {draft.kind !== 'noul' && (
-                  <button
-                    className="add secondary"
-                    type="button"
-                    disabled={draft.options.length >= maxOptions}
-                    onClick={() =>
-                      edit({
-                        options: [
-                          ...draft.options,
-                          { id: nextOptionId(draft.options), description: '' },
-                        ],
-                      })
-                    }
-                  >
-                    + &nbsp; Add {draft.kind === 'score' ? 'level' : 'option'}
-                  </button>
-                )}
-                {draft.kind === 'score' && (
-                  <p className="hint">
-                    Arrange levels from lowest to highest, starting at 0. The result averages the
-                    model’s preference across these levels.
-                  </p>
-                )}
-              </div>
-            </fieldset>
-            <details className="advanced-input">
-              <summary>Advanced input details</summary>
-              <p className="hint">These controls affect the exact request sent to the model.</p>
-              <fieldset className="control-group">
-                <legend>State format</legend>
-                <div className="segmented format">
-                  {(['text', 'json'] as const).map((format) => (
-                    <button
-                      key={format}
-                      type="button"
-                      disabled={busy}
-                      aria-pressed={draft.format === format}
-                      className={draft.format === format ? 'selected' : ''}
-                      onClick={() =>
-                        draft.format !== format &&
-                        edit({
-                          format,
-                          state:
-                            format === 'json'
-                              ? JSON.stringify({ text: draft.state }, null, 2)
-                              : draft.state,
-                        })
-                      }
-                    >
-                      {format === 'text' ? 'Text' : 'JSON'}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-              {draft.kind === 'choice' && (
-                <div className="native-ids">
-                  <p className="hint">
-                    Answer IDs are part of the model input. Existing examples keep their original
-                    IDs.
-                  </p>
+              <p className="preview-context">{draft.state}</p>
+              <p className="preview-question">{draft.instructions}</p>
+              <details className="preview-criteria">
+                <summary>
+                  Compare {draft.options.length}{' '}
+                  {draft.kind === 'score' ? 'rating levels' : 'answers'}
+                </summary>
+                <ul>
                   {draft.options.map((option, i) => (
-                    <label key={i}>
-                      Answer {i + 1} ID
-                      <input
-                        className="code"
-                        aria-label={`Option ${i + 1} ID`}
-                        value={option.id}
-                        maxLength={64}
-                        disabled={busy}
-                        onChange={(e) =>
-                          edit({
-                            options: draft.options.map((o, j) =>
-                              j === i ? { ...o, id: e.target.value } : o,
-                            ),
-                          })
+                    <li key={i}>
+                      <strong>
+                        {draft.kind === 'score'
+                          ? `Level ${i}`
+                          : draft.kind === 'choice'
+                            ? choiceLabel(option.id, draftOptionIds)
+                            : answerLabel(option.id)}
+                      </strong>{' '}
+                      — {option.description || 'No description'}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </div>
+            {browserModelAvailable && (
+              <section className="model-preparation" aria-labelledby="model-preparation-title">
+                <div className="model-preparation-heading">
+                  <h2 id="model-preparation-title">Run Cadence on this device</h2>
+                  {browserModel.status === 'ready' && (
+                    <span className="ready-label">Files ready</span>
+                  )}
+                </div>
+                <p>Your inputs stay on this device; they are not sent to an inference API.</p>
+                {browserModel.status === 'idle' && (
+                  <p className="hint">
+                    First use: 1.54 GB of model files + 28 MB of browser runtime. Desktop
+                    recommended; phones may run out of memory. iOS has not been tested.
+                  </p>
+                )}
+                {['checking', 'downloading', 'verifying', 'loading'].includes(
+                  browserModel.status,
+                ) && (
+                  <div className="download-progress" role="status">
+                    <p>
+                      {browserModel.status === 'downloading'
+                        ? 'Downloading remaining model files…'
+                        : browserModel.status === 'verifying'
+                          ? 'Verifying and saving downloaded files…'
+                          : browserModel.status === 'loading'
+                            ? 'All model files verified. Preparing tokenizer…'
+                            : browserModel.stage === 'Clearing saved model'
+                              ? 'Clearing saved model…'
+                              : 'Checking saved model files…'}
+                    </p>
+                    {browserModel.status === 'downloading' && browserModel.totalBytes > 0 ? (
+                      <>
+                        <progress
+                          max={browserModel.totalBytes}
+                          value={
+                            browserModel.downloadComplete
+                              ? browserModel.downloadedBytes
+                              : Math.min(browserModel.downloadedBytes, browserModel.totalBytes - 1)
+                          }
+                          aria-label="Model file download"
+                        />
+                        <p>
+                          {downloadByteLabel(browserModel.downloadedBytes, browserModel.totalBytes)}{' '}
+                          ({downloadPercentage(browserModel)!.toFixed(1)}%)
+                        </p>
+                      </>
+                    ) : (
+                      <progress
+                        aria-label={
+                          browserModel.stage === 'Clearing saved model'
+                            ? 'Clearing saved model'
+                            : browserModel.status === 'checking'
+                              ? 'Verifying saved model files'
+                              : browserModel.status === 'loading'
+                                ? 'Preparing tokenizer'
+                                : 'Verifying downloaded model files'
                         }
                       />
-                    </label>
-                  ))}
+                    )}
+                    {browserModel.status === 'checking' && browserModel.totalFiles > 0 && (
+                      <p>
+                        {browserModel.checkedFiles} of {browserModel.totalFiles} files checked.
+                      </p>
+                    )}
+                    {browserModel.cachedBytes > 0 && (
+                      <p className="hint">
+                        {(browserModel.cachedBytes / 1_000_000).toFixed(1)} MB of saved model files
+                        verified; excluded from the download total.
+                      </p>
+                    )}
+                    {browserModel.status === 'downloading' && (
+                      <p className="hint">
+                        Progress measures this attempt’s remaining model download. Files are
+                        verified before use; the browser runtime loads on the first decision.
+                      </p>
+                    )}
+                  </div>
+                )}
+                {browserModel.status === 'ready' && (
+                  <p role="status">
+                    Ready on this device. 100% of model files verified.
+                    {browserModel.fromCache ? ' Verified saved files were reused.' : ''} Get
+                    decision runs the selected inputs.
+                  </p>
+                )}
+                {browserModel.status === 'running' && (
+                  <div className="inference-progress" role="status">
+                    <p>
+                      Evaluating your question on this device… <strong>{elapsed}s</strong>
+                    </p>
+                    <progress
+                      max={25}
+                      value={browserModel.inferenceStep || undefined}
+                      aria-label="Decision steps"
+                    />
+                    <p className="hint">
+                      {browserModel.stage}. The step count is work completed, not a time estimate.
+                    </p>
+                  </div>
+                )}
+                {browserModel.status === 'canceled' && (
+                  <p role="status">
+                    Canceled. Your inputs are unchanged. Retry reuses only completed, verified
+                    files; an unfinished file downloads again.
+                  </p>
+                )}
+                {browserModel.error && !error && (
+                  <p className="model-error" role="alert">
+                    {browserModel.error}
+                  </p>
+                )}
+                {browserModel.stage === 'Saved model cleared' && (
+                  <p role="status">Saved files for this model release cleared.</p>
+                )}
+                <div className="action-dock model-actions">
+                  <p className="action-caption">
+                    {['idle', 'canceled', 'error'].includes(browserModel.status)
+                      ? browserModel.hasSavedFiles
+                        ? 'Check saved files; download missing files if needed. Up to 1.54 GB + 28 MB runtime. Desktop recommended.'
+                        : 'Download only when you choose. 1.54 GB + 28 MB runtime. Desktop recommended.'
+                      : browserModel.status === 'ready'
+                        ? 'Runs locally · no inference API'
+                        : 'Keep this tab open · you can cancel below'}
+                  </p>
+                  {(!browserModelAvailable || browserModel.status === 'ready' || busy) && runAction}
+                  {['idle', 'canceled', 'error'].includes(browserModel.status) && (
+                    <button
+                      className="run"
+                      type="button"
+                      onClick={() => {
+                        setError('')
+                        browserModel.prepare()
+                      }}
+                    >
+                      {browserModel.status === 'idle'
+                        ? browserModel.hasSavedFiles
+                          ? 'Use saved model'
+                          : 'Download model'
+                        : 'Retry model preparation'}
+                    </button>
+                  )}
+                  {['checking', 'downloading', 'verifying', 'loading', 'running'].includes(
+                    browserModel.status,
+                  ) &&
+                    browserModel.stage !== 'Clearing saved model' && (
+                      <button
+                        className="secondary"
+                        type="button"
+                        onClick={() => browserModel.cancel()}
+                      >
+                        {browserModel.status === 'running'
+                          ? 'Cancel decision'
+                          : 'Cancel preparation'}
+                      </button>
+                    )}
+                  {browserModel.status === 'error' && (
+                    <button className="text-button" type="button" onClick={() => setSetup(true)}>
+                      Local setup guide
+                    </button>
+                  )}
                 </div>
-              )}
-            </details>
+                <details className="model-details">
+                  <summary>Model and saved files</summary>
+                  <p className="hint">
+                    The download host sees your IP address. A model download starts only after your
+                    click. Saved files are checked before use; missing or invalid files download
+                    again.
+                  </p>
+                  <p className="hint">
+                    Verified files are saved in this browser. If local storage is unavailable,
+                    preparation stops with an error. Saved files can be cleared or evicted, so a
+                    later visit may need another download.
+                  </p>
+                  <p className="hint">
+                    The browser uses FP32 inference, up to 16 answers, and up to 512 packed tokens.
+                    Oversized requests are rejected; they are not silently shortened.
+                  </p>
+                  {browserModel.stage && <p className="hint">Current step: {browserModel.stage}</p>}
+                  {browserModel.provider && (
+                    <p className="hint">Runtime: {browserModel.provider.toUpperCase()}</p>
+                  )}
+                  <p className="hint">Model revision: {revision}</p>
+                  <button
+                    className="secondary"
+                    type="button"
+                    disabled={
+                      busy ||
+                      ['checking', 'downloading', 'verifying', 'loading'].includes(
+                        browserModel.status,
+                      )
+                    }
+                    onClick={() => {
+                      setError('')
+                      void browserModel.clearCache()
+                    }}
+                  >
+                    Clear saved model
+                  </button>
+                </details>
+              </section>
+            )}
+            {!browserModelAvailable && <div className="action-dock">{runAction}</div>}
             {error && (
               <div className="error" role="alert" tabIndex={-1} ref={errorRef}>
                 {error}
               </div>
             )}
-            <button
-              className="run"
-              type="submit"
-              disabled={busy || (browserModelAvailable && browserModel.status !== 'ready')}
+            <details
+              className="customize"
+              open={editorOpen}
+              onToggle={(event) => setEditorOpen(event.currentTarget.open)}
             >
-              {busy ? (
-                <>
-                  <span className="spinner" aria-hidden="true" />{' '}
-                  {health?.status === 'loading' ? 'Loading model…' : 'Running decision…'}
-                </>
-              ) : (
-                <>
-                  <span aria-hidden="true">{staticExplorer ? '↗' : '▶'}</span>{' '}
-                  {staticExplorer ? 'Inspect request' : 'Get decision'}
-                </>
+              <summary>
+                Customize inputs <span>Optional</span>
+              </summary>
+              {editorOpen && (
+                <form
+                  className="editor"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    void run()
+                  }}
+                >
+                  <fieldset disabled={busy} className="edit-fields">
+                    <div className="toolbar">
+                      <fieldset className="control-group">
+                        <legend>Answer format</legend>
+                        <div className="segmented">
+                          {(['choice', 'noul', 'score'] as Kind[]).map((kind) => (
+                            <button
+                              key={kind}
+                              type="button"
+                              aria-pressed={draft.kind === kind}
+                              className={draft.kind === kind ? 'selected' : ''}
+                              onClick={() => changeKind(kind)}
+                            >
+                              {kindNames[kind]}
+                            </button>
+                          ))}
+                        </div>
+                      </fieldset>
+                    </div>
+                    <div className="field">
+                      <div className="field-label">
+                        <label htmlFor="state">
+                          <span className="step" aria-hidden="true">
+                            1
+                          </span>
+                          Context
+                        </label>
+                        <span>{draft.state.length.toLocaleString()} / 12,000</span>
+                      </div>
+                      <textarea
+                        id="state"
+                        aria-label="Context"
+                        className={draft.format === 'json' ? 'code' : undefined}
+                        value={draft.state}
+                        maxLength={12000}
+                        rows={4}
+                        onChange={(e) => edit({ state: e.target.value })}
+                        aria-describedby="state-hint"
+                        spellCheck={draft.format === 'text'}
+                      />
+                      <p id="state-hint" className="hint">
+                        {draft.format === 'json'
+                          ? 'This example uses structured context. Keep it as a JSON object or array.'
+                          : 'What should Cadence consider? Describe a situation or paste a message.'}
+                      </p>
+                    </div>
+                    <div className="field">
+                      <label htmlFor="instructions">
+                        <span className="step" aria-hidden="true">
+                          2
+                        </span>
+                        Question
+                      </label>
+                      <textarea
+                        id="instructions"
+                        aria-label="Question"
+                        value={draft.instructions}
+                        maxLength={2000}
+                        rows={2}
+                        aria-describedby="instructions-hint"
+                        onChange={(e) => edit({ instructions: e.target.value })}
+                      />
+                      <p id="instructions-hint" className="hint">
+                        What should Cadence decide? Ask a question the answers below can resolve.
+                      </p>
+                    </div>
+                    <div className="field options">
+                      <div className="field-label">
+                        <span className="label">
+                          <span className="step" aria-hidden="true">
+                            3
+                          </span>
+                          <span>
+                            {draft.kind === 'score'
+                              ? 'Rating levels'
+                              : draft.kind === 'noul'
+                                ? 'What Yes and No mean'
+                                : 'Possible answers'}
+                          </span>
+                        </span>
+                        <span>
+                          {draft.kind === 'score'
+                            ? 'Lowest → highest'
+                            : draft.kind === 'choice'
+                              ? `${draft.options.length} / ${maxOptions}`
+                              : ''}
+                        </span>
+                      </div>
+                      {draft.kind !== 'score' && (
+                        <p className="hint">
+                          {draft.kind === 'noul'
+                            ? 'Describe what a Yes or No answer means for your question.'
+                            : 'Describe each answer so Cadence can compare them.'}
+                        </p>
+                      )}
+                      {draft.options.map((option, i) => (
+                        <div className={`option-row ${draft.kind}`} key={i}>
+                          <span className="option-index" aria-hidden="true">
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
+                          <span className="answer-name">
+                            {draft.kind === 'score'
+                              ? `Level ${i}`
+                              : draft.kind === 'choice'
+                                ? choiceLabel(option.id, draftOptionIds)
+                                : answerLabel(option.id)}
+                          </span>
+                          <textarea
+                            className="answer-description"
+                            rows={2}
+                            aria-label={`${draft.kind === 'score' ? 'Level' : 'Answer'} ${draft.kind === 'score' ? i : i + 1} description`}
+                            value={option.description}
+                            maxLength={500}
+                            placeholder={
+                              draft.kind === 'score'
+                                ? 'Describe this level'
+                                : 'Describe this answer'
+                            }
+                            onChange={(e) =>
+                              edit({
+                                options: draft.options.map((o, j) =>
+                                  j === i ? { ...o, description: e.target.value } : o,
+                                ),
+                              })
+                            }
+                          />
+                          {draft.kind !== 'noul' && (
+                            <button
+                              className="remove"
+                              type="button"
+                              aria-label={`Remove ${draft.kind === 'score' ? 'level' : 'option'} ${draft.kind === 'score' ? i : i + 1}`}
+                              disabled={draft.options.length <= 2}
+                              onClick={() =>
+                                edit({ options: draft.options.filter((_, j) => j !== i) })
+                              }
+                            >
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  d="M4 6h16M9 6V3h6v3M7 6l1 15h8l1-15M10 10v7M14 10v7"
+                                  stroke="currentColor"
+                                  strokeWidth="1.6"
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      {draft.kind !== 'noul' && (
+                        <button
+                          className="add secondary"
+                          type="button"
+                          disabled={draft.options.length >= maxOptions}
+                          onClick={() =>
+                            edit({
+                              options: [
+                                ...draft.options,
+                                { id: nextOptionId(draft.options), description: '' },
+                              ],
+                            })
+                          }
+                        >
+                          + &nbsp; Add {draft.kind === 'score' ? 'level' : 'option'}
+                        </button>
+                      )}
+                      {draft.kind === 'score' && (
+                        <p className="hint">
+                          Arrange levels from lowest to highest, starting at 0. The result averages
+                          the model’s preference across these levels.
+                        </p>
+                      )}
+                    </div>
+                  </fieldset>
+                  <details className="advanced-input">
+                    <summary>Advanced input details</summary>
+                    <p className="hint">
+                      These controls affect the exact request sent to the model.
+                    </p>
+                    <fieldset className="control-group">
+                      <legend>State format</legend>
+                      <div className="segmented format">
+                        {(['text', 'json'] as const).map((format) => (
+                          <button
+                            key={format}
+                            type="button"
+                            disabled={busy}
+                            aria-pressed={draft.format === format}
+                            className={draft.format === format ? 'selected' : ''}
+                            onClick={() =>
+                              draft.format !== format &&
+                              edit({
+                                format,
+                                state:
+                                  format === 'json'
+                                    ? JSON.stringify({ text: draft.state }, null, 2)
+                                    : draft.state,
+                              })
+                            }
+                          >
+                            {format === 'text' ? 'Text' : 'JSON'}
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+                    {draft.kind === 'choice' && (
+                      <div className="native-ids">
+                        <p className="hint">
+                          Answer IDs are part of the model input. Existing examples keep their
+                          original IDs.
+                        </p>
+                        {draft.options.map((option, i) => (
+                          <label key={i}>
+                            Answer {i + 1} ID
+                            <input
+                              className="code"
+                              aria-label={`Option ${i + 1} ID`}
+                              value={option.id}
+                              maxLength={64}
+                              disabled={busy}
+                              onChange={(e) =>
+                                edit({
+                                  options: draft.options.map((o, j) =>
+                                    j === i ? { ...o, id: e.target.value } : o,
+                                  ),
+                                })
+                              }
+                            />
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </details>
+                </form>
               )}
-            </button>
-            {busy && (
-              <p className="loading-note" role="status">
-                {elapsed}s elapsed.{' '}
-                {browserModelAvailable
-                  ? 'The model is evaluating your inputs in this browser.'
-                  : health?.status === 'loading'
-                    ? 'First use downloads and loads the pinned model; this can take several minutes.'
-                    : 'One decision is running on the local backend.'}
-              </p>
-            )}
-          </form>
-          <section className="result panel" aria-labelledby="result-title" aria-busy={busy}>
+            </details>
+          </section>
+          <section
+            className={`result panel ${busy || saved || prepared ? 'has-output' : 'is-empty'}`}
+            aria-labelledby="result-title"
+            aria-busy={busy}
+          >
             <div className="result-header">
               <h2 id="result-title" ref={resultRef} tabIndex={-1}>
                 {staticExplorer ? 'Request' : 'Result'}
@@ -861,7 +981,7 @@ export default function App() {
                         <div className="probability-label">
                           <span>
                             {saved.result.kind === 'score'
-                              ? `Level ${key}`
+                              ? `Level ${key} · ${option.description.split(':')[0]}`
                               : saved.result.kind === 'choice'
                                 ? choiceLabel(key, saved.result.native_option_ids)
                                 : answerLabel(key)}
@@ -970,36 +1090,79 @@ export default function App() {
             </div>
           </section>
         </div>
-        <section className="guide" aria-labelledby="guide-title">
-          <h2 id="guide-title">What can you try?</h2>
-          <div className="guide-columns">
-            <div>
-              <h3>Choose an answer</h3>
-              <p>
-                Compare possible answers, such as which work queue should review a draft agreement.
-                Cadence returns a preference for each answer.
-              </p>
-            </div>
-            <div>
-              <h3>Yes or no</h3>
-              <p>
-                Check whether a supplied clause explicitly contains a notice term. Cadence estimates the probability of Yes and
-                No using the descriptions you provide.
-              </p>
-            </div>
-            <div>
-              <h3>Rate on a scale</h3>
-              <p>
-                Prioritize document review using stated internal targets. Describe levels from lowest to highest, then see the
-                model’s preference across the scale.
-              </p>
-            </div>
-          </div>
-          <p className="guide-note">
-            <span aria-hidden="true">ⓘ</span> Probabilities describe the model output, not a
-            guarantee of correctness.
+        <details className="learn-more">
+          <summary>About this research demo</summary>
+          <p className="scenario-note">
+            Fictional legal-work examples for a general-purpose research model. Cadence compares
+            supplied answers; it does not draft documents or provide legal advice. Check outputs
+            against the source text and avoid entering real client information.
           </p>
-        </section>
+          <details className="about-demo">
+            <summary>How to use this demo</summary>
+            <p>
+              Cadence is a research project exploring small models for structured decisions. It
+              turns context and a question into a structured decision. It chooses an option,
+              estimates the probability of true, or scores ordered levels. It does not generate chat
+              replies.
+            </p>
+            <ol>
+              <li>Pick an example. Edit the context, question, and possible answers.</li>
+              <li>
+                {staticExplorer
+                  ? 'Inspect and copy the request JSON. Use the setup guide to run these inputs in the local playground.'
+                  : browserModelAvailable
+                    ? 'Download the model, then get a decision. Later visits can reuse verified saved files.'
+                    : 'Get a decision. First use loads the model; later runs reuse it.'}
+              </li>
+              <li>
+                Read the distribution as the model’s preference across your answers. A high
+                probability does not establish correctness or certainty.
+              </li>
+            </ol>
+            <p>
+              {browserModelAvailable
+                ? 'This demo runs the trained model in your browser after you download it.'
+                : 'This is a demo. The public website explores inputs; real inference runs locally.'}{' '}
+              <a
+                href="https://github.com/z-brenner/cadencedemo/blob/main/docs/BENCHMARK_AND_CPU_GUIDANCE.md"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Evaluation and CPU limitations ↗
+              </a>
+            </p>
+          </details>{' '}
+          <section className="guide" aria-labelledby="guide-title">
+            <h2 id="guide-title">What can you try?</h2>
+            <div className="guide-columns">
+              <div>
+                <h3>Choose an answer</h3>
+                <p>
+                  Compare possible answers, such as which work queue should review a draft
+                  agreement. Cadence returns a preference for each answer.
+                </p>
+              </div>
+              <div>
+                <h3>Yes or no</h3>
+                <p>
+                  Check whether a supplied clause explicitly contains a notice term. Cadence
+                  estimates the probability of Yes and No using the descriptions you provide.
+                </p>
+              </div>
+              <div>
+                <h3>Rate on a scale</h3>
+                <p>
+                  Prioritize document review using stated internal targets. Describe levels from
+                  lowest to highest, then see the model’s preference across the scale.
+                </p>
+              </div>
+            </div>
+            <p className="guide-note">
+              <span aria-hidden="true">ⓘ</span> Probabilities describe the model output, not a
+              guarantee of correctness.
+            </p>
+          </section>
+        </details>
         <footer>
           <span>
             Research demo ·{' '}

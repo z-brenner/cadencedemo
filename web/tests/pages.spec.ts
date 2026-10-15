@@ -1,3 +1,4 @@
+import { chooseExample } from './helpers'
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 
@@ -14,6 +15,7 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto('./')
+  await page.getByText('Customize inputs', { exact: false }).click()
 })
 
 test('static site inspects all three real request types without inference calls', async ({
@@ -61,8 +63,8 @@ test('all six fictional legal-work presets inspect valid native requests', async
     ['Prioritize review', 'score'],
     ['Prioritize an archive item', 'score'],
   ]) {
-    await page.getByRole('button', { name, exact: true }).click()
-    await expect(page.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true')
+    await chooseExample(page, name)
+    await expect(page.locator('button.preset').filter({ hasText: name })).toHaveAttribute('aria-pressed', 'true')
     await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
     const request = JSON.parse((await page.locator('.request-preview pre').textContent())!)
     expect(request.questions.decision.type).toBe(kind)
@@ -75,7 +77,7 @@ test('all six fictional legal-work presets inspect valid native requests', async
 })
 
 test('static site validates input and explains separate local setup', async ({ page }) => {
-  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
+  await chooseExample(page, 'Route a review request')
   await page.getByLabel('Context', { exact: true }).fill('{bad json')
   await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('not valid JSON')
@@ -96,7 +98,7 @@ test('repository base path, navigation, mobile layout and accessibility', async 
   page,
 }, testInfo) => {
   await expect(page).toHaveURL(/\/cadencedemo\/$/)
-  await expect(page.getByRole('heading', { name: 'Give context. Get a decision.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Small model. Real decisions.' })).toBeVisible()
   await expect(page.locator('vite-error-overlay')).toHaveCount(0)
   await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -116,7 +118,7 @@ test('repository base path, navigation, mobile layout and accessibility', async 
 })
 
 test('selecting the active JSON format preserves context', async ({ page }) => {
-  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
+  await chooseExample(page, 'Route a review request')
   const source = await page.getByLabel('Context', { exact: true }).inputValue()
   await page.getByText('Advanced input details', { exact: true }).click()
   await page.getByRole('button', { name: 'JSON', exact: true }).click()
@@ -124,7 +126,7 @@ test('selecting the active JSON format preserves context', async ({ page }) => {
 })
 
 test('unsafe integer JSON is explained before a request can run', async ({ page }) => {
-  await page.getByRole('button', { name: 'Route a review request', exact: true }).click()
+  await chooseExample(page, 'Route a review request')
   await page.getByLabel('Context', { exact: true }).fill('{"account_id":9007199254740993}')
   await page.getByRole('button', { name: 'Inspect request', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('safe range')

@@ -30,6 +30,7 @@ export type Manifest = {
   files: Record<string, { bytes: number; sha256: string }>
   assetBytesExcludingManifest: number
 }
+const littleEndian = new Uint8Array(new Uint16Array([1]).buffer)[0] === 1
 
 export function unpackWeights(
   packed: Uint8Array,
@@ -66,8 +67,17 @@ export function unpackWeights(
       part.bytes % 2 === 0 &&
       part.decodedBytes === part.bytes * 2
     ) {
-      for (let i = 0; i < part.bytes / 2; i++)
-        words[outputOffset / 4 + i] = view.getUint16(inputOffset + i * 2, true) << 16
+      if (littleEndian && (packed.byteOffset + inputOffset) % 2 === 0) {
+        const source = new Uint16Array(
+          packed.buffer,
+          packed.byteOffset + inputOffset,
+          part.bytes / 2,
+        )
+        for (let i = 0; i < source.length; i++) words[outputOffset / 4 + i] = source[i] << 16
+      } else {
+        for (let i = 0; i < part.bytes / 2; i++)
+          words[outputOffset / 4 + i] = view.getUint16(inputOffset + i * 2, true) << 16
+      }
     } else if (
       part.encoding === 'fp32-bits' &&
       part.bytes % 4 === 0 &&
@@ -150,6 +160,10 @@ export function validateManifest(value: unknown): Manifest {
 }
 
 export async function sha256(bytes: Uint8Array): Promise<string> {
-  const hash = await crypto.subtle.digest('SHA-256', new Uint8Array(bytes).buffer)
+  const source =
+    bytes.buffer instanceof ArrayBuffer
+      ? new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+      : new Uint8Array(bytes)
+  const hash = await crypto.subtle.digest('SHA-256', source)
   return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0')).join('')
 }
