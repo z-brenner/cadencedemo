@@ -468,3 +468,30 @@ test('narrow keyboard editing keeps the whole focused control above the action b
     await page.keyboard.press('Tab')
   }
 })
+
+
+test('clearing saved files invalidates a pending cache discovery', async ({ page }) => {
+  await page.evaluate(async sha => {
+    const cache = await caches.open(`cadence-browser-${sha}`)
+    await cache.put('https://example.test/saved-file', new Response('unverified'))
+  }, manifestSha)
+  await page.addInitScript(() => {
+    const originalKeys = Cache.prototype.keys
+    Cache.prototype.keys = async function (...args) {
+      const keys = await originalKeys.apply(this, args)
+      await new Promise<void>(resolve => { (window as any).__releaseCacheProbe = resolve })
+      return keys
+    }
+  })
+  await page.reload()
+  await expect.poll(() => page.evaluate(() => typeof (window as any).__releaseCacheProbe)).toBe('function')
+  await page.getByText('Model and saved files', { exact: true }).click()
+  await page.getByRole('button', { name: 'Clear saved model', exact: true }).click()
+  await expect(page.getByText('Saved files for this model release cleared.', { exact: true })).toBeVisible()
+  await page.evaluate(() => (window as any).__releaseCacheProbe())
+  // Let the stale promise and React's resulting render settle before checking the hint.
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+  await expect(page.getByRole('button', { name: 'Download model', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Use saved model', exact: true })).toHaveCount(0)
+  expect(await page.evaluate(() => (window as any).__cadenceWorkers.length)).toBe(0)
+})

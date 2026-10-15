@@ -35,6 +35,7 @@ export function useBrowserModel() {
   const [fromCache, setFromCache] = useState(false)
   const [hasSavedFiles, setHasSavedFiles] = useState(false)
   const [inferenceStep, setInferenceStep] = useState(0)
+  const cacheDiscoveryVersion = useRef(0)
   const workerRef = useRef<Worker | null>(null)
   const pendingRef = useRef<Pending | null>(null)
   const statusRef = useRef<BrowserModelStatus>('idle')
@@ -42,12 +43,14 @@ export function useBrowserModel() {
   useEffect(() => {
     if (!browserModelAvailable || !('caches' in window)) return
     let active = true
+    const discoveryVersion = cacheDiscoveryVersion.current
     void (async () => {
       const name = `cadence-browser-${manifestSha}`
       if (!(await caches.has(name))) return
       const saved = await caches.open(name)
       const keys = await saved.keys()
-      if (active) setHasSavedFiles(keys.length > 0)
+      if (active && discoveryVersion === cacheDiscoveryVersion.current)
+        setHasSavedFiles(keys.length > 0)
     })().catch(() => {})
     return () => {
       active = false
@@ -82,6 +85,7 @@ export function useBrowserModel() {
       )
     )
       return
+    cacheDiscoveryVersion.current += 1
     stopWorker('Model preparation restarted.')
     setError('')
     setStage('Checking model files')
@@ -173,6 +177,8 @@ export function useBrowserModel() {
               : 'The browser model could not complete this operation.',
           )
         } else if (message.type === 'cleared') {
+          cacheDiscoveryVersion.current += 1
+          setHasSavedFiles(false)
           stopWorker('Saved model cleared.')
           setProvider(null)
           setFromCache(false)
@@ -226,6 +232,7 @@ export function useBrowserModel() {
     })
   }
   async function clearCache() {
+    cacheDiscoveryVersion.current += 1
     stopWorker('Saved model cleared. Your inputs are unchanged.')
     setProvider(null)
     setError('')
